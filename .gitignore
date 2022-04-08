@@ -10,3 +10,4 @@ Debug
 *.filters
 *.vcxproj
 Utilities/Version.h
+.vscode

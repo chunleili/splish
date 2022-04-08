@@ -69,11 +69,11 @@ namespace SPH
 		static int MAX_ERROR;
 		static int ALPHA;
 
-		static Real c_CF;	//coagulation factor concentration£¬ ÄýÑªÒò×ÓÅ¨¶È
+		static Real c_CF;	//coagulation factor concentrationï¿½ï¿½ ï¿½ï¿½Ñªï¿½ï¿½ï¿½ï¿½Å¨ï¿½ï¿½
 		static const Real CF_threshold_low;//lower threshold for c_CF, user defined parameter
 		static const Real CF_threshold_high;	//higher threshold for c_CF, user defined parameter
-		static const Real D_CF_diffusivity; //Diffusivity, user defined parameter À©É¢ÏµÊý
-		static const Real R_CF_diffusivity; //source term, user defined parameter Ô´Ïî
+		static const Real D_CF_diffusivity; //Diffusivity, user defined parameter ï¿½ï¿½É¢Ïµï¿½ï¿½
+		static const Real R_CF_diffusivity; //source term, user defined parameter Ô´ï¿½ï¿½
 
 
 

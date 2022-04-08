@@ -18,6 +18,7 @@
 #include "Elasticity/Elasticity_Becker2009.h"
 #include "Elasticity/Elasticity_Peer2018.h"
 #include "Elasticity/Elasticity_Kugelstadt2021.h"
+#include "Elasticity/MyElasticity.h"
 
 #include "SurfaceTension/SurfaceTension_Becker2007.h"
 #include "SurfaceTension/SurfaceTension_Akinci2013.h"
@@ -39,6 +40,7 @@ void Simulation::registerNonpressureForces()
 	addElasticityMethod("Becker et al. 2009", Elasticity_Becker2009::creator);
 	addElasticityMethod("Peer et al. 2018", Elasticity_Peer2018::creator);
 	addElasticityMethod("Kugelstadt et al. 2021", Elasticity_Kugelstadt2021::creator);
+	addElasticityMethod("My Elasticity method test", MyElasticity::creator);//added a Elasticity
 
 	addSurfaceTensionMethod("None", [](FluidModel*) -> NonPressureForceBase* { return nullptr; });
 	addSurfaceTensionMethod("Becker & Teschner 2007", SurfaceTension_Becker2007::creator);
@@ -56,7 +58,7 @@ void Simulation::registerNonpressureForces()
 	addViscosityMethod("Peer et al. 2016", Viscosity_Peer2016::creator);
 	addViscosityMethod("Takahashi et al. 2015 (improved)", Viscosity_Takahashi2015::creator);
 	addViscosityMethod("Weiler et al. 2018", Viscosity_Weiler2018::creator);
-	addViscosityMethod("My viscosity method", MyViscosity::creator);
+	addViscosityMethod("My viscosity method", MyViscosity::creator); //added a viscosity
 
 	addVorticityMethod("None", [](FluidModel*) -> NonPressureForceBase* { return nullptr; });
 	addVorticityMethod("Micropolar model", MicropolarModel_Bender2017::creator);

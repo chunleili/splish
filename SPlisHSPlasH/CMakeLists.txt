@@ -138,6 +138,7 @@ set(ELASTICITY_HEADER_FILES
 	Elasticity/Elasticity_Becker2009.h	
 	Elasticity/Elasticity_Peer2018.h
 	Elasticity/Elasticity_Kugelstadt2021.h
+	Elasticity/MyElasticity.h	#added MyElasticity
 	)
 	
 set(ELASTICITY_SOURCE_FILES
@@ -145,6 +146,7 @@ set(ELASTICITY_SOURCE_FILES
 	Elasticity/Elasticity_Becker2009.cpp
 	Elasticity/Elasticity_Peer2018.cpp
 	Elasticity/Elasticity_Kugelstadt2021.cpp
+	Elasticity/MyElasticity.cpp	#added MyElasticity
 	)
 	
 set(UTILS_HEADER_FILES
