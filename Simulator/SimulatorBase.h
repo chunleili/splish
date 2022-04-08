@@ -129,13 +129,13 @@ namespace SPH
 
 		SimulatorBase();
 		SimulatorBase(const SimulatorBase&) = delete;
-        SimulatorBase& operator=(const SimulatorBase&) = delete;
+		SimulatorBase& operator=(const SimulatorBase&) = delete;
 		virtual ~SimulatorBase();
 
 		void run();
 		void init(std::vector<std::string> argv, const std::string &windowName);
 		void init(int argc, char **argv, const std::string &windowName);
-        void initSimulation();
+		void initSimulation();
 		/** This function is called after the simulation scene is loaded and all
 		* parameters are initialized. While reading a scene file several parameters
 		* can change. The deferred init function should initialize all values which

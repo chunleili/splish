@@ -3,6 +3,7 @@
 #include "SPlisHSPlasH/Drag/DragForce_Macklin2014.h"
 #include "SPlisHSPlasH/Drag/DragForce_Gissler2017.h"
 
+#include "SPlisHSPlasH/Viscosity/MyViscosity.h"
 #include "SPlisHSPlasH/Viscosity/Viscosity_Standard.h"
 #include "SPlisHSPlasH/Viscosity/Viscosity_XSPH.h"
 #include "SPlisHSPlasH/Viscosity/Viscosity_Bender2017.h"
@@ -55,6 +56,7 @@ void Simulation::registerNonpressureForces()
 	addViscosityMethod("Peer et al. 2016", Viscosity_Peer2016::creator);
 	addViscosityMethod("Takahashi et al. 2015 (improved)", Viscosity_Takahashi2015::creator);
 	addViscosityMethod("Weiler et al. 2018", Viscosity_Weiler2018::creator);
+	addViscosityMethod("My viscosity method", MyViscosity::creator);
 
 	addVorticityMethod("None", [](FluidModel*) -> NonPressureForceBase* { return nullptr; });
 	addVorticityMethod("Micropolar model", MicropolarModel_Bender2017::creator);

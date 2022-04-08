@@ -1,0 +1,12 @@
+bin
+build
+*.tlog
+*.exe
+*.pbd
+data/Scenes/Cache
+Release
+Debug
+*.sln
+*.filters
+*.vcxproj
+Utilities/Version.h

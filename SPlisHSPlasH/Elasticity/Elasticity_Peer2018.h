@@ -69,6 +69,14 @@ namespace SPH
 		static int MAX_ERROR;
 		static int ALPHA;
 
+		static Real c_CF;	//coagulation factor concentration， 凝血因子浓度
+		static const Real CF_threshold_low;//lower threshold for c_CF, user defined parameter
+		static const Real CF_threshold_high;	//higher threshold for c_CF, user defined parameter
+		static const Real D_CF_diffusivity; //Diffusivity, user defined parameter 扩散系数
+		static const Real R_CF_diffusivity; //source term, user defined parameter 源项
+
+
+
 		Elasticity_Peer2018(FluidModel *model);
 		virtual ~Elasticity_Peer2018(void);
 
