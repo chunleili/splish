@@ -82,6 +82,7 @@ set(SURFACETENSION_SOURCE_FILES
 	SurfaceTension/SurfaceTension_Becker2007.cpp
 	SurfaceTension/SurfaceTension_Akinci2013.cpp
 	SurfaceTension/SurfaceTension_He2014.cpp
+	SurfaceTension/MySurfaceTension.cpp
 	)	
 
 set(VISCOSITY_HEADER_FILES
@@ -94,7 +95,7 @@ set(VISCOSITY_HEADER_FILES
 	Viscosity/Viscosity_Takahashi2015.h
 	Viscosity/Viscosity_Weiler2018.h
 	Viscosity/MyViscosity.h
-
+	SurfaceTension/MySurfaceTension.h
 	)
 	
 set(VISCOSITY_SOURCE_FILES
@@ -113,12 +114,14 @@ set(VORTICITY_HEADER_FILES
 	Vorticity/VorticityBase.h
 	Vorticity/MicropolarModel_Bender2017.h
 	Vorticity/VorticityConfinement.h
+	Vorticity/MyVorticity.h	# added MyVorticity
 	)
 	
 set(VORTICITY_SOURCE_FILES
 	Vorticity/VorticityBase.cpp
 	Vorticity/MicropolarModel_Bender2017.cpp
 	Vorticity/VorticityConfinement.cpp
+	Vorticity/MyVorticity.cpp # added MyVorticity
 	)	
 
 set(DRAG_HEADER_FILES

@@ -11,3 +11,4 @@ Debug
 *.vcxproj
 Utilities/Version.h
 .vscode
+.vs/

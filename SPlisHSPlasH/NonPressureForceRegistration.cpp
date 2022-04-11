@@ -3,7 +3,6 @@
 #include "SPlisHSPlasH/Drag/DragForce_Macklin2014.h"
 #include "SPlisHSPlasH/Drag/DragForce_Gissler2017.h"
 
-#include "SPlisHSPlasH/Viscosity/MyViscosity.h"
 #include "SPlisHSPlasH/Viscosity/Viscosity_Standard.h"
 #include "SPlisHSPlasH/Viscosity/Viscosity_XSPH.h"
 #include "SPlisHSPlasH/Viscosity/Viscosity_Bender2017.h"
@@ -11,9 +10,11 @@
 #include "SPlisHSPlasH/Viscosity/Viscosity_Peer2016.h"
 #include "SPlisHSPlasH/Viscosity/Viscosity_Takahashi2015.h"
 #include "SPlisHSPlasH/Viscosity/Viscosity_Weiler2018.h"
+#include "SPlisHSPlasH/Viscosity/MyViscosity.h"
 
 #include "SPlisHSPlasH/Vorticity/VorticityConfinement.h"
 #include "SPlisHSPlasH/Vorticity/MicropolarModel_Bender2017.h"
+#include "SPlisHSPlasH/Vorticity/MyVorticity.h"
 
 #include "Elasticity/Elasticity_Becker2009.h"
 #include "Elasticity/Elasticity_Peer2018.h"
@@ -23,6 +24,7 @@
 #include "SurfaceTension/SurfaceTension_Becker2007.h"
 #include "SurfaceTension/SurfaceTension_Akinci2013.h"
 #include "SurfaceTension/SurfaceTension_He2014.h"
+#include "SurfaceTension/MySurfaceTension.h"
 #ifdef USE_THIRD_PARTY_METHODS
 #include "SurfaceTension/SurfaceTension_ZorillaRitter2020.h"
 #endif
@@ -46,6 +48,7 @@ void Simulation::registerNonpressureForces()
 	addSurfaceTensionMethod("Becker & Teschner 2007", SurfaceTension_Becker2007::creator);
 	addSurfaceTensionMethod("Akinci et al. 2013", SurfaceTension_Akinci2013::creator);
 	addSurfaceTensionMethod("He et al. 2014", SurfaceTension_He2014::creator);
+	addSurfaceTensionMethod("MySurfaceTension method", MySurfaceTension::creator); //added a MySurfaceTension
 #ifdef USE_THIRD_PARTY_METHODS
 	addSurfaceTensionMethod("Zorilla, Ritter, et al. 2020", SurfaceTension_ZorillaRitter2020::creator);
 #endif
@@ -63,4 +66,5 @@ void Simulation::registerNonpressureForces()
 	addVorticityMethod("None", [](FluidModel*) -> NonPressureForceBase* { return nullptr; });
 	addVorticityMethod("Micropolar model", MicropolarModel_Bender2017::creator);
 	addVorticityMethod("Vorticity confinement", VorticityConfinement::creator);
+	addVorticityMethod("MyVorticiy", MyVorticity::creator);
 }
