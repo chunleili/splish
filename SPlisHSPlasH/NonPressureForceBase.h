@@ -17,7 +17,7 @@ namespace SPH
 	public:
 		NonPressureForceBase(FluidModel *model);
 		NonPressureForceBase(const NonPressureForceBase&) = delete;
-        NonPressureForceBase& operator=(const NonPressureForceBase&) = delete;
+		NonPressureForceBase& operator=(const NonPressureForceBase&) = delete;
 		virtual ~NonPressureForceBase(void);
 
 		virtual void step() = 0;
