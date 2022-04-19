@@ -1,5 +1,6 @@
 #include "MySurfaceTension.h"
 #include "SPlisHSPlasH\Simulation.h"
+#include <cstdio>
 
 using namespace SPH;
 
@@ -11,25 +12,14 @@ int MySurfaceTension::R_SOURCE = -1;
 
 
 
-//MySurfaceTension::MySurfaceTension(FluidModel *model) :
-//	NonPressureForceBase(model),
-//	m_youngsModulus(static_cast<Real>(100000.0)),
-//	m_poissonRatio(static_cast<Real>(0.3))
-//{
-//	m_fixedBoxMin.setZero();
-//	m_fixedBoxMax.setZero();
-//}
-
 MySurfaceTension::MySurfaceTension(FluidModel* model) :
     SurfaceTensionBase(model), 
     m_ccf(),
     m_thresHigh(static_cast<Real>(1.0)),
     m_thresLow(static_cast<Real>(0.1)),
     m_diffusivity(static_cast<Real>(0.1)),
-    m_rSource(static_cast<Real>(0.1))
+    m_rSource(static_cast<Real>(0.0))
 {
-
-
     m_ccf.resize(model->numParticles(), 0.0);
 
     model->addField({ "ccf field", FieldType::Scalar, [&](const unsigned int i) -> Real* { return &m_ccf[i]; } });
@@ -37,20 +27,6 @@ MySurfaceTension::MySurfaceTension(FluidModel* model) :
 }
 
 
-
-//MySurfaceTension::MySurfaceTension(FluidModel *model) :
-//    SurfaceTensionBase(model), m_ccf()
-//{
-//    CF_threshold_low = 0.1;
-//    CF_threshold_high = 0.5;
-//    diffusivity = 0.1 ;
-//    R_source = 0.1;
-//
-//    m_ccf.resize(model->numParticles(), 0.0);
-//    
-//    model->addField({ "ccf field", FieldType::Scalar, [&](const unsigned int i) -> Real* { return &m_ccf[i]; } });
-//
-//}
 
 MySurfaceTension::~MySurfaceTension(void)
 {
@@ -61,6 +37,30 @@ MySurfaceTension::~MySurfaceTension(void)
 void MySurfaceTension::initParameters()
 {
     SurfaceTensionBase::initParameters();
+
+    THRES_HIGH = createNumericParameter("m_thresHigh", "threshold high", &m_thresHigh);
+	setGroup(THRES_HIGH, "coagualtion");
+	setDescription(THRES_HIGH, "higher treshold for coagualtion");
+	GenParam::RealParameter* rparam = static_cast<GenParam::RealParameter*>(getParameter(THRES_HIGH));
+	rparam->setMinValue(0.0);
+
+    THRES_LOW = createNumericParameter("m_thresLow", "threshold low", &m_thresLow);
+    setGroup(THRES_LOW, "coagualtion");
+    setDescription(THRES_LOW, "lower treshold for coagualtion");
+    rparam = static_cast<GenParam::RealParameter*>(getParameter(THRES_LOW));
+    rparam->setMinValue(0.0);
+
+    DIFFUSIVITY = createNumericParameter("m_diffusivity", "diffusivity", &m_diffusivity);
+    setGroup(DIFFUSIVITY, "coagualtion");
+    setDescription(DIFFUSIVITY, "diffusivity of the convection-diffusion equation");
+    rparam = static_cast<GenParam::RealParameter*>(getParameter(DIFFUSIVITY));
+    rparam->setMinValue(0.0);
+
+    R_SOURCE = createNumericParameter("m_rSource", "rSource", &m_rSource);
+    setGroup(R_SOURCE, "coagualtion");
+    setDescription(R_SOURCE, "source term of the convection-diffusion equation");
+    rparam = static_cast<GenParam::RealParameter*>(getParameter(R_SOURCE));
+    rparam->setMinValue(0.0);
 }
 
 void MySurfaceTension::step()
@@ -89,16 +89,30 @@ void MySurfaceTension::step()
             Real &ccf_i = getCcf(i);
 
             Real density_i = m_model->getDensity(i);
+
+            Real source = 0.0;
+
+            if (xi[0] >= -0.35 && xi[0] <= 0.35 && xi[1] >= -0.35 && xi[1] <= 0.35 && xi[2] >= -0.35 && xi[2] <= 0.35)
+            {
+                source = m_rSource;
+            }
             //////////////////////////////////////////////////////////////////////////
             // Fluid
             //////////////////////////////////////////////////////////////////////////
-            forall_fluid_neighbors_in_same_phase(
+            for (unsigned int j = 0; j < sim->numberOfNeighbors(fluidModelIndex, fluidModelIndex, i); j++)
+            {
+                const unsigned int neighborIndex = sim->getNeighbor(fluidModelIndex, fluidModelIndex, i, j);
+                const Vector3r &xj = model->getPosition(neighborIndex);
+
                 Real density_j = m_model->getDensity(neighborIndex);
                 Real ccf_j = getCcf(neighborIndex);
-                ccf_i += m_diffusivity * m_model->getMass(neighborIndex) / (density_j * density_i) * (ccf_i - ccf_j) * sim->gradW(xi - xj).norm();
-            );
+                ccf_i += m_diffusivity * m_model->getMass(neighborIndex) / (density_j * density_i) * (ccf_i - ccf_j) * sim->gradW(xi - xj).norm() + source;
+            }
+            ccf_i /= numParticles;
         }
     }
+    determteeFixedParticles();
+
 }
 
 void MySurfaceTension::reset()
@@ -127,29 +141,21 @@ void MySurfaceTension::deferredInit()
 
 void MySurfaceTension::initValues()
 {
-    //TODO: tune parameter in GUI (should be in the base class)
 
- //   THRES_LOW = createNumericParameter("THRES_LOW", "THRES_LOW", &m_thresLow);
-	//setGroup(THRES_LOW, "SurfaceTension");
-	//setDescription(THRES_LOW, "lower threshold of coagualtion factor");
-	//RealParameter* rparam = static_cast<RealParameter*>(getParameter(THRES_LOW));
-	//rparam->setMinValue(0.0);
+}
 
- //   THRES_HIGH = createNumericParameter("THRES_HIGH", "THRES_HIGH", &m_thresHigh);
-	//setGroup(THRES_HIGH, "SurfaceTension");
-	//setDescription(THRES_HIGH, "higher threshold of coagualtion factor");
-	//RealParameter* rparam = static_cast<RealParameter*>(getParameter(THRES_HIGH));
-	//rparam->setMinValue(0.0);
 
- //   DIFFUSIVITY = createNumericParameter("DIFFUSIVITY", "DIFFUSIVITY", &m_diffusivity);
-	//setGroup(DIFFUSIVITY, "SurfaceTension");
-	//setDescription(DIFFUSIVITY, "higher threshold of coagualtion factor");
-	//RealParameter* rparam = static_cast<RealParameter*>(getParameter(DIFFUSIVITY));
-	//rparam->setMinValue(0.0);
+void MySurfaceTension::determteeFixedParticles()
+{
+    const unsigned int numParticles = m_model->numActiveParticles();
 
- //   R_SOURCE = createNumericParameter("R_SOURCE", "R_SOURCE", &m_rSource);
-	//setGroup(R_SOURCE, "SurfaceTension");
-	//setDescription(R_SOURCE, "higher threshold of coagualtion factor");
-	//RealParameter* rparam = static_cast<RealParameter*>(getParameter(R_SOURCE));
-	//rparam->setMinValue(0.0);
+    for (int i = 0; i < (int)numParticles; i++)
+        {
+            const Vector3r& x = m_model->getPosition(i);
+            if (m_ccf[i] > m_thresHigh)
+            {
+                m_model->setParticleState(i, ParticleState::Fixed);
+                // printf("state is %d\n", m_model->getParticleState(i));
+            }
+        }
 }

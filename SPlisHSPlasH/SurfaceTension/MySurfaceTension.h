@@ -48,20 +48,9 @@ namespace SPH
 			return m_ccf[i];
 		}
 
-		// FORCE_INLINE const Real getCcf(const unsigned int i) const
-		// {
-		// 	return m_ccf[i];
-		// }
 
-		// FORCE_INLINE Real& getCcf(const unsigned int i)
-		// {
-		// 	return m_ccf[i];
-		// }
+		void determteeFixedParticles();
 
-		// FORCE_INLINE void setCcf(const unsigned int i, const Real val)
-		// {
-		// 	m_ccf[i] = val;
-		// }
 	};
 }
 
