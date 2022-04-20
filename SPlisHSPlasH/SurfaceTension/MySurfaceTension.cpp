@@ -1,6 +1,7 @@
 #include "MySurfaceTension.h"
-#include "SPlisHSPlasH\Simulation.h"
+#include "SPlisHSPlasH/Simulation.h"
 #include <cstdio>
+#include "SPlisHSPlasH/TimeManager.h"
 
 using namespace SPH;
 
@@ -78,6 +79,7 @@ void MySurfaceTension::step()
     const Real density0 = m_model->getDensity0();
     FluidModel* model = m_model;
     const Real h = sim->getSupportRadius();
+    const Real dt = TimeManager::getCurrent()->getTimeStepSize();
 
     // Compute forces
 //#pragma omp parallel default(shared)
@@ -103,12 +105,13 @@ void MySurfaceTension::step()
             {
                 const unsigned int neighborIndex = sim->getNeighbor(fluidModelIndex, fluidModelIndex, i, j);
                 const Vector3r &xj = model->getPosition(neighborIndex);
+                const Real grawWNorm = sim->gradW(xi - xj).norm();
 
                 Real density_j = m_model->getDensity(neighborIndex);
                 Real ccf_j = getCcf(neighborIndex);
-                ccf_i += m_diffusivity * m_model->getMass(neighborIndex) / (density_j * density_i) * (ccf_i - ccf_j) * sim->gradW(xi - xj).norm() + source;
+                ccf_i += (m_diffusivity * m_model->getMass(neighborIndex) / (density_j * density_i) * (ccf_i - ccf_j) * grawWNorm + source) * dt;
             }
-            ccf_i /= numParticles;
+            //ccf_i /= numParticles;
         }
     }
     determteeFixedParticles();
@@ -152,10 +155,14 @@ void MySurfaceTension::determteeFixedParticles()
     for (int i = 0; i < (int)numParticles; i++)
         {
             const Vector3r& x = m_model->getPosition(i);
-            if (m_ccf[i] > m_thresHigh)
+            /*if (m_ccf[i] > m_thresHigh)
             {
                 m_model->setParticleState(i, ParticleState::Fixed);
-                // printf("state is %d\n", m_model->getParticleState(i));
+            }
+            else */
+            if  (m_ccf[i] > m_thresLow) // m_thresLow < ccf < m_thresHigh
+            {
+                m_model->setParticleState(i, ParticleState::Active);
             }
         }
 }

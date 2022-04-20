@@ -26,19 +26,12 @@
 			"surfaceTension": 0.1,
 			"surfaceTensionMethod": 4,
 			"viscosity": 0.01,
-			"viscosityMethod": 1,
-			"surfTZRversion": 0,
-			"surfTZRCsd": 10000,
-			"surfTZRr-ratio": 0.8,
-			"surfTZRtau": 0.5,
-			"surfTZRd": 28,
-			"surfTZRsampling": 0 ,
-			"surfTZRnormal-mode": 1,
-			"surfTZRd-offset": 3,
-			"surfTZRPcaMixNrm": 0.8,
-			"surfTZRPcaMixCur": 0.4,
-			"surfTZRMCSamples": -1 ,
-			"surfTZRNeighLimit": 16	
+			"viscosityMethod": 0,
+			"elasticityMethod": 2,
+			"youngsModulus": 250000.0,
+			"poissonsRatio": 0.33, 
+			"alpha": 0.1,
+			"m_rSource": 0.1
 		}
 	],
 	"RigidBodies": [

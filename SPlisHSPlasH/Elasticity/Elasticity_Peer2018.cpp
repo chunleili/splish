@@ -180,7 +180,7 @@ void Elasticity_Peer2018::step()
 #pragma omp for schedule(static)  
 		for (int i = 0; i < (int)numParticles; i++)
 		{
-			if (m_model->getParticleState(i) == ParticleState::Active)
+			if (m_model->getParticleState(i) == ParticleState::Elastic)
 			{
 				Vector3r& ai = m_model->getAcceleration(i);
 				ai += (1.0 / dt) * (x.segment<3>(3 * i) - m_model->getVelocity(i));
@@ -421,7 +421,7 @@ void Elasticity_Peer2018::computeRHS(VectorXr& rhs)
 			m_stress[i][1] += ltrace;
 			m_stress[i][2] += ltrace;
 
-
+			//von Mises 
 			Real sigma_x = m_stress[i][0];
 			Real sigma_y = m_stress[i][1];
 			Real sigma_z = m_stress[i][2];
