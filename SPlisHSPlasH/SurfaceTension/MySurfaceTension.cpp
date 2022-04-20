@@ -4,13 +4,14 @@
 #include "SPlisHSPlasH/TimeManager.h"
 
 using namespace SPH;
-
+using namespace GenParam;
 
 int MySurfaceTension::THRES_HIGH  = -1;
 int MySurfaceTension::THRES_LOW = -1;
 int MySurfaceTension::DIFFUSIVITY = -1;
 int MySurfaceTension::R_SOURCE = -1;
-
+int MySurfaceTension::COAGU_BOX_MIN = -1;
+int MySurfaceTension::COAGU_BOX_MAX = -1;
 
 
 MySurfaceTension::MySurfaceTension(FluidModel* model) :
@@ -25,6 +26,8 @@ MySurfaceTension::MySurfaceTension(FluidModel* model) :
 
     model->addField({ "ccf field", FieldType::Scalar, [&](const unsigned int i) -> Real* { return &m_ccf[i]; } });
 
+    m_coaguBoxMin.setZero();
+	m_coaguBoxMax.setZero();
 }
 
 
@@ -62,6 +65,24 @@ void MySurfaceTension::initParameters()
     setDescription(R_SOURCE, "source term of the convection-diffusion equation");
     rparam = static_cast<GenParam::RealParameter*>(getParameter(R_SOURCE));
     rparam->setMinValue(0.0);
+
+    ParameterBase::GetVecFunc<Real> getFct = [&]()-> Real* { return m_coaguBoxMin.data(); };
+	ParameterBase::SetVecFunc<Real> setFct = [&](Real* val)	
+    {
+	    m_coaguBoxMin = Vector3r(val[0], val[1], val[2]);
+    };
+	COAGU_BOX_MIN = createVectorParameter("coaguBoxMix", "box min", 3u, getFct, setFct);
+	setGroup(COAGU_BOX_MIN, "coagualtion");
+	setDescription(COAGU_BOX_MIN, "Minimum point of box of which the rSource is not zero.");
+
+	ParameterBase::GetVecFunc<Real> getFct2 = [&]()-> Real* { return m_coaguBoxMax.data(); };
+    ParameterBase::SetVecFunc<Real> setFct2 = [&](Real* val)
+    {
+        m_coaguBoxMax = Vector3r(val[0], val[1], val[2]);
+    };
+	COAGU_BOX_MAX = createVectorParameter("coaguBoxMax", "box max", 3u, getFct2, setFct2);
+	setGroup(COAGU_BOX_MAX, "coagualtion");
+	setDescription(COAGU_BOX_MAX, "Maximum point of box of which the rSource is not zero.");
 }
 
 void MySurfaceTension::step()
@@ -95,6 +116,8 @@ void MySurfaceTension::step()
             Real source = 0.0;
 
             if (xi[0] >= -0.35 && xi[0] <= 0.35 && xi[1] >= -0.35 && xi[1] <= 0.35 && xi[2] >= -0.35 && xi[2] <= 0.35)
+            // if ((xi[0] > m_coaguBoxMin[0]) && (xi[1] > m_coaguBoxMin[1]) && (xi[2] > m_coaguBoxMin[2]) &&
+			// 	(xi[0] < m_coaguBoxMax[0]) && (xi[1] < m_coaguBoxMax[1]) && (xi[2] < m_coaguBoxMax[2]))
             {
                 source = m_rSource;
             }
@@ -114,7 +137,7 @@ void MySurfaceTension::step()
             //ccf_i /= numParticles;
         }
     }
-    determteeFixedParticles();
+    ChangeParticleState();
 
 }
 
@@ -148,21 +171,17 @@ void MySurfaceTension::initValues()
 }
 
 
-void MySurfaceTension::determteeFixedParticles()
+void MySurfaceTension::ChangeParticleState()
 {
     const unsigned int numParticles = m_model->numActiveParticles();
 
     for (int i = 0; i < (int)numParticles; i++)
         {
             const Vector3r& x = m_model->getPosition(i);
-            /*if (m_ccf[i] > m_thresHigh)
-            {
-                m_model->setParticleState(i, ParticleState::Fixed);
-            }
-            else */
+
             if  (m_ccf[i] > m_thresLow) // m_thresLow < ccf < m_thresHigh
             {
-                m_model->setParticleState(i, ParticleState::Active);
+                m_model->setParticleState(i, ParticleState::Elastic);
             }
         }
 }
