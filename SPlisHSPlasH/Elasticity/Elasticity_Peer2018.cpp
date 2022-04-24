@@ -180,7 +180,7 @@ void Elasticity_Peer2018::step()
 #pragma omp for schedule(static)  
 		for (int i = 0; i < (int)numParticles; i++)
 		{
-			if (m_model->getParticleState(i) == ParticleState::Elastic)
+			if (m_model->getParticleState(i) == ParticleState::Active)
 			{
 				Vector3r& ai = m_model->getAcceleration(i);
 				ai += (1.0 / dt) * (x.segment<3>(3 * i) - m_model->getVelocity(i));
@@ -457,21 +457,23 @@ void Elasticity_Peer2018::computeRHS(VectorXr& rhs)
 			//////////////////////////////////////////////////////////////////////////
 			Vector3r force;
 			force.setZero();
-			for (unsigned int j = 0; j < numNeighbors; j++)
-			{
-				const unsigned int neighborIndex = m_initial_to_current_index[m_initialNeighbors[i0][j]];
-				// get initial neighbor index considering the current particle order 
-				const unsigned int neighborIndex0 = m_initialNeighbors[i0][j];
+			if (m_model->getParticleState(i) == ParticleState::Elastic) {
+				for (unsigned int j = 0; j < numNeighbors; j++)
+				{
+					const unsigned int neighborIndex = m_initial_to_current_index[m_initialNeighbors[i0][j]];
+					// get initial neighbor index considering the current particle order 
+					const unsigned int neighborIndex0 = m_initialNeighbors[i0][j];
 
-				const Vector3r& xj0 = m_model->getPosition0(neighborIndex0);
-				const Vector3r xi_xj_0 = xi0 - xj0;
-				const Vector3r correctedRotatedKernel_i = m_RL[i] * sim->gradW(xi_xj_0);
-				const Vector3r correctedRotatedKernel_j = -m_RL[neighborIndex] * sim->gradW(xi_xj_0);
-				Vector3r PWi, PWj;
-				symMatTimesVec(m_stress[i], correctedRotatedKernel_i, PWi);
-				symMatTimesVec(m_stress[neighborIndex], correctedRotatedKernel_j, PWj);
-				force += m_restVolumes[i] * m_restVolumes[neighborIndex] * (PWi - PWj);
-			}
+					const Vector3r& xj0 = m_model->getPosition0(neighborIndex0);
+					const Vector3r xi_xj_0 = xi0 - xj0;
+					const Vector3r correctedRotatedKernel_i = m_RL[i] * sim->gradW(xi_xj_0);
+					const Vector3r correctedRotatedKernel_j = -m_RL[neighborIndex] * sim->gradW(xi_xj_0);
+					Vector3r PWi, PWj;
+					symMatTimesVec(m_stress[i], correctedRotatedKernel_i, PWi);
+					symMatTimesVec(m_stress[neighborIndex], correctedRotatedKernel_j, PWj);
+					force += m_restVolumes[i] * m_restVolumes[neighborIndex] * (PWi - PWj);
+				}
+			}			
 
 			if (m_alpha != 0.0)
 			{
