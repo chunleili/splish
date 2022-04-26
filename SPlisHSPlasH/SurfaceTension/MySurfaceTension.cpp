@@ -42,25 +42,25 @@ void MySurfaceTension::initParameters()
 {
     SurfaceTensionBase::initParameters();
 
-    THRES_HIGH = createNumericParameter("m_thresHigh", "threshold high", &m_thresHigh);
+    THRES_HIGH = createNumericParameter("thresHigh", "threshold high", &m_thresHigh);
 	setGroup(THRES_HIGH, "coagualtion");
 	setDescription(THRES_HIGH, "higher treshold for coagualtion");
 	GenParam::RealParameter* rparam = static_cast<GenParam::RealParameter*>(getParameter(THRES_HIGH));
 	rparam->setMinValue(0.0);
 
-    THRES_LOW = createNumericParameter("m_thresLow", "threshold low", &m_thresLow);
+    THRES_LOW = createNumericParameter("thresLow", "threshold low", &m_thresLow);
     setGroup(THRES_LOW, "coagualtion");
     setDescription(THRES_LOW, "lower treshold for coagualtion");
     rparam = static_cast<GenParam::RealParameter*>(getParameter(THRES_LOW));
     rparam->setMinValue(0.0);
 
-    DIFFUSIVITY = createNumericParameter("m_diffusivity", "diffusivity", &m_diffusivity);
+    DIFFUSIVITY = createNumericParameter("diffusivity", "diffusivity", &m_diffusivity);
     setGroup(DIFFUSIVITY, "coagualtion");
     setDescription(DIFFUSIVITY, "diffusivity of the convection-diffusion equation");
     rparam = static_cast<GenParam::RealParameter*>(getParameter(DIFFUSIVITY));
     rparam->setMinValue(0.0);
 
-    R_SOURCE = createNumericParameter("m_rSource", "rSource", &m_rSource);
+    R_SOURCE = createNumericParameter("rSource", "rSource", &m_rSource);
     setGroup(R_SOURCE, "coagualtion");
     setDescription(R_SOURCE, "source term of the convection-diffusion equation");
     rparam = static_cast<GenParam::RealParameter*>(getParameter(R_SOURCE));
@@ -103,27 +103,19 @@ void MySurfaceTension::step()
     const Real dt = TimeManager::getCurrent()->getTimeStepSize();
 
     // Compute forces
-//#pragma omp parallel default(shared)
+    #pragma omp parallel default(shared)
     {
-//#pragma omp for schedule(static)  
+        #pragma omp for schedule(static)  
         for (int i = 0; i < (int)numParticles; i++)
         {
             const Vector3r &xi = m_model->getPosition(i);
             Real &ccf_i = getCcf(i);
-
             Real density_i = m_model->getDensity(i);
-
             Real source = 0.0;
 
-            if (xi[0] >= -0.35 && xi[0] <= 0.35 && xi[1] >= -0.35 && xi[1] <= 0.35 && xi[2] >= -0.35 && xi[2] <= 0.35)
-            // if ((xi[0] > m_coaguBoxMin[0]) && (xi[1] > m_coaguBoxMin[1]) && (xi[2] > m_coaguBoxMin[2]) &&
-			// 	(xi[0] < m_coaguBoxMax[0]) && (xi[1] < m_coaguBoxMax[1]) && (xi[2] < m_coaguBoxMax[2]))
-            {
+            if ((xi[0] > m_coaguBoxMin[0]) && (xi[1] > m_coaguBoxMin[1]) && (xi[2] > m_coaguBoxMin[2]) &&
+				(xi[0] < m_coaguBoxMax[0]) && (xi[1] < m_coaguBoxMax[1]) && (xi[2] < m_coaguBoxMax[2]))
                 source = m_rSource;
-            }
-            //////////////////////////////////////////////////////////////////////////
-            // Fluid
-            //////////////////////////////////////////////////////////////////////////
             for (unsigned int j = 0; j < sim->numberOfNeighbors(fluidModelIndex, fluidModelIndex, i); j++)
             {
                 const unsigned int neighborIndex = sim->getNeighbor(fluidModelIndex, fluidModelIndex, i, j);
@@ -132,9 +124,9 @@ void MySurfaceTension::step()
 
                 Real density_j = m_model->getDensity(neighborIndex);
                 Real ccf_j = getCcf(neighborIndex);
-                ccf_i += (m_diffusivity * m_model->getMass(neighborIndex) / (density_j * density_i) * (ccf_i - ccf_j) * grawWNorm + source) * dt;
+                ccf_i += (m_diffusivity * m_model->getMass(neighborIndex) 
+                / (density_j * density_i) * (ccf_i - ccf_j) * grawWNorm + source) * dt;
             }
-            //ccf_i /= numParticles;
         }
     }
     ChangeParticleState();

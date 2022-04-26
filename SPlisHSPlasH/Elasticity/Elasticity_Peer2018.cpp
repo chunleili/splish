@@ -431,15 +431,15 @@ void Elasticity_Peer2018::computeRHS(VectorXr& rhs)
 
 			sigma_e = sqrt(1 / 2.0 * ((sigma_x - sigma_y) * (sigma_x - sigma_y) + (sigma_y - sigma_z) * (sigma_y - sigma_z)
 				+ (sigma_z - sigma_x) * (sigma_z - sigma_x) + 6 * (tau_xy * tau_xy + tau_yz * tau_yz + tau_zx * tau_zx)));
-			if (sigma_e > 1e-5) {
-				sigma_e = 1e-5;
-			}
+			// if (sigma_e > 1e-5) {
+			// 	sigma_e = 1e-5;
+			// }
 
-			for (int jj = 0; jj < 3; ++jj) {
-				if (m_stress[i][jj] >= sigma_e) {
-					m_stress[i][jj] = sigma_e;
-				}
-			}
+			// for (int jj = 0; jj < 3; ++jj) {
+			// 	if (m_stress[i][jj] >= sigma_e) {
+			// 		m_stress[i][jj] = sigma_e;
+			// 	}
+			// }
 		}
 	}
 
