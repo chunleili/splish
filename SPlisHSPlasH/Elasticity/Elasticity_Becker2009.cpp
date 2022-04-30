@@ -243,7 +243,7 @@ void Elasticity_Becker2009::computeForces()
 		#pragma omp for schedule(static)  
 		for (int i = 0; i < (int)numParticles; i++)
 		{
-			if (model->getParticleState(i) == ParticleState::Active)
+			if (model->getParticleState(i) == ParticleState::Active && model->m_myParticleState[i].state == 1)
 			{
 				const unsigned int i0 = m_current_to_initial_index[i];
 				const Vector3r& xi0 = m_model->getPosition0(i0);

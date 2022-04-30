@@ -167,13 +167,20 @@ void MySurfaceTension::ChangeParticleState()
 {
     const unsigned int numParticles = m_model->numActiveParticles();
 
+    static int flag = 1;
+    if (flag == 1) {
+        m_model->m_myParticleState.resize(numParticles);
+    }
+    flag++;
+    
     for (int i = 0; i < (int)numParticles; i++)
         {
             const Vector3r& x = m_model->getPosition(i);
 
             if  (m_ccf[i] > m_thresLow) // m_thresLow < ccf < m_thresHigh
             {
-                m_model->setParticleState(i, ParticleState::Elastic);
+                // m_model->setParticleState(i, ParticleState::Elastic);
+                m_model->m_myParticleState[i].state = 1;
             }
         }
 }
