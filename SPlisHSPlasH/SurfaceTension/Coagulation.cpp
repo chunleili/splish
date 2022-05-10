@@ -1,4 +1,4 @@
-#include "MySurfaceTension.h"
+#include "Coagulation.h"
 #include "SPlisHSPlasH/Simulation.h"
 #include <cstdio>
 #include "SPlisHSPlasH/TimeManager.h"
@@ -6,15 +6,15 @@
 using namespace SPH;
 using namespace GenParam;
 
-int MySurfaceTension::THRES_HIGH  = -1;
-int MySurfaceTension::THRES_LOW = -1;
-int MySurfaceTension::DIFFUSIVITY = -1;
-int MySurfaceTension::R_SOURCE = -1;
-int MySurfaceTension::COAGU_BOX_MIN = -1;
-int MySurfaceTension::COAGU_BOX_MAX = -1;
+int Coagulation::THRES_HIGH  = -1;
+int Coagulation::THRES_LOW = -1;
+int Coagulation::DIFFUSIVITY = -1;
+int Coagulation::R_SOURCE = -1;
+int Coagulation::COAGU_BOX_MIN = -1;
+int Coagulation::COAGU_BOX_MAX = -1;
 
 
-MySurfaceTension::MySurfaceTension(FluidModel* model) :
+Coagulation::Coagulation(FluidModel* model) :
     SurfaceTensionBase(model), 
     m_ccf(),
     m_thresHigh(static_cast<Real>(1.0)),
@@ -32,13 +32,13 @@ MySurfaceTension::MySurfaceTension(FluidModel* model) :
 
 
 
-MySurfaceTension::~MySurfaceTension(void)
+Coagulation::~Coagulation(void)
 {
     m_model->removeFieldByName("ccf field");
     m_ccf.clear();
 }
 
-void MySurfaceTension::initParameters()
+void Coagulation::initParameters()
 {
     SurfaceTensionBase::initParameters();
 
@@ -85,7 +85,7 @@ void MySurfaceTension::initParameters()
 	setDescription(COAGU_BOX_MAX, "Maximum point of box of which the rSource is not zero.");
 }
 
-void MySurfaceTension::step()
+void Coagulation::step()
 {
     Simulation* sim = Simulation::getCurrent();
     const unsigned int numParticles = m_model->numActiveParticles();
@@ -133,13 +133,13 @@ void MySurfaceTension::step()
 
 }
 
-void MySurfaceTension::reset()
+void Coagulation::reset()
 {
 
 }
 
 
-void MySurfaceTension::performNeighborhoodSearchSort()
+void Coagulation::performNeighborhoodSearchSort()
 {
 
     const unsigned int numPart = m_model->numActiveParticles();
@@ -152,18 +152,18 @@ void MySurfaceTension::performNeighborhoodSearchSort()
 
 }
 
-void MySurfaceTension::deferredInit()
+void Coagulation::deferredInit()
 {
     initValues();
 }
 
-void MySurfaceTension::initValues()
+void Coagulation::initValues()
 {
 
 }
 
 
-void MySurfaceTension::ChangeParticleState()
+void Coagulation::ChangeParticleState()
 {
     const unsigned int numParticles = m_model->numActiveParticles();
 

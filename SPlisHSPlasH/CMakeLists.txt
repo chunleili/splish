@@ -75,6 +75,7 @@ set(SURFACETENSION_HEADER_FILES
 	SurfaceTension/SurfaceTension_Becker2007.h
 	SurfaceTension/SurfaceTension_Akinci2013.h
 	SurfaceTension/SurfaceTension_He2014.h
+	SurfaceTension/Coagulation.h
 	)
 	
 set(SURFACETENSION_SOURCE_FILES
@@ -82,7 +83,7 @@ set(SURFACETENSION_SOURCE_FILES
 	SurfaceTension/SurfaceTension_Becker2007.cpp
 	SurfaceTension/SurfaceTension_Akinci2013.cpp
 	SurfaceTension/SurfaceTension_He2014.cpp
-	SurfaceTension/MySurfaceTension.cpp
+	SurfaceTension/Coagulation.cpp
 	)	
 
 set(VISCOSITY_HEADER_FILES
@@ -94,8 +95,7 @@ set(VISCOSITY_HEADER_FILES
 	Viscosity/Viscosity_Peer2016.h
 	Viscosity/Viscosity_Takahashi2015.h
 	Viscosity/Viscosity_Weiler2018.h
-	Viscosity/MyViscosity.h
-	SurfaceTension/MySurfaceTension.h
+	Viscosity/Viscosity_Casson.h	# added Viscosity
 	)
 	
 set(VISCOSITY_SOURCE_FILES
@@ -107,7 +107,7 @@ set(VISCOSITY_SOURCE_FILES
 	Viscosity/Viscosity_Peer2016.cpp
 	Viscosity/Viscosity_Takahashi2015.cpp
 	Viscosity/Viscosity_Weiler2018.cpp
-	Viscosity/MyViscosity.cpp
+	Viscosity/Viscosity_Casson.cpp	# added Viscosity
 	)	
 	
 set(VORTICITY_HEADER_FILES
