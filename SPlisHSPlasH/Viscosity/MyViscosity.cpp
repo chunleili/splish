@@ -1,4 +1,4 @@
-#include "SPlisHSPlasH\Simulation.h"
+#include "SPlisHSPlasH/Simulation.h"
 #include "MyViscosity.h"
 #include "SPlisHSPlasH/BoundaryModel_Akinci2012.h"
 #include "SPlisHSPlasH/BoundaryModel_Koschier2017.h"
