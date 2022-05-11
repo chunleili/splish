@@ -43,6 +43,8 @@ namespace SPH
 		static int MAX_ITERATIONS;
 		static int MAX_ERROR;
 		static int VISCOSITY_COEFFICIENT_BOUNDARY;
+		static int VISCOSITY_FIELD;
+		std::vector<Real> viscosityField;
 
 		Viscosity_Casson(FluidModel *model);
 		virtual ~Viscosity_Casson(void);
