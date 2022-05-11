@@ -27,7 +27,7 @@ Coagulation::Coagulation(FluidModel* model) :
     model->addField({ "ccf field", FieldType::Scalar, [&](const unsigned int i) -> Real* { return &m_ccf[i]; } });
 
     m_coaguBoxMin.setZero();
-	m_coaguBoxMax.setZero();
+	m_coaguBoxMax = Vector3r(0.3, 0.3, 0.3);
 }
 
 
