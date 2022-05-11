@@ -10,7 +10,7 @@
 #include "SPlisHSPlasH/Viscosity/Viscosity_Peer2016.h"
 #include "SPlisHSPlasH/Viscosity/Viscosity_Takahashi2015.h"
 #include "SPlisHSPlasH/Viscosity/Viscosity_Weiler2018.h"
-#include "SPlisHSPlasH/Viscosity/MyViscosity.h"
+#include "SPlisHSPlasH/Viscosity/Viscosity_Casson.h"
 
 #include "SPlisHSPlasH/Vorticity/VorticityConfinement.h"
 #include "SPlisHSPlasH/Vorticity/MicropolarModel_Bender2017.h"
@@ -24,7 +24,7 @@
 #include "SurfaceTension/SurfaceTension_Becker2007.h"
 #include "SurfaceTension/SurfaceTension_Akinci2013.h"
 #include "SurfaceTension/SurfaceTension_He2014.h"
-#include "SurfaceTension/MySurfaceTension.h"
+#include "SurfaceTension/Coagulation.h"
 #ifdef USE_THIRD_PARTY_METHODS
 #include "SurfaceTension/SurfaceTension_ZorillaRitter2020.h"
 #endif
@@ -48,7 +48,7 @@ void Simulation::registerNonpressureForces()
 	addSurfaceTensionMethod("Becker & Teschner 2007", SurfaceTension_Becker2007::creator);
 	addSurfaceTensionMethod("Akinci et al. 2013", SurfaceTension_Akinci2013::creator);
 	addSurfaceTensionMethod("He et al. 2014", SurfaceTension_He2014::creator);
-	addSurfaceTensionMethod("MySurfaceTension method", MySurfaceTension::creator); //added a MySurfaceTension
+	addSurfaceTensionMethod("Coagulation method", Coagulation::creator); //added Coagulation
 #ifdef USE_THIRD_PARTY_METHODS
 	addSurfaceTensionMethod("Zorilla, Ritter, et al. 2020", SurfaceTension_ZorillaRitter2020::creator);
 #endif
@@ -61,7 +61,7 @@ void Simulation::registerNonpressureForces()
 	addViscosityMethod("Peer et al. 2016", Viscosity_Peer2016::creator);
 	addViscosityMethod("Takahashi et al. 2015 (improved)", Viscosity_Takahashi2015::creator);
 	addViscosityMethod("Weiler et al. 2018", Viscosity_Weiler2018::creator);
-	addViscosityMethod("My viscosity method", MyViscosity::creator); //added a viscosity
+	addViscosityMethod("Viscosity_Casson", Viscosity_Casson::creator); //added a viscosity
 
 	addVorticityMethod("None", [](FluidModel*) -> NonPressureForceBase* { return nullptr; });
 	addVorticityMethod("Micropolar model", MicropolarModel_Bender2017::creator);

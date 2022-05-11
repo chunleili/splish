@@ -1,6 +1,6 @@
 #pragma once
-#ifndef __MySurfaceTension_h__
-#define __MySurfaceTension_h__
+#ifndef __Coagulation_h__
+#define __Coagulation_h__
 
 #include "SPlisHSPlasH/Common.h"
 #include "SPlisHSPlasH/FluidModel.h"
@@ -8,7 +8,7 @@
 
 namespace SPH
 {
-	class MySurfaceTension : public SurfaceTensionBase
+	class Coagulation : public SurfaceTensionBase
 	{
 	protected:
 		virtual void initParameters();
@@ -36,11 +36,11 @@ namespace SPH
 		static int COAGU_BOX_MIN;
 		static int COAGU_BOX_MAX;
 
-		MySurfaceTension();
-		MySurfaceTension(FluidModel* model);
-		virtual ~MySurfaceTension(void);
+		Coagulation();
+		Coagulation(FluidModel* model);
+		virtual ~Coagulation(void);
 
-		static NonPressureForceBase* creator(FluidModel* model) { return new MySurfaceTension(model); }
+		static NonPressureForceBase* creator(FluidModel* model) { return new Coagulation(model); }
 
 		virtual void step();
 		virtual void reset();
