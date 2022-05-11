@@ -20,7 +20,7 @@ Coagulation::Coagulation(FluidModel* model) :
     m_thresHigh(static_cast<Real>(1.0)),
     m_thresLow(static_cast<Real>(0.1)),
     m_diffusivity(static_cast<Real>(0.1)),
-    m_rSource(static_cast<Real>(0.0))
+    m_rSource(static_cast<Real>(0.1))
 {
     m_ccf.resize(model->numParticles(), 0.0);
 

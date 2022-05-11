@@ -15,7 +15,7 @@ int Viscosity_Casson::ITERATIONS = -1;
 int Viscosity_Casson::MAX_ITERATIONS = -1;
 int Viscosity_Casson::MAX_ERROR = -1;
 int Viscosity_Casson::VISCOSITY_COEFFICIENT_BOUNDARY = -1;
-int Viscosity_Casson::VISCOSITY_FIELD = -1;
+// int Viscosity_Casson::VISCOSITY_FIELD = -1;
 
 Viscosity_Casson::Viscosity_Casson(FluidModel *model) :
 	ViscosityBase(model), m_vDiff()
@@ -29,7 +29,7 @@ Viscosity_Casson::Viscosity_Casson(FluidModel *model) :
 	m_vDiff.resize(model->numParticles(), Vector3r::Zero());
 
 	model->addField({ "velocity difference", FieldType::Vector3, [&](const unsigned int i) -> Real* { return &m_vDiff[i][0]; }, true });
-	model->addField({ "viscosityField", FieldType::Real, [&](const unsigned int i) -> Real* { return &viscosityField[i]; }, true });
+	// model->addField({ "viscosityField", FieldType::Scalar, [&](const unsigned int i) -> Real* { return &viscosityField[i]; }, true });
 	viscosityField.resize(model->numParticles(), 0.0);
 }
 
@@ -70,11 +70,11 @@ void Viscosity_Casson::initParameters()
 	rparam = static_cast<RealParameter*>(getParameter(MAX_ERROR));
 	rparam->setMinValue(static_cast<Real>(1e-6));
 
-	VISCOSITY_FIELD = createNumericParameter("viscosityField", "viscosityField", &viscosityField);
-	setGroup(VISCOSITY_FIELD, "Viscosity");
-	setDescription(VISCOSITY_FIELD, "viscosityField");
-	RealParameter* rparam = static_cast<RealParameter*>(getParameter(VISCOSITY_FIELD));
-	rparam->setMinValue(0.0);
+	// VISCOSITY_FIELD = createNumericParameter("viscosityField", "viscosityField", &viscosityField);
+	// setGroup(VISCOSITY_FIELD, "Viscosity");
+	// setDescription(VISCOSITY_FIELD, "viscosityField");
+	// rparam = static_cast<RealParameter*>(getParameter(VISCOSITY_FIELD));
+	// rparam->setMinValue(0.0);
 }
 
 #ifdef USE_AVX
@@ -900,6 +900,27 @@ void Viscosity_Casson::step()
 		return;
 	const Real density0 = m_model->getDensity0();
 	const Real h = TimeManager::getCurrent()->getTimeStepSize();
+
+	for (int i = 0; i < (int)numParticles; i++)
+	{
+		if (m_model->getParticleState(i) == ParticleState::Active && m_model->m_myParticleState[i].state == 1) {
+			m_viscosity = 100.0;
+			std::cout << "change to 1000" << std::endl;
+			break;
+		}
+	}
+
+
+	// #pragma omp parallel default(shared)
+    // {
+    //     #pragma omp for schedule(static)
+    //     for (int i = 0; i < (int)numParticles; i++)
+    //     {
+	// 		// if (m_model->getParticleState(i) == ParticleState::Active && m_model->m_myParticleState[i].state == 1)
+	// 		if (m_model->m_myParticleState[i].state == 1)
+	// 			viscosityField[i] = m_viscosity  * density0 * 1000.0;
+	// 	}
+	// }
 
 	//////////////////////////////////////////////////////////////////////////
 	// Init linear system solver and preconditioner
