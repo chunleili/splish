@@ -905,7 +905,7 @@ void Viscosity_Casson::step()
 	{
 		if (m_model->getParticleState(i) == ParticleState::Active && m_model->m_myParticleState[i].state == 1) {
 			m_viscosity = 100.0;
-			std::cout << "change to 1000" << std::endl;
+			// std::cout << "change to 1000" << std::endl;
 			break;
 		}
 	}
