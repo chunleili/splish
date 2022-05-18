@@ -1288,6 +1288,7 @@ void Viscosity_Casson::computeRHS(VectorXr &b, VectorXr &g)
 
 void Viscosity_Casson::reset()
 {
+	m_viscosity = 0.01; //reset the visc
 }
 
 void Viscosity_Casson::performNeighborhoodSearchSort()
