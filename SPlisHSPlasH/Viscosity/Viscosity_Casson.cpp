@@ -900,15 +900,22 @@ void Viscosity_Casson::step()
 		return;
 	const Real density0 = m_model->getDensity0();
 	const Real h = TimeManager::getCurrent()->getTimeStepSize();
+	const Real time=TimeManager::getCurrent()->getTime();
 
-	for (int i = 0; i < (int)numParticles; i++)
-	{
-		if (m_model->getParticleState(i) == ParticleState::Active && m_model->m_myParticleState[i].state == 1) {
-			m_viscosity = 100.0;
-			// std::cout << "change to 1000" << std::endl;
-			break;
-		}
-	}
+	// for (int i = 0; i < (int)numParticles; i++)
+	// {
+	// 	if (m_model->getParticleState(i) == ParticleState::Active && m_model->m_myParticleState[i].state == 1) {
+	// 		m_viscosity = 100.0;
+	// 		// std::cout << "change to 1000" << std::endl;
+	// 		break;
+	// 	}
+	// }
+
+
+	const Real endTime = 5.0; 
+	m_viscosity = time/endTime * 100.0 ;
+	if(time>endTime)
+		m_viscosity = 100.0;
 
 
 	// #pragma omp parallel default(shared)
