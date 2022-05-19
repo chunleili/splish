@@ -15,7 +15,7 @@ int Viscosity_Casson::ITERATIONS = -1;
 int Viscosity_Casson::MAX_ITERATIONS = -1;
 int Viscosity_Casson::MAX_ERROR = -1;
 int Viscosity_Casson::VISCOSITY_COEFFICIENT_BOUNDARY = -1;
-// int Viscosity_Casson::VISCOSITY_FIELD = -1;
+int Viscosity_Casson::VISCOSITY_FIELD = -1;
 
 Viscosity_Casson::Viscosity_Casson(FluidModel *model) :
 	ViscosityBase(model), m_vDiff()
@@ -29,8 +29,9 @@ Viscosity_Casson::Viscosity_Casson(FluidModel *model) :
 	m_vDiff.resize(model->numParticles(), Vector3r::Zero());
 
 	model->addField({ "velocity difference", FieldType::Vector3, [&](const unsigned int i) -> Real* { return &m_vDiff[i][0]; }, true });
-	// model->addField({ "viscosityField", FieldType::Scalar, [&](const unsigned int i) -> Real* { return &viscosityField[i]; }, true });
+
 	viscosityField.resize(model->numParticles(), 0.0);
+	model->addField({ "viscosityField", FieldType::Scalar, [&](const unsigned int i) -> Real* { return &viscosityField[i]; }, true });
 }
 
 Viscosity_Casson::~Viscosity_Casson(void)
@@ -70,7 +71,7 @@ void Viscosity_Casson::initParameters()
 	rparam = static_cast<RealParameter*>(getParameter(MAX_ERROR));
 	rparam->setMinValue(static_cast<Real>(1e-6));
 
-	// VISCOSITY_FIELD = createNumericParameter("viscosityField", "viscosityField", &viscosityField);
+	// VISCOSITY_FIELD = createNumericParameter("viscosityField", "viscosityField", &viscosityField[0]);
 	// setGroup(VISCOSITY_FIELD, "Viscosity");
 	// setDescription(VISCOSITY_FIELD, "viscosityField");
 	// rparam = static_cast<RealParameter*>(getParameter(VISCOSITY_FIELD));
