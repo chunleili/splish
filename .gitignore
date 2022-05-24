@@ -14,3 +14,4 @@ Utilities/Version.h
 .vs/
 *.und
 CMakeSettings.json
+cmake-build-debug
