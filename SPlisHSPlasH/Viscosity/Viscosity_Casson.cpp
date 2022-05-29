@@ -30,7 +30,7 @@ Viscosity_Casson::Viscosity_Casson(FluidModel *model) :
 
 	model->addField({ "velocity difference", FieldType::Vector3, [&](const unsigned int i) -> Real* { return &m_vDiff[i][0]; }, true });
 
-	viscosityField.resize(model->numParticles(), 0.0);
+	viscosityField.resize(model->numParticles(), 100.0);
 	model->addField({ "viscosityField", FieldType::Scalar, [&](const unsigned int i) -> Real* { return &viscosityField[i]; }, true });
 }
 
@@ -291,6 +291,9 @@ void Viscosity_Casson::matrixVecProd(const Real* vec, Real *result, void *userDa
 	const Real mub = visco->m_boundaryViscosity * density0;
 	const Real sphereVolume = static_cast<Real>(4.0 / 3.0 * M_PI) * h2*h;
 
+	const Vector3r m_coaguBoxMin(0., 0., 0.);
+	const Vector3r m_coaguBoxMax(1., 1., 1.);
+
 	Real d = 10.0;
 	if (sim->is2DSimulation())
 		d = 8.0;
@@ -309,7 +312,10 @@ void Viscosity_Casson::matrixVecProd(const Real* vec, Real *result, void *userDa
 			//////////////////////////////////////////////////////////////////////////
 			// Fluid
 			//////////////////////////////////////////////////////////////////////////
-			forall_fluid_neighbors_in_same_phase(
+			for (unsigned int j = 0; j < sim->numberOfNeighbors(fluidModelIndex, fluidModelIndex, i); j++) 
+    		{ 
+        		const unsigned int neighborIndex = sim->getNeighbor(fluidModelIndex, fluidModelIndex, i, j); 
+        		const Vector3r &xj = model->getPosition(neighborIndex); 
 				const Real density_j = model->getDensity(neighborIndex);
 				const Vector3r gradW = sim->gradW(xi - xj);
 
@@ -317,7 +323,15 @@ void Viscosity_Casson::matrixVecProd(const Real* vec, Real *result, void *userDa
 				const Vector3r xixj = xi - xj;
 
 				ai += d * mu * (model->getMass(neighborIndex) / density_j) * (vi - vj).dot(xixj) / (xixj.squaredNorm() + 0.01*h2) * gradW;
-			);
+
+				if ((xj[0] > m_coaguBoxMin[0]) && (xj[1] > m_coaguBoxMin[1]) && (xj[2] > m_coaguBoxMin[2]) &&
+				(xj[0] < m_coaguBoxMax[0]) && (xj[1] < m_coaguBoxMax[1]) && (xj[2] < m_coaguBoxMax[2]))
+				{
+					ai += d * mu * visco->viscosityField[neighborIndex] * (model->getMass(neighborIndex) / density_j) * (vi - vj).dot(xixj) / (xixj.squaredNorm() + 0.01*h2) * gradW;
+				} else {
+					ai += d * mu * (model->getMass(neighborIndex) / density_j) * (vi - vj).dot(xixj) / (xixj.squaredNorm() + 0.01*h2) * gradW;
+				}
+			};
 
 			//////////////////////////////////////////////////////////////////////////
 			// Boundary
@@ -903,20 +917,10 @@ void Viscosity_Casson::step()
 	const Real h = TimeManager::getCurrent()->getTimeStepSize();
 	const Real time=TimeManager::getCurrent()->getTime();
 
-	// for (int i = 0; i < (int)numParticles; i++)
-	// {
-	// 	if (m_model->getParticleState(i) == ParticleState::Active && m_model->m_myParticleState[i].state == 1) {
-	// 		m_viscosity = 100.0;
-	// 		// std::cout << "change to 1000" << std::endl;
-	// 		break;
-	// 	}
-	// }
-
-
-	const Real endTime = 5.0; 
-	m_viscosity = time/endTime * 100.0 ;
-	if(time>endTime)
-		m_viscosity = 100.0;
+	// const Real endTime = 5.0; 
+	// m_viscosity = time/endTime * 100.0 ;
+	// if(time>endTime)
+	// 	m_viscosity = 100.0;
 
 
 	// #pragma omp parallel default(shared)
