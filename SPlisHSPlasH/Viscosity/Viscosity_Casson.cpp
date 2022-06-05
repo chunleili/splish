@@ -30,7 +30,7 @@ Viscosity_Casson::Viscosity_Casson(FluidModel *model) :
 
 	model->addField({ "velocity difference", FieldType::Vector3, [&](const unsigned int i) -> Real* { return &m_vDiff[i][0]; }, true });
 
-	viscosityField.resize(model->numParticles(), 100.0);
+	viscosityField.resize(model->numParticles(), 0.0);
 	model->addField({ "viscosityField", FieldType::Scalar, [&](const unsigned int i) -> Real* { return &viscosityField[i]; }, true });
 }
 
@@ -322,7 +322,7 @@ void Viscosity_Casson::matrixVecProd(const Real* vec, Real *result, void *userDa
 				const Vector3r &vj = Eigen::Map<const Vector3r>(&vec[3 * neighborIndex]);
 				const Vector3r xixj = xi - xj;
 
-				ai += d * mu * (model->getMass(neighborIndex) / density_j) * (vi - vj).dot(xixj) / (xixj.squaredNorm() + 0.01*h2) * gradW;
+				// ai += d * mu * (model->getMass(neighborIndex) / density_j) * (vi - vj).dot(xixj) / (xixj.squaredNorm() + 0.01*h2) * gradW;
 
 				if ((xj[0] > m_coaguBoxMin[0]) && (xj[1] > m_coaguBoxMin[1]) && (xj[2] > m_coaguBoxMin[2]) &&
 				(xj[0] < m_coaguBoxMax[0]) && (xj[1] < m_coaguBoxMax[1]) && (xj[2] < m_coaguBoxMax[2]))
@@ -922,6 +922,10 @@ void Viscosity_Casson::step()
 	// if(time>endTime)
 	// 	m_viscosity = 100.0;
 
+	for (int i = 0; i < (int)numParticles; i++)
+	{
+		viscosityField[i] = 100.0;
+	}
 
 	// #pragma omp parallel default(shared)
     // {
