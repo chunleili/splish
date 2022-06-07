@@ -339,9 +339,16 @@ void Viscosity_Casson::matrixVecProd(const Real* vec, Real *result, void *userDa
 						const Vector3r &vj = bm_neighbor->getVelocity(neighborIndex);
 						const Vector3r xixj = xi - xj;
 						const Vector3r gradW = sim->gradW(xixj);
-						const Vector3r a = d * mub * (density0 * bm_neighbor->getVolume(neighborIndex) / density_i) * (vi).dot(xixj) / (xixj.squaredNorm() + 0.01*h2) * gradW;
-						ai += a;
-					);
+						// const Vector3r a = d * mub * (density0 * bm_neighbor->getVolume(neighborIndex) / density_i) * (vi).dot(xixj) / (xixj.squaredNorm() + 0.01*h2) * gradW;
+						Vector3r a;
+						if ((xj[0] > m_coaguBoxMin[0]) && (xj[1] > m_coaguBoxMin[1]) && (xj[2] > m_coaguBoxMin[2]) &&
+							(xj[0] < m_coaguBoxMax[0]) && (xj[1] < m_coaguBoxMax[1]) && (xj[2] < m_coaguBoxMax[2])) {
+							a = d * mub * visco->viscosityField[neighborIndex] * (density0 * bm_neighbor->getVolume(neighborIndex) / density_i) * (vi).dot(xixj) / (xixj.squaredNorm() + 0.01*h2) * gradW;
+						} else {
+							a = d * mub * (density0 * bm_neighbor->getVolume(neighborIndex) / density_i) * (vi).dot(xixj) / (xixj.squaredNorm() + 0.01*h2) * gradW;
+						}
+
+						ai += a;);
 				}
 				else if (sim->getBoundaryHandlingMethod() == BoundaryHandlingMethods::Koschier2017)
 				{
@@ -1288,7 +1295,6 @@ void Viscosity_Casson::computeRHS(VectorXr &b, VectorXr &g)
 
 void Viscosity_Casson::reset()
 {
-	m_viscosity = 0.01; //reset the visc
 }
 
 void Viscosity_Casson::performNeighborhoodSearchSort()
