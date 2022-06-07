@@ -32,8 +32,8 @@ Viscosity_Casson::Viscosity_Casson(FluidModel *model) :
 
 	model->addField({ "velocity difference", FieldType::Vector3, [&](const unsigned int i) -> Real* { return &m_vDiff[i][0]; }, true });
 
-	viscosityField.resize(model->numParticles(), 0.0);
-	model->addField({ "viscosityField", FieldType::Scalar, [&](const unsigned int i) -> Real* { return &viscosityField[i]; }, true });
+	m_cassonViscosity.resize(model->numParticles(), 0.0);
+	model->addField({ "casson Viscosity", FieldType::Scalar, [&](const unsigned int i) -> Real* { return &m_cassonViscosity[i]; }, true });
 }
 
 Viscosity_Casson::~Viscosity_Casson(void)
@@ -42,9 +42,8 @@ Viscosity_Casson::~Viscosity_Casson(void)
 
 	m_vDiff.clear();
 
-	m_model->removeFieldByName("viscosityField");
-
-	viscosityField.clear();
+	m_model->removeFieldByName("casson Viscosity");
+	m_cassonViscosity.clear();
 }
 
 void Viscosity_Casson::initParameters()
@@ -316,11 +315,11 @@ void Viscosity_Casson::matrixVecProd(const Real* vec, Real *result, void *userDa
 				const Vector3r xixj = xi - xj;
 
 				// ai += d * mu * (model->getMass(neighborIndex) / density_j) * (vi - vj).dot(xixj) / (xixj.squaredNorm() + 0.01*h2) * gradW;
-				// ai += d * (mu + visco->viscosityField[neighborIndex]) * (model->getMass(neighborIndex) / density_j) * (vi - vj).dot(xixj) / (xixj.squaredNorm() + 0.01*h2) * gradW;
+				// ai += d * (mu + visco->m_cassonViscosity[neighborIndex]) * (model->getMass(neighborIndex) / density_j) * (vi - vj).dot(xixj) / (xixj.squaredNorm() + 0.01*h2) * gradW;
 				if ((xj[0] > m_coaguBoxMin[0]) && (xj[1] > m_coaguBoxMin[1]) && (xj[2] > m_coaguBoxMin[2]) &&
 					(xj[0] < m_coaguBoxMax[0]) && (xj[1] < m_coaguBoxMax[1]) && (xj[2] < m_coaguBoxMax[2]))
 				{
-					ai += d * mu * visco->viscosityField[neighborIndex] * (model->getMass(neighborIndex) / density_j) * (vi - vj).dot(xixj) / (xixj.squaredNorm() + 0.01 * h2) * gradW;
+					ai += d * mu * visco->m_cassonViscosity[neighborIndex] * (model->getMass(neighborIndex) / density_j) * (vi - vj).dot(xixj) / (xixj.squaredNorm() + 0.01 * h2) * gradW;
 				}
 				else
 				{
@@ -343,7 +342,7 @@ void Viscosity_Casson::matrixVecProd(const Real* vec, Real *result, void *userDa
 						Vector3r a;
 						if ((xj[0] > m_coaguBoxMin[0]) && (xj[1] > m_coaguBoxMin[1]) && (xj[2] > m_coaguBoxMin[2]) &&
 							(xj[0] < m_coaguBoxMax[0]) && (xj[1] < m_coaguBoxMax[1]) && (xj[2] < m_coaguBoxMax[2])) {
-							a = d * mub * visco->viscosityField[neighborIndex] * (density0 * bm_neighbor->getVolume(neighborIndex) / density_i) * (vi).dot(xixj) / (xixj.squaredNorm() + 0.01*h2) * gradW;
+							a = d * mub * visco->m_cassonViscosity[neighborIndex] * (density0 * bm_neighbor->getVolume(neighborIndex) / density_i) * (vi).dot(xixj) / (xixj.squaredNorm() + 0.01*h2) * gradW;
 						} else {
 							a = d * mub * (density0 * bm_neighbor->getVolume(neighborIndex) / density_i) * (vi).dot(xixj) / (xixj.squaredNorm() + 0.01*h2) * gradW;
 						}
@@ -928,12 +927,51 @@ void Viscosity_Casson::step()
 
 
 
-	for(int i = 0; i < numParticles; ++i)
+	const Real m_muC = 0.00298;
+	const Real m_tauC = 0.02876;
+	const Real m_lambda = 4.020;
+	// shear strain rate calculation
+	Simulation *sim = Simulation::getCurrent();
+	const unsigned int fluidModelIndex = m_model->getPointSetIndex();
+
+	for (int i = 0; i < numParticles; ++i)
 	{
-		viscosityField[i] = (curTime - startTime) / (endTime - startTime) * endViscosity;
-		if(curTime>endTime)
-			viscosityField[i] =  endViscosity;
+		Vector6r strainRate;
+		const Vector3r &xi = m_model->getPosition(i);
+		const Vector3r &vi = m_model->getVelocity(i);
+		const Real density_i = m_model->getDensity(i);
+
+		for (unsigned int j = 0; j < sim->numberOfNeighbors(fluidModelIndex, fluidModelIndex, i); j++)
+		{
+			const unsigned int neighborIndex = sim->getNeighbor(fluidModelIndex, fluidModelIndex, i, j);
+			const Vector3r &xj = m_model->getPosition(neighborIndex);
+
+			const Vector3r &vj = m_model->getVelocity(neighborIndex);
+
+			const Vector3r gradW = sim->gradW(xi - xj);
+			const Vector3r vji = vj - vi;
+			const Real m = m_model->getMass(neighborIndex);
+			const Real m2 = m * static_cast<Real>(2.0);
+			strainRate[0] += m2 * vji[0] * gradW[0];
+			strainRate[1] += m2 * vji[1] * gradW[1];
+			strainRate[2] += m2 * vji[2] * gradW[2];
+			strainRate[3] += m * (vji[0] * gradW[1] + vji[1] * gradW[0]);
+			strainRate[4] += m * (vji[0] * gradW[2] + vji[2] * gradW[0]);
+			strainRate[5] += m * (vji[1] * gradW[2] + vji[2] * gradW[1]);
+		}
+		strainRate = (static_cast<Real>(0.5) / density_i) * strainRate;
+		// end shear strain rate calculation
+		
+
+		m_cassonViscosity[i] = sqrt(m_muC) + sqrt(m_tauC) / (sqrt(m_lambda) + sqrt(strainRate.norm()));
+		// end: Modified Casson Viscosity
+
+
+		m_cassonViscosity[i] += (curTime - startTime) / (endTime - startTime) * endViscosity;
+		if (curTime > endTime)
+			m_cassonViscosity[i] = endViscosity;
 	}
+
 
 
 	//////////////////////////////////////////////////////////////////////////
