@@ -16,6 +16,8 @@ int Viscosity_Casson::MAX_ITERATIONS = -1;
 int Viscosity_Casson::MAX_ERROR = -1;
 int Viscosity_Casson::VISCOSITY_COEFFICIENT_BOUNDARY = -1;
 int Viscosity_Casson::VISCOSITY_FIELD = -1;
+Vector3r Viscosity_Casson::m_coaguBoxMin(0., 0., 0.);
+Vector3r Viscosity_Casson::m_coaguBoxMax(1., 1., 1.);
 
 Viscosity_Casson::Viscosity_Casson(FluidModel *model) :
 	ViscosityBase(model), m_vDiff()
@@ -70,12 +72,6 @@ void Viscosity_Casson::initParameters()
 	setDescription(MAX_ERROR, "Max. error of the viscosity solver.");
 	rparam = static_cast<RealParameter*>(getParameter(MAX_ERROR));
 	rparam->setMinValue(static_cast<Real>(1e-6));
-
-	// VISCOSITY_FIELD = createNumericParameter("viscosityField", "viscosityField", &viscosityField[0]);
-	// setGroup(VISCOSITY_FIELD, "Viscosity");
-	// setDescription(VISCOSITY_FIELD, "viscosityField");
-	// rparam = static_cast<RealParameter*>(getParameter(VISCOSITY_FIELD));
-	// rparam->setMinValue(0.0);
 }
 
 #ifdef USE_AVX
@@ -291,9 +287,6 @@ void Viscosity_Casson::matrixVecProd(const Real* vec, Real *result, void *userDa
 	const Real mub = visco->m_boundaryViscosity * density0;
 	const Real sphereVolume = static_cast<Real>(4.0 / 3.0 * M_PI) * h2*h;
 
-	const Vector3r m_coaguBoxMin(0., 0., 0.);
-	const Vector3r m_coaguBoxMax(1., 1., 1.);
-
 	Real d = 10.0;
 	if (sim->is2DSimulation())
 		d = 8.0;
@@ -323,16 +316,18 @@ void Viscosity_Casson::matrixVecProd(const Real* vec, Real *result, void *userDa
 				const Vector3r xixj = xi - xj;
 
 				// ai += d * mu * (model->getMass(neighborIndex) / density_j) * (vi - vj).dot(xixj) / (xixj.squaredNorm() + 0.01*h2) * gradW;
-
+				// ai += d * (mu + visco->viscosityField[neighborIndex]) * (model->getMass(neighborIndex) / density_j) * (vi - vj).dot(xixj) / (xixj.squaredNorm() + 0.01*h2) * gradW;
 				if ((xj[0] > m_coaguBoxMin[0]) && (xj[1] > m_coaguBoxMin[1]) && (xj[2] > m_coaguBoxMin[2]) &&
-				(xj[0] < m_coaguBoxMax[0]) && (xj[1] < m_coaguBoxMax[1]) && (xj[2] < m_coaguBoxMax[2]))
+					(xj[0] < m_coaguBoxMax[0]) && (xj[1] < m_coaguBoxMax[1]) && (xj[2] < m_coaguBoxMax[2]))
 				{
-					ai += d * mu * visco->viscosityField[neighborIndex] * (model->getMass(neighborIndex) / density_j) * (vi - vj).dot(xixj) / (xixj.squaredNorm() + 0.01*h2) * gradW;
-				} else {
-					ai += d * mu * (model->getMass(neighborIndex) / density_j) * (vi - vj).dot(xixj) / (xixj.squaredNorm() + 0.01*h2) * gradW;
+					ai += d * mu * visco->viscosityField[neighborIndex] * (model->getMass(neighborIndex) / density_j) * (vi - vj).dot(xixj) / (xixj.squaredNorm() + 0.01 * h2) * gradW;
+				}
+				else
+				{
+					ai += d * mu * (model->getMass(neighborIndex) / density_j) * (vi - vj).dot(xixj) / (xixj.squaredNorm() + 0.01 * h2) * gradW;
 				}
 			};
-
+			
 			//////////////////////////////////////////////////////////////////////////
 			// Boundary
 			//////////////////////////////////////////////////////////////////////////
@@ -915,28 +910,24 @@ void Viscosity_Casson::step()
 		return;
 	const Real density0 = m_model->getDensity0();
 	const Real h = TimeManager::getCurrent()->getTimeStepSize();
-	const Real time=TimeManager::getCurrent()->getTime();
 
-	// const Real endTime = 5.0; 
-	// m_viscosity = time/endTime * 100.0 ;
-	// if(time>endTime)
-	// 	m_viscosity = 100.0;
+	//////////////////////////////////////////////////////////////////////////
+	// locally dynamically changing viscosity
+	//////////////////////////////////////////////////////////////////////////
+	const Real curTime = TimeManager::getCurrent()->getTime();
+	const Real startTime = 0.0;
+	const Real endTime = 5.0;
+	const Real endViscosity = 1000.0;
 
-	for (int i = 0; i < (int)numParticles; i++)
+
+
+	for(int i = 0; i < numParticles; ++i)
 	{
-		viscosityField[i] = 100.0;
+		viscosityField[i] = (curTime - startTime) / (endTime - startTime) * endViscosity;
+		if(curTime>endTime)
+			viscosityField[i] =  endViscosity;
 	}
 
-	// #pragma omp parallel default(shared)
-    // {
-    //     #pragma omp for schedule(static)
-    //     for (int i = 0; i < (int)numParticles; i++)
-    //     {
-	// 		// if (m_model->getParticleState(i) == ParticleState::Active && m_model->m_myParticleState[i].state == 1)
-	// 		if (m_model->m_myParticleState[i].state == 1)
-	// 			viscosityField[i] = m_viscosity  * density0 * 1000.0;
-	// 	}
-	// }
 
 	//////////////////////////////////////////////////////////////////////////
 	// Init linear system solver and preconditioner

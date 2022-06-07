@@ -25,6 +25,8 @@ namespace SPH
 		unsigned int m_iterations;
 		std::vector<Vector3r> m_vDiff;
 		Real m_tangentialDistanceFactor;
+		static  Vector3r m_coaguBoxMin;
+		static  Vector3r m_coaguBoxMax;
 
 #ifdef USE_BLOCKDIAGONAL_PRECONDITIONER
 		typedef Eigen::ConjugateGradient<MatrixReplacement, Eigen::Lower | Eigen::Upper, BlockJacobiPreconditioner3D> Solver;
@@ -45,6 +47,7 @@ namespace SPH
 		static int VISCOSITY_COEFFICIENT_BOUNDARY;
 		static int VISCOSITY_FIELD;
 		std::vector<Real> viscosityField;
+
 
 		Viscosity_Casson(FluidModel *model);
 		virtual ~Viscosity_Casson(void);
