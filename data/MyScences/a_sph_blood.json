@@ -68,7 +68,7 @@
       "rotationAngle": 3.1415926535897932384626433832795,
       "velocity": 1,
       "type": 1,
-      "emitStartTime": 2,
+      "emitStartTime": 0,
       "emitEndTime": 30
     }
   ]

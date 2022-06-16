@@ -112,6 +112,7 @@ void Coagulation::step()
             Real &ccf_i = getCcf(i);
             Real density_i = m_model->getDensity(i);
             Real source = 0.0;
+            Real ccf_sum = 0.0;
 
             if ((xi[0] > m_coaguBoxMin[0]) && (xi[1] > m_coaguBoxMin[1]) && (xi[2] > m_coaguBoxMin[2]) &&
 				(xi[0] < m_coaguBoxMax[0]) && (xi[1] < m_coaguBoxMax[1]) && (xi[2] < m_coaguBoxMax[2]))
@@ -124,9 +125,10 @@ void Coagulation::step()
 
                 Real density_j = m_model->getDensity(neighborIndex);
                 Real ccf_j = getCcf(neighborIndex);
-                ccf_i += (m_diffusivity * m_model->getMass(neighborIndex) 
+                ccf_sum += (m_diffusivity * m_model->getMass(neighborIndex) 
                 / (density_j * density_i) * (ccf_i - ccf_j) * grawWNorm + source) * dt;
             }
+            ccf_i = ccf_sum;
         }
     }
     ChangeParticleState();
