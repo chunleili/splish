@@ -923,7 +923,7 @@ void Viscosity_Casson::step()
 	const Real curTime = TimeManager::getCurrent()->getTime();
 	const Real startTime = 0.0;
 	const Real endTime = 5.0;
-	const Real endViscosity = 1000.0;
+	const Real endViscosity = 5000.0;
 
 
 

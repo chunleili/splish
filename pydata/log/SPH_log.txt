@@ -1,8 +1,0 @@
-[2022-06-16 15:07:44] Info:    SPlisHSPlasH version: 2.11.2
-[2022-06-16 15:07:44] Debug:   Git refspec:          refs/heads/refactor
-[2022-06-16 15:07:44] Debug:   Git SHA1:             cbc56540e1afd35f19212990f0ee223f481ea899
-[2022-06-16 15:07:44] Debug:   Git status:           DIRTY
-[2022-06-16 15:07:44] Debug:   Host name:            DESKTOP-JSVG8IH
-[2022-06-16 15:07:44] Info:    Output directory: E:\codes\SPlisHSPlasH\pydata
-[2022-06-16 15:07:44] Info:    Load scene file: E:/App/miniconda3/data/Scenes/DoubleDamBreak.json
-[2022-06-16 15:07:44] Info:    Initialize static boundary simulation

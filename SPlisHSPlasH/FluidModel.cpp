@@ -69,6 +69,7 @@ FluidModel::FluidModel() :
     addField({ "position0", FieldType::Vector3, [&](const unsigned int i) -> Real* { return &getPosition0(i)[0]; } });
     addField({ "velocity", FieldType::Vector3, [&](const unsigned int i) -> Real* { return &getVelocity(i)[0]; }, true });
     addField({ "density", FieldType::Scalar, [&](const unsigned int i) -> Real* { return &getDensity(i); }, false });
+    addField({ "temperature", FieldType::Scalar, [&](const unsigned int i) -> Real* { return &getTemperature(i); }, false });
 }
 
 FluidModel::~FluidModel(void)
