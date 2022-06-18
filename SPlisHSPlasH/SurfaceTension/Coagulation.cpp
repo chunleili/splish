@@ -28,6 +28,8 @@ Coagulation::Coagulation(FluidModel* model) :
 
     m_coaguBoxMin.setZero();
 	m_coaguBoxMax = Vector3r(0.3, 0.3, 0.3);
+
+    model->    setTemperature(1501, 100.0);
 }
 
 

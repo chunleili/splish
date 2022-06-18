@@ -39,7 +39,8 @@ FluidModel::FluidModel() :
     m_objectId(),
     m_objectId0(),
     m_particleState(),
-    m_myParticleState()
+    m_myParticleState(),
+    m_temperature()
 {		
     m_density0 = 1000.0;
     m_pointSetIndex = 0;
@@ -82,6 +83,7 @@ FluidModel::~FluidModel(void)
     removeFieldByName("position0");
     removeFieldByName("velocity");
     removeFieldByName("density");
+    removeFieldByName("temperature");
 
     delete m_emitterSystem;
     delete m_surfaceTension;
@@ -272,6 +274,7 @@ void FluidModel::resizeFluidParticles(const unsigned int newSize)
     m_a.resize(newSize);
     m_masses.resize(newSize);
     m_density.resize(newSize);
+    m_temperature.resize(newSize);
     m_particleId.resize(newSize);
     m_objectId.resize(newSize);
     m_objectId0.resize(newSize);
@@ -288,6 +291,7 @@ void FluidModel::releaseFluidParticles()
     m_a.clear();
     m_masses.clear();
     m_density.clear();
+    m_temperature.clear();
     m_particleId.clear();
     m_objectId.clear();
     m_objectId0.clear();
@@ -314,6 +318,7 @@ void FluidModel::initModel(const std::string &id, const unsigned int nFluidParti
             getVelocity(i) = fluidVelocities[i];
             getAcceleration(i).setZero();
             m_density[i] = 0.0;
+            m_temperature[i] = 0.0;
             m_particleId[i] = i;
             m_objectId[i] = fluidObjectIds[i];
             m_objectId0[i] = fluidObjectIds[i];
@@ -356,6 +361,7 @@ void FluidModel::performNeighborhoodSearchSort()
     d.sort_field(&m_a[0]);
     d.sort_field(&m_masses[0]);
     d.sort_field(&m_density[0]);
+    d.sort_field(&m_temperature[0]);
     d.sort_field(&m_particleId[0]);
     d.sort_field(&m_objectId[0]);
     d.sort_field(&m_particleState[0]);

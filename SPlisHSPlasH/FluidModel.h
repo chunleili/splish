@@ -346,14 +346,19 @@ namespace SPH
 				return m_density[i];
 			}
 
+			FORCE_INLINE void setDensity(const unsigned int i, const Real &val)
+			{
+				m_density[i] = val;
+			}
+
 			FORCE_INLINE Real& getTemperature(const unsigned int i)
 			{
 				return m_temperature[i];
 			}
 
-			FORCE_INLINE void setDensity(const unsigned int i, const Real &val)
+			FORCE_INLINE void setTemperature(const unsigned int i, const Real &val)
 			{
-				m_density[i] = val;
+				m_temperature[i] = val;
 			}
 
 			FORCE_INLINE unsigned int& getParticleId(const unsigned int i)
