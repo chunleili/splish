@@ -19,7 +19,7 @@ Coagulation::Coagulation(FluidModel* model) :
     m_ccf(),
     m_thresHigh(static_cast<Real>(1.0)),
     m_thresLow(static_cast<Real>(0.1)),
-    m_diffusivity(static_cast<Real>(0.1)),
+    m_diffusivity(static_cast<Real>(50.0)),
     m_rSource(static_cast<Real>(0.1))
 {
     m_ccf.resize(model->numParticles(), 0.0);
@@ -104,7 +104,7 @@ void Coagulation::step()
     const Real h = sim->getSupportRadius();
     const Real dt = TimeManager::getCurrent()->getTimeStepSize();
 
-    // Compute forces
+    // compute ccf
     #pragma omp parallel default(shared)
     {
         #pragma omp for schedule(static)  
@@ -115,6 +115,10 @@ void Coagulation::step()
             Real density_i = m_model->getDensity(i);
             Real source = 0.0;
             Real ccf_sum = 0.0;
+            
+            Real &temp = model->getTemperature(i);
+            Real temp_sum = 0.0;
+            Real temp_old = temp;
 
             if ((xi[0] > m_coaguBoxMin[0]) && (xi[1] > m_coaguBoxMin[1]) && (xi[2] > m_coaguBoxMin[2]) &&
 				(xi[0] < m_coaguBoxMax[0]) && (xi[1] < m_coaguBoxMax[1]) && (xi[2] < m_coaguBoxMax[2]))
@@ -129,8 +133,13 @@ void Coagulation::step()
                 Real ccf_j = getCcf(neighborIndex);
                 ccf_sum += (m_diffusivity * m_model->getMass(neighborIndex) 
                 / (density_j * density_i) * (ccf_i - ccf_j) * grawWNorm + source) * dt;
+
+                Real temp_j = model->getTemperature(neighborIndex);
+                temp_sum += (m_diffusivity * m_model->getMass(neighborIndex) 
+                / (density_j * density_i) * (temp - temp_j) * grawWNorm + source) * dt;
             }
             ccf_i = ccf_sum;
+            temp = temp_sum + temp_old;
         }
     }
     ChangeParticleState();
