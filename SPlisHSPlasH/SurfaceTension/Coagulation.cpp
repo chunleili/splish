@@ -136,7 +136,7 @@ void Coagulation::step()
 
                 Real temp_j = model->getTemperature(neighborIndex);
                 temp_sum += (m_diffusivity * m_model->getMass(neighborIndex) 
-                / (density_j * density_i) * (temp - temp_j) * grawWNorm + source) * dt;
+                / (density_j * density_i) * (temp_j - temp) * grawWNorm + source) * dt;
             }
             ccf_i = ccf_sum;
             temp = temp_sum + temp_old;
