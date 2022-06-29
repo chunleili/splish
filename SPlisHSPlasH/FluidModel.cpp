@@ -64,7 +64,7 @@ FluidModel::FluidModel() :
 
     addField({ "id", FieldType::UInt, [&](const unsigned int i) -> unsigned int* { return &getParticleId(i); }, true });
     addField({ "state", FieldType::UInt, [&](const unsigned int i) -> unsigned int* { return (unsigned int*)(&m_particleState[i]); }, true });
-    addField({ "myState", FieldType::UInt, [&](const unsigned int i) -> unsigned int* { return (unsigned int*)(&(m_myParticleState[i].state)); }, true });
+    addField({ "myState", FieldType::UInt, [&](const unsigned int i) -> unsigned int* { return (unsigned int*)(&(m_myParticleState[i])); }, true });
     addField({ "object_id", FieldType::UInt, [&](const unsigned int i) -> unsigned int* { return &getObjectId(i); }, true });
     addField({ "position", FieldType::Vector3, [&](const unsigned int i) -> Real* { return &getPosition(i)[0]; }, true });
     addField({ "position0", FieldType::Vector3, [&](const unsigned int i) -> Real* { return &getPosition0(i)[0]; } });
@@ -324,8 +324,8 @@ void FluidModel::initModel(const std::string &id, const unsigned int nFluidParti
             m_objectId0[i] = fluidObjectIds[i];
             if (m_particleState[i] != ParticleState::Fixed)
                 m_particleState[i] = ParticleState::Active;
-            if (m_myParticleState[i].state != 0)
-                m_myParticleState[i].state = 0;
+            if (m_myParticleState[i] != 0)
+                m_myParticleState[i] = 0;
         }
     }
     // set IDs for emitted particles

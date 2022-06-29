@@ -278,7 +278,7 @@ void Elasticity_Becker2009::computeForces()
 
 					fi += m_rotations[neighborIndex] * fij - m_rotations[i] * fji;
 				}
-				if (model->getParticleState(i) == ParticleState::Active && model->m_myParticleState[i].state == 1)
+				if (model->getParticleState(i) == ParticleState::Active && model->m_myParticleState[i] == 1)
 					fi = 0.5*fi;
 				else
 					fi.setZero();

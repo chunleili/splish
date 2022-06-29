@@ -71,10 +71,6 @@ namespace SPH
 	};
 
 	enum class ParticleState { Active = 0, AnimatedByEmitter, Fixed , Elastic};
-	struct MyParticleState 
-	{
-		int state=0; //Fluid=0, Elastic, ViscoElastic ;
-	};
 
 	/** \brief The fluid model stores the particle and simulation information 
 	*/
@@ -91,7 +87,7 @@ namespace SPH
 			static int VORTICITY_METHOD;
 			static int ELASTICITY_METHOD;
 
-			std::vector<MyParticleState> m_myParticleState; // flag variable: 1 for Elastic, 2 for ViscoElastic
+			std::vector<Real> m_myParticleState; // flag variable: 1 for Elastic, 2 for ViscoElastic
 
 			FluidModel();
 			FluidModel(const FluidModel&) = delete;

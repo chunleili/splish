@@ -26,10 +26,10 @@ Coagulation::Coagulation(FluidModel* model) :
 
     model->addField({ "ccf field", FieldType::Scalar, [&](const unsigned int i) -> Real* { return &m_ccf[i]; } });
 
-    m_coaguBoxMin.setZero();
+	m_coaguBoxMin.setZero();
 	m_coaguBoxMax = Vector3r(0.3, 0.3, 0.3);
 
-    model->    setTemperature(1501, 100.0);
+    model->setTemperature(1501, 100.0);
 }
 
 
@@ -132,7 +132,7 @@ void Coagulation::step()
                 Real density_j = m_model->getDensity(neighborIndex);
                 Real ccf_j = getCcf(neighborIndex);
                 ccf_sum += (m_diffusivity * m_model->getMass(neighborIndex) 
-                / (density_j * density_i) * (ccf_i - ccf_j) * grawWNorm + source) * dt;
+                / (density_j * density_i) * (ccf_j - ccf_i) * grawWNorm + source) * dt;
 
                 Real temp_j = model->getTemperature(neighborIndex);
                 temp_sum += (m_diffusivity * m_model->getMass(neighborIndex) 
@@ -140,6 +140,7 @@ void Coagulation::step()
             }
             ccf_i = ccf_sum;
             temp = temp_sum + temp_old;
+            ccf_i = temp;
         }
     }
     ChangeParticleState();
@@ -193,7 +194,7 @@ void Coagulation::ChangeParticleState()
             if  (m_ccf[i] > m_thresLow) // m_thresLow < ccf < m_thresHigh
             {
                 // m_model->setParticleState(i, ParticleState::Elastic);
-                m_model->m_myParticleState[i].state = 1;
+                m_model->m_myParticleState[i] = 1;
             }
         }
 }
