@@ -25,6 +25,7 @@
 #include "SurfaceTension/SurfaceTension_Akinci2013.h"
 #include "SurfaceTension/SurfaceTension_He2014.h"
 #include "SurfaceTension/Coagulation.h"
+#include "SurfaceTension/TemperatureDiffusion.h"
 #ifdef USE_THIRD_PARTY_METHODS
 #include "SurfaceTension/SurfaceTension_ZorillaRitter2020.h"
 #endif
@@ -49,6 +50,7 @@ void Simulation::registerNonpressureForces()
 	addSurfaceTensionMethod("Akinci et al. 2013", SurfaceTension_Akinci2013::creator);
 	addSurfaceTensionMethod("He et al. 2014", SurfaceTension_He2014::creator);
 	addSurfaceTensionMethod("Coagulation method", Coagulation::creator); //added Coagulation
+	addSurfaceTensionMethod("TemperatureDiffusion", TemperatureDiffusion::creator); //add temperature diffusion
 #ifdef USE_THIRD_PARTY_METHODS
 	addSurfaceTensionMethod("Zorilla, Ritter, et al. 2020", SurfaceTension_ZorillaRitter2020::creator);
 #endif

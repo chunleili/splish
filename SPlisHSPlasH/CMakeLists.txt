@@ -76,6 +76,7 @@ set(SURFACETENSION_HEADER_FILES
 	SurfaceTension/SurfaceTension_Akinci2013.h
 	SurfaceTension/SurfaceTension_He2014.h
 	SurfaceTension/Coagulation.h
+	SurfaceTension/TemperatureDiffusion.h #add TemperatureDiffusion
 	)
 	
 set(SURFACETENSION_SOURCE_FILES
@@ -84,6 +85,7 @@ set(SURFACETENSION_SOURCE_FILES
 	SurfaceTension/SurfaceTension_Akinci2013.cpp
 	SurfaceTension/SurfaceTension_He2014.cpp
 	SurfaceTension/Coagulation.cpp
+	SurfaceTension/TemperatureDiffusion.cpp	#add TemperatureDiffusion
 	)	
 
 set(VISCOSITY_HEADER_FILES
