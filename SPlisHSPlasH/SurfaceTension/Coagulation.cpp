@@ -20,7 +20,7 @@ Coagulation::Coagulation(FluidModel* model) :
     m_thresHigh(static_cast<Real>(1.0)),
     m_thresLow(static_cast<Real>(0.1)),
     m_diffusivity(static_cast<Real>(50.0)),
-    m_rSource(static_cast<Real>(0.1))
+    m_rSource(static_cast<Real>(0.0))
 {
     m_ccf.resize(model->numParticles(), 0.0);
 
@@ -29,7 +29,7 @@ Coagulation::Coagulation(FluidModel* model) :
 	m_coaguBoxMin.setZero();
 	m_coaguBoxMax = Vector3r(0.3, 0.3, 0.3);
 
-    model->setTemperature(1501, 100.0);
+    m_ccf[1501] = 100.0;
 }
 
 
@@ -115,11 +115,8 @@ void Coagulation::step()
             Real density_i = m_model->getDensity(i);
             Real source = 0.0;
             Real ccf_sum = 0.0;
+            Real ccf_old = ccf_i;
             
-            Real &temp = model->getTemperature(i);
-            Real temp_sum = 0.0;
-            Real temp_old = temp;
-
             if ((xi[0] > m_coaguBoxMin[0]) && (xi[1] > m_coaguBoxMin[1]) && (xi[2] > m_coaguBoxMin[2]) &&
 				(xi[0] < m_coaguBoxMax[0]) && (xi[1] < m_coaguBoxMax[1]) && (xi[2] < m_coaguBoxMax[2]))
                 source = m_rSource;
@@ -133,17 +130,10 @@ void Coagulation::step()
                 Real ccf_j = getCcf(neighborIndex);
                 ccf_sum += (m_diffusivity * m_model->getMass(neighborIndex) 
                 / (density_j * density_i) * (ccf_j - ccf_i) * grawWNorm + source) * dt;
-
-                Real temp_j = model->getTemperature(neighborIndex);
-                temp_sum += (m_diffusivity * m_model->getMass(neighborIndex) 
-                / (density_j * density_i) * (temp_j - temp) * grawWNorm + source) * dt;
             }
-            ccf_i = ccf_sum;
-            temp = temp_sum + temp_old;
-            ccf_i = temp;
+            ccf_i = ccf_sum + ccf_old;
         }
     }
-    ChangeParticleState();
 
 }
 
@@ -174,27 +164,4 @@ void Coagulation::deferredInit()
 void Coagulation::initValues()
 {
 
-}
-
-
-void Coagulation::ChangeParticleState()
-{
-    const unsigned int numParticles = m_model->numActiveParticles();
-
-    static int flag = 1;
-    if (flag == 1) {
-        m_model->m_myParticleState.resize(numParticles);
-    }
-    flag++;
-    
-    for (int i = 0; i < (int)numParticles; i++)
-        {
-            const Vector3r& x = m_model->getPosition(i);
-
-            if  (m_ccf[i] > m_thresLow) // m_thresLow < ccf < m_thresHigh
-            {
-                // m_model->setParticleState(i, ParticleState::Elastic);
-                m_model->m_myParticleState[i] = 1;
-            }
-        }
 }
