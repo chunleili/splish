@@ -30,6 +30,7 @@
 #include "SurfaceTension/SurfaceTension_ZorillaRitter2020.h"
 #endif
 
+#include "NonNewton/NonNewton.h"
 
 using namespace SPH;
 
@@ -69,4 +70,6 @@ void Simulation::registerNonpressureForces()
 	addVorticityMethod("Micropolar model", MicropolarModel_Bender2017::creator);
 	addVorticityMethod("Vorticity confinement", VorticityConfinement::creator);
 	addVorticityMethod("MyVorticiy", MyVorticity::creator);
+
+	addVorticityMethod("NonNewton", NonNewton::creator);
 }

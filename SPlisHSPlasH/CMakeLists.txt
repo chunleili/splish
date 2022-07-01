@@ -153,7 +153,16 @@ set(ELASTICITY_SOURCE_FILES
 	Elasticity/Elasticity_Kugelstadt2021.cpp
 	Elasticity/MyElasticity.cpp	#added MyElasticity
 	)
+
+set(NON_NEWTON_HEADER_FILES
+	NonNewton/NonNewton.h	#add NonNewton
+	)
 	
+set(NON_NEWTON_SOURCE_FILES
+	NonNewton/NonNewton.cpp	#add NonNewton
+	)
+
+
 set(UTILS_HEADER_FILES
 	Utilities/AVX_math.h
 	Utilities/CholeskyAVXSolver.h	
@@ -275,6 +284,9 @@ add_library(SPlisHSPlasH
 
 	${UTILS_HEADER_FILES}
 	${UTILS_SOURCE_FILES}
+
+	${NON_NEWTON_HEADER_FILES}	#add NonNewton
+	${NON_NEWTON_SOURCE_FILES}
 )
 
 add_dependencies(SPlisHSPlasH
@@ -326,4 +338,6 @@ source_group("Header Files\\Elasticity" FILES ${ELASTICITY_HEADER_FILES})
 source_group("Source Files\\Elasticity" FILES ${ELASTICITY_SOURCE_FILES})
 source_group("Header Files\\Utils" FILES ${UTILS_HEADER_FILES})
 source_group("Source Files\\Utils" FILES ${UTILS_SOURCE_FILES})
+source_group("Header Files\\NonNewton" FILES ${NON_NEWTON_HEADER_FILES})	#add NonNewton
+source_group("Source Files\\NonNewton" FILES ${NON_NEWTON_SOURCE_FILES}) 
 
