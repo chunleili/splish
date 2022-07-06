@@ -14,7 +14,9 @@ namespace SPH
 	{
 	private:
 		Real m_viscosity;
+		std::vector<Vector6r> m_strainRate;
 		virtual void initParameters() override;
+		void calcStrainRate();
 	public:
 		static int NON_NEWTON;
 		NonNewton(FluidModel *model);
