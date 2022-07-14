@@ -12,7 +12,8 @@ int Coagulation::DIFFUSIVITY = -1;
 int Coagulation::R_SOURCE = -1;
 int Coagulation::COAGU_BOX_MIN = -1;
 int Coagulation::COAGU_BOX_MAX = -1;
-
+int Coagulation::POINT_SRC_VAL = -1;
+int Coagulation::POINT_SRC_POS = -1;
 
 Coagulation::Coagulation(FluidModel* model) :
     SurfaceTensionBase(model), 
@@ -73,7 +74,7 @@ void Coagulation::initParameters()
     {
 	    m_coaguBoxMin = Vector3r(val[0], val[1], val[2]);
     };
-	COAGU_BOX_MIN = createVectorParameter("coaguBoxMix", "box min", 3u, getFct, setFct);
+	COAGU_BOX_MIN = createVectorParameter("coaguBoxMin", "box min", 3u, getFct, setFct);
 	setGroup(COAGU_BOX_MIN, "coagualtion");
 	setDescription(COAGU_BOX_MIN, "Minimum point of box of which the rSource is not zero.");
 
@@ -85,6 +86,17 @@ void Coagulation::initParameters()
 	COAGU_BOX_MAX = createVectorParameter("coaguBoxMax", "box max", 3u, getFct2, setFct2);
 	setGroup(COAGU_BOX_MAX, "coagualtion");
 	setDescription(COAGU_BOX_MAX, "Maximum point of box of which the rSource is not zero.");
+
+    POINT_SRC_VAL = createNumericParameter("pointSrcVal", "pointSrcVal", &m_pointSrcVal);
+	setDescription(POINT_SRC_VAL, "give a particle initial non-zero value to test the diffusion");
+    setGroup(POINT_SRC_VAL, "coagualtion");
+    rparam = static_cast<GenParam::RealParameter*>(getParameter(POINT_SRC_VAL));
+    rparam->setMinValue(0.0);
+
+    POINT_SRC_POS = createNumericParameter("pointSrcPos", "pointSrcPos", &m_pointSrcPos);
+	setDescription(POINT_SRC_POS, "give a particle ID(uint) of which the initial value is not zero to test the diffusion");
+    setGroup(POINT_SRC_POS, "coagualtion");
+
 }
 
 void Coagulation::step()
@@ -103,6 +115,9 @@ void Coagulation::step()
     FluidModel* model = m_model;
     const Real h = sim->getSupportRadius();
     const Real dt = TimeManager::getCurrent()->getTimeStepSize();
+
+    if(m_pointSrcPos!=-1)
+        m_ccf[m_pointSrcPos] = m_pointSrcVal;
 
     // compute ccf
     #pragma omp parallel default(shared)

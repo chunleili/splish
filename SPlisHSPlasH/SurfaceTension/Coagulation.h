@@ -18,6 +18,9 @@ namespace SPH
 		Real m_diffusivity;
 		Real m_rSource;
 
+		Real m_pointSrcVal;
+		int m_pointSrcPos=-1;
+
 		Vector3r m_coaguBoxMin;
 		Vector3r m_coaguBoxMax;
 
@@ -32,6 +35,9 @@ namespace SPH
 		static int THRES_HIGH;
 		static int DIFFUSIVITY;
 		static int R_SOURCE;
+
+		static int POINT_SRC_VAL;
+		static int POINT_SRC_POS;
 
 		static int COAGU_BOX_MIN;
 		static int COAGU_BOX_MAX;
@@ -52,9 +58,6 @@ namespace SPH
 		{
 			return m_ccf[i];
 		}
-
-
-		void ChangeParticleState();
 
 	};
 }

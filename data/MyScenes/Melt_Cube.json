@@ -28,7 +28,7 @@
 			"viscosityMethod": 8,
 			"colorField": "temperature",
 			"coaguBoxMax": [1,0.05,1],
-			"coaguBoxMix": [-1,0.0,-1],
+			"coaguBoxMin": [-1,0.0,-1],
 			"Max. value (shader)":1.0
 		}
 	],
