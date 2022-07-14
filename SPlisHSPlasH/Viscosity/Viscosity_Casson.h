@@ -39,6 +39,7 @@ namespace SPH
 
 
 		virtual void initParameters();
+		void computeCassonViscosity();
 		
 	public:
 		static int ITERATIONS;

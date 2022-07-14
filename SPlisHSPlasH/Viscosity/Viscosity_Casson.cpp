@@ -32,7 +32,7 @@ Viscosity_Casson::Viscosity_Casson(FluidModel *model) :
 
 	model->addField({ "velocity difference", FieldType::Vector3, [&](const unsigned int i) -> Real* { return &m_vDiff[i][0]; }, true });
 
-	m_cassonViscosity.resize(model->numParticles(), 0.0);
+	m_cassonViscosity.resize(model->numParticles(), 10000.0);
 	model->addField({ "casson Viscosity", FieldType::Scalar, [&](const unsigned int i) -> Real* { return &m_cassonViscosity[i]; }, true });
 }
 
@@ -316,14 +316,15 @@ void Viscosity_Casson::matrixVecProd(const Real* vec, Real *result, void *userDa
 
 				// ai += d * mu * (model->getMass(neighborIndex) / density_j) * (vi - vj).dot(xixj) / (xixj.squaredNorm() + 0.01*h2) * gradW;
 				// ai += d * (mu + visco->m_cassonViscosity[neighborIndex]) * (model->getMass(neighborIndex) / density_j) * (vi - vj).dot(xixj) / (xixj.squaredNorm() + 0.01*h2) * gradW;
-				if ((xj[0] > m_coaguBoxMin[0]) && (xj[1] > m_coaguBoxMin[1]) && (xj[2] > m_coaguBoxMin[2]) &&
-					(xj[0] < m_coaguBoxMax[0]) && (xj[1] < m_coaguBoxMax[1]) && (xj[2] < m_coaguBoxMax[2]))
+				// if ((xj[0] > m_coaguBoxMin[0]) && (xj[1] > m_coaguBoxMin[1]) && (xj[2] > m_coaguBoxMin[2]) &&
+				// 	(xj[0] < m_coaguBoxMax[0]) && (xj[1] < m_coaguBoxMax[1]) && (xj[2] < m_coaguBoxMax[2]))
+				if (model->getTemperature(neighborIndex) < 1.0)
 				{
 					ai += d * mu * visco->m_cassonViscosity[neighborIndex] * (model->getMass(neighborIndex) / density_j) * (vi - vj).dot(xixj) / (xixj.squaredNorm() + 0.01 * h2) * gradW;
 				}
 				else
 				{
-					ai += d * mu * (model->getMass(neighborIndex) / density_j) * (vi - vj).dot(xixj) / (xixj.squaredNorm() + 0.01 * h2) * gradW;
+					ai += d * mu  * (model->getMass(neighborIndex) / density_j) * (vi - vj).dot(xixj) / (xixj.squaredNorm() + 0.01 * h2) * gradW;
 				}
 			};
 			
@@ -907,16 +908,12 @@ void Viscosity_Casson::diagonalMatrixElement(const unsigned int i, Vector3r &res
 
 #endif
 
-
-void Viscosity_Casson::step()
+void Viscosity_Casson::computeCassonViscosity()
 {
 	const int numParticles = (int) m_model->numActiveParticles();
-	// prevent solver from running with a zero-length vector
-	if (numParticles == 0)
-		return;
+
 	const Real density0 = m_model->getDensity0();
 	const Real h = TimeManager::getCurrent()->getTimeStepSize();
-
 	//////////////////////////////////////////////////////////////////////////
 	// locally dynamically changing viscosity
 	//////////////////////////////////////////////////////////////////////////
@@ -973,7 +970,18 @@ void Viscosity_Casson::step()
 	}
 
 
+}
 
+void Viscosity_Casson::step()
+{
+	const int numParticles = (int) m_model->numActiveParticles();
+	// prevent solver from running with a zero-length vector
+	if (numParticles == 0)
+		return;
+	const Real density0 = m_model->getDensity0();
+	const Real h = TimeManager::getCurrent()->getTimeStepSize();
+
+	// computeCassonViscosity();
 	//////////////////////////////////////////////////////////////////////////
 	// Init linear system solver and preconditioner
 	//////////////////////////////////////////////////////////////////////////

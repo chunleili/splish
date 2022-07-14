@@ -20,7 +20,7 @@ Coagulation::Coagulation(FluidModel* model) :
     m_thresHigh(static_cast<Real>(1.0)),
     m_thresLow(static_cast<Real>(0.1)),
     m_diffusivity(static_cast<Real>(50.0)),
-    m_rSource(static_cast<Real>(0.0))
+    m_rSource(static_cast<Real>(0.1))
 {
     m_ccf.resize(model->numParticles(), 0.0);
 
@@ -29,7 +29,7 @@ Coagulation::Coagulation(FluidModel* model) :
 	m_coaguBoxMin.setZero();
 	m_coaguBoxMax = Vector3r(0.3, 0.3, 0.3);
 
-    m_ccf[1501] = 100.0;
+    // m_ccf[1501] = 100.0;
 }
 
 
@@ -132,6 +132,7 @@ void Coagulation::step()
                 / (density_j * density_i) * (ccf_j - ccf_i) * grawWNorm + source) * dt;
             }
             ccf_i = ccf_sum + ccf_old;
+            model->setTemperature(i, ccf_i);
         }
     }
 
