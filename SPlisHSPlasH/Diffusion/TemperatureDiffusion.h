@@ -4,7 +4,7 @@
 
 #include "SPlisHSPlasH/Common.h"
 #include "SPlisHSPlasH/FluidModel.h"
-#include "SurfaceTensionBase.h"
+#include "SPlisHSPlasH/SurfaceTension/SurfaceTensionBase.h"
 
 namespace SPH
 {

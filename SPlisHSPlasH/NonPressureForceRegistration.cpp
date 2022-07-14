@@ -14,23 +14,21 @@
 
 #include "SPlisHSPlasH/Vorticity/VorticityConfinement.h"
 #include "SPlisHSPlasH/Vorticity/MicropolarModel_Bender2017.h"
-#include "SPlisHSPlasH/Vorticity/MyVorticity.h"
 
 #include "Elasticity/Elasticity_Becker2009.h"
 #include "Elasticity/Elasticity_Peer2018.h"
 #include "Elasticity/Elasticity_Kugelstadt2021.h"
-#include "Elasticity/MyElasticity.h"
 
 #include "SurfaceTension/SurfaceTension_Becker2007.h"
 #include "SurfaceTension/SurfaceTension_Akinci2013.h"
 #include "SurfaceTension/SurfaceTension_He2014.h"
-#include "SurfaceTension/Coagulation.h"
-#include "SurfaceTension/TemperatureDiffusion.h"
 #ifdef USE_THIRD_PARTY_METHODS
 #include "SurfaceTension/SurfaceTension_ZorillaRitter2020.h"
 #endif
 
 #include "NonNewton/NonNewton.h"
+#include "Diffusion/Coagulation.h"
+#include "Diffusion/TemperatureDiffusion.h"
 
 using namespace SPH;
 
@@ -44,7 +42,6 @@ void Simulation::registerNonpressureForces()
 	addElasticityMethod("Becker et al. 2009", Elasticity_Becker2009::creator);
 	addElasticityMethod("Peer et al. 2018", Elasticity_Peer2018::creator);
 	addElasticityMethod("Kugelstadt et al. 2021", Elasticity_Kugelstadt2021::creator);
-	addElasticityMethod("My Elasticity method test", MyElasticity::creator);//added a Elasticity
 
 	addSurfaceTensionMethod("None", [](FluidModel*) -> NonPressureForceBase* { return nullptr; });
 	addSurfaceTensionMethod("Becker & Teschner 2007", SurfaceTension_Becker2007::creator);
@@ -69,7 +66,5 @@ void Simulation::registerNonpressureForces()
 	addVorticityMethod("None", [](FluidModel*) -> NonPressureForceBase* { return nullptr; });
 	addVorticityMethod("Micropolar model", MicropolarModel_Bender2017::creator);
 	addVorticityMethod("Vorticity confinement", VorticityConfinement::creator);
-	addVorticityMethod("MyVorticiy", MyVorticity::creator);
-
 	addVorticityMethod("NonNewton", NonNewton::creator);
 }

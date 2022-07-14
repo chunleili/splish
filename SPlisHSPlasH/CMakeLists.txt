@@ -75,8 +75,6 @@ set(SURFACETENSION_HEADER_FILES
 	SurfaceTension/SurfaceTension_Becker2007.h
 	SurfaceTension/SurfaceTension_Akinci2013.h
 	SurfaceTension/SurfaceTension_He2014.h
-	SurfaceTension/Coagulation.h
-	SurfaceTension/TemperatureDiffusion.h #add TemperatureDiffusion
 	)
 	
 set(SURFACETENSION_SOURCE_FILES
@@ -84,8 +82,6 @@ set(SURFACETENSION_SOURCE_FILES
 	SurfaceTension/SurfaceTension_Becker2007.cpp
 	SurfaceTension/SurfaceTension_Akinci2013.cpp
 	SurfaceTension/SurfaceTension_He2014.cpp
-	SurfaceTension/Coagulation.cpp
-	SurfaceTension/TemperatureDiffusion.cpp	#add TemperatureDiffusion
 	)	
 
 set(VISCOSITY_HEADER_FILES
@@ -116,14 +112,12 @@ set(VORTICITY_HEADER_FILES
 	Vorticity/VorticityBase.h
 	Vorticity/MicropolarModel_Bender2017.h
 	Vorticity/VorticityConfinement.h
-	Vorticity/MyVorticity.h	# added MyVorticity
 	)
 	
 set(VORTICITY_SOURCE_FILES
 	Vorticity/VorticityBase.cpp
 	Vorticity/MicropolarModel_Bender2017.cpp
 	Vorticity/VorticityConfinement.cpp
-	Vorticity/MyVorticity.cpp # added MyVorticity
 	)	
 
 set(DRAG_HEADER_FILES
@@ -143,7 +137,6 @@ set(ELASTICITY_HEADER_FILES
 	Elasticity/Elasticity_Becker2009.h	
 	Elasticity/Elasticity_Peer2018.h
 	Elasticity/Elasticity_Kugelstadt2021.h
-	Elasticity/MyElasticity.h	#added MyElasticity
 	)
 	
 set(ELASTICITY_SOURCE_FILES
@@ -151,7 +144,6 @@ set(ELASTICITY_SOURCE_FILES
 	Elasticity/Elasticity_Becker2009.cpp
 	Elasticity/Elasticity_Peer2018.cpp
 	Elasticity/Elasticity_Kugelstadt2021.cpp
-	Elasticity/MyElasticity.cpp	#added MyElasticity
 	)
 
 set(NON_NEWTON_HEADER_FILES
@@ -162,6 +154,15 @@ set(NON_NEWTON_SOURCE_FILES
 	NonNewton/NonNewton.cpp	#add NonNewton
 	)
 
+set(DIFFUSION_HEADER_FILES	#add diffusion
+	Diffusion/Coagulation.h	
+	Diffusion/TemperatureDiffusion.h
+	)
+	
+set(DIFFUSION_SOURCE_FILES	#add diffusion
+	Diffusion/Coagulation.cpp
+	Diffusion/TemperatureDiffusion.cpp
+	)
 
 set(UTILS_HEADER_FILES
 	Utilities/AVX_math.h
@@ -287,6 +288,9 @@ add_library(SPlisHSPlasH
 
 	${NON_NEWTON_HEADER_FILES}	#add NonNewton
 	${NON_NEWTON_SOURCE_FILES}
+
+	${DIFFUSION_HEADER_FILES}	#add Diffusion
+	${DIFFUSION_SOURCE_FILES}
 )
 
 add_dependencies(SPlisHSPlasH
@@ -340,4 +344,5 @@ source_group("Header Files\\Utils" FILES ${UTILS_HEADER_FILES})
 source_group("Source Files\\Utils" FILES ${UTILS_SOURCE_FILES})
 source_group("Header Files\\NonNewton" FILES ${NON_NEWTON_HEADER_FILES})	#add NonNewton
 source_group("Source Files\\NonNewton" FILES ${NON_NEWTON_SOURCE_FILES}) 
-
+source_group("Header Files\\Diffusion" FILES ${DIFFUSION_HEADER_FILES})	#add Diffusion
+source_group("Source Files\\Diffusion" FILES ${DIFFUSION_SOURCE_FILES}) 
