@@ -4,11 +4,11 @@
 
 #include "SPlisHSPlasH/Common.h"
 #include "SPlisHSPlasH/FluidModel.h"
-#include "SPlisHSPlasH/SurfaceTension/SurfaceTensionBase.h"
+#include "SPlisHSPlasH/NonPressureForceBase.h"
 
 namespace SPH
 {
-	class Coagulation : public SurfaceTensionBase
+	class Coagulation : public NonPressureForceBase
 	{
 	protected:
 		virtual void initParameters();
@@ -18,11 +18,11 @@ namespace SPH
 		Real m_diffusivity;
 		Real m_rSource;
 
-		Real m_pointSrcVal;
+		Real m_pointSrcVal=0.0;
 		int m_pointSrcPos=-1;
 
-		Vector3r m_coaguBoxMin;
-		Vector3r m_coaguBoxMax;
+		Vector3r m_boxMin;
+		Vector3r m_boxMax;
 
 		std::vector<Real> m_ccf;
 
@@ -39,8 +39,8 @@ namespace SPH
 		static int POINT_SRC_VAL;
 		static int POINT_SRC_POS;
 
-		static int COAGU_BOX_MIN;
-		static int COAGU_BOX_MAX;
+		static int BOX_MIN;
+		static int BOX_MAX;
 
 		Coagulation();
 		Coagulation(FluidModel* model);

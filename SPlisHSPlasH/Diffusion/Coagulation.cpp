@@ -1,6 +1,5 @@
 #include "Coagulation.h"
 #include "SPlisHSPlasH/Simulation.h"
-#include <cstdio>
 #include "SPlisHSPlasH/TimeManager.h"
 
 using namespace SPH;
@@ -10,13 +9,13 @@ int Coagulation::THRES_HIGH  = -1;
 int Coagulation::THRES_LOW = -1;
 int Coagulation::DIFFUSIVITY = -1;
 int Coagulation::R_SOURCE = -1;
-int Coagulation::COAGU_BOX_MIN = -1;
-int Coagulation::COAGU_BOX_MAX = -1;
+int Coagulation::BOX_MIN = -1;
+int Coagulation::BOX_MAX = -1;
 int Coagulation::POINT_SRC_VAL = -1;
 int Coagulation::POINT_SRC_POS = -1;
 
 Coagulation::Coagulation(FluidModel* model) :
-    SurfaceTensionBase(model), 
+    NonPressureForceBase(model), 
     m_ccf(),
     m_thresHigh(static_cast<Real>(1.0)),
     m_thresLow(static_cast<Real>(0.1)),
@@ -27,8 +26,8 @@ Coagulation::Coagulation(FluidModel* model) :
 
     model->addField({ "ccf field", FieldType::Scalar, [&](const unsigned int i) -> Real* { return &m_ccf[i]; } });
 
-	m_coaguBoxMin.setZero();
-	m_coaguBoxMax = Vector3r(0.3, 0.3, 0.3);
+	m_boxMin.setZero();
+	m_boxMax = Vector3r(0.3, 0.3, 0.3);
 
     // m_ccf[1501] = 100.0;
 }
@@ -43,8 +42,6 @@ Coagulation::~Coagulation(void)
 
 void Coagulation::initParameters()
 {
-    SurfaceTensionBase::initParameters();
-
     THRES_HIGH = createNumericParameter("thresHigh", "threshold high", &m_thresHigh);
 	setGroup(THRES_HIGH, "coagualtion");
 	setDescription(THRES_HIGH, "higher treshold for coagualtion");
@@ -69,23 +66,23 @@ void Coagulation::initParameters()
     rparam = static_cast<GenParam::RealParameter*>(getParameter(R_SOURCE));
     rparam->setMinValue(0.0);
 
-    ParameterBase::GetVecFunc<Real> getFct = [&]()-> Real* { return m_coaguBoxMin.data(); };
+    ParameterBase::GetVecFunc<Real> getFct = [&]()-> Real* { return m_boxMin.data(); };
 	ParameterBase::SetVecFunc<Real> setFct = [&](Real* val)	
     {
-	    m_coaguBoxMin = Vector3r(val[0], val[1], val[2]);
+	    m_boxMin = Vector3r(val[0], val[1], val[2]);
     };
-	COAGU_BOX_MIN = createVectorParameter("coaguBoxMin", "box min", 3u, getFct, setFct);
-	setGroup(COAGU_BOX_MIN, "coagualtion");
-	setDescription(COAGU_BOX_MIN, "Minimum point of box of which the rSource is not zero.");
+	BOX_MIN = createVectorParameter("boxMin", "box min", 3u, getFct, setFct);
+	setGroup(BOX_MIN, "coagualtion");
+	setDescription(BOX_MIN, "Minimum point of box of which the rSource is not zero.");
 
-	ParameterBase::GetVecFunc<Real> getFct2 = [&]()-> Real* { return m_coaguBoxMax.data(); };
+	ParameterBase::GetVecFunc<Real> getFct2 = [&]()-> Real* { return m_boxMax.data(); };
     ParameterBase::SetVecFunc<Real> setFct2 = [&](Real* val)
     {
-        m_coaguBoxMax = Vector3r(val[0], val[1], val[2]);
+        m_boxMax = Vector3r(val[0], val[1], val[2]);
     };
-	COAGU_BOX_MAX = createVectorParameter("coaguBoxMax", "box max", 3u, getFct2, setFct2);
-	setGroup(COAGU_BOX_MAX, "coagualtion");
-	setDescription(COAGU_BOX_MAX, "Maximum point of box of which the rSource is not zero.");
+	BOX_MAX = createVectorParameter("boxMax", "box max", 3u, getFct2, setFct2);
+	setGroup(BOX_MAX, "coagualtion");
+	setDescription(BOX_MAX, "Maximum point of box of which the rSource is not zero.");
 
     POINT_SRC_VAL = createNumericParameter("pointSrcVal", "pointSrcVal", &m_pointSrcVal);
 	setDescription(POINT_SRC_VAL, "give a particle initial non-zero value to test the diffusion");
@@ -103,8 +100,6 @@ void Coagulation::step()
 {
     Simulation* sim = Simulation::getCurrent();
     const unsigned int numParticles = m_model->numActiveParticles();
-    const Real k = m_surfaceTension;
-    const Real kb = m_surfaceTensionBoundary;
     const Real radius = sim->getValue<Real>(Simulation::PARTICLE_RADIUS);
     const Real diameter = static_cast<Real>(2.0) * radius;
     const Real diameter2 = diameter * diameter;
@@ -132,8 +127,8 @@ void Coagulation::step()
             Real ccf_sum = 0.0;
             Real ccf_old = ccf_i;
             
-            if ((xi[0] > m_coaguBoxMin[0]) && (xi[1] > m_coaguBoxMin[1]) && (xi[2] > m_coaguBoxMin[2]) &&
-				(xi[0] < m_coaguBoxMax[0]) && (xi[1] < m_coaguBoxMax[1]) && (xi[2] < m_coaguBoxMax[2]))
+            if ((xi[0] > m_boxMin[0]) && (xi[1] > m_boxMin[1]) && (xi[2] > m_boxMin[2]) &&
+				(xi[0] < m_boxMax[0]) && (xi[1] < m_boxMax[1]) && (xi[2] < m_boxMax[2]))
                 source = m_rSource;
             for (unsigned int j = 0; j < sim->numberOfNeighbors(fluidModelIndex, fluidModelIndex, i); j++)
             {

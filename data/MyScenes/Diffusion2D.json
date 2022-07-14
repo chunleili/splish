@@ -27,7 +27,10 @@
 	"Materials": [
 		{
 			"id": "Fluid",
-			"colorField": "temperature"
+			"colorField": "temperature",
+			"pointSrcVal": 100,
+			"pointSrcPos": 1501,
+			"surfaceTensionMethod": 5
 		}
 	],
 	"RigidBodies": [

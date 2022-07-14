@@ -4,11 +4,11 @@
 
 #include "SPlisHSPlasH/Common.h"
 #include "SPlisHSPlasH/FluidModel.h"
-#include "SPlisHSPlasH/SurfaceTension/SurfaceTensionBase.h"
+#include "SPlisHSPlasH/NonPressureForceBase.h"
 
 namespace SPH
 {
-	class TemperatureDiffusion : public SurfaceTensionBase
+	class TemperatureDiffusion : public NonPressureForceBase
 	{
 	protected:
 		virtual void initParameters();
@@ -16,6 +16,8 @@ namespace SPH
 		void initValues();
 		Real m_diffusivity;
 		Real m_rSource;
+		Real m_pointSrcVal=0.0;
+		int m_pointSrcPos=-1;
 
 	public:
 		TemperatureDiffusion();
@@ -27,6 +29,8 @@ namespace SPH
 
 		static int DIFFUSIVITY;
 		static int R_SOURCE;
+		static int POINT_SRC_VAL;
+		static int POINT_SRC_POS;
 	};
 }
 

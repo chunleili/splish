@@ -1,19 +1,20 @@
 #include "TemperatureDiffusion.h"
 #include "SPlisHSPlasH/Simulation.h"
-#include <cstdio>
 #include "SPlisHSPlasH/TimeManager.h"
 
 using namespace SPH;
 using namespace GenParam;
 int TemperatureDiffusion::DIFFUSIVITY = -1;
 int TemperatureDiffusion::R_SOURCE = -1;
+int TemperatureDiffusion::POINT_SRC_VAL = -1;
+int TemperatureDiffusion::POINT_SRC_POS = -1;
 
 TemperatureDiffusion::TemperatureDiffusion(FluidModel* model) :
-    SurfaceTensionBase(model)
+    NonPressureForceBase(model),
+    m_diffusivity(50.0),
+    m_rSource(0.0)
 {
-    model->setTemperature(1501, 100.0);
-    m_diffusivity = 50.0;
-    m_rSource = 0.0;
+    // model->setTemperature(1501, 100.0);
 }
 
 
@@ -24,18 +25,21 @@ TemperatureDiffusion::~TemperatureDiffusion(void)
 
 void TemperatureDiffusion::initParameters()
 {
-    SurfaceTensionBase::initParameters();
+    POINT_SRC_VAL = createNumericParameter("pointSrcVal", "pointSrcVal", &m_pointSrcVal);
+	setDescription(POINT_SRC_VAL, "set the coninuous point source temperature value(by particle ID)");
+    setGroup(POINT_SRC_VAL, "diffusion");
+    GenParam::RealParameter* rparam = static_cast<GenParam::RealParameter*>(getParameter(POINT_SRC_VAL));
+    rparam->setMinValue(0.0);
+
+    POINT_SRC_POS = createNumericParameter("pointSrcPos", "pointSrcPos", &m_pointSrcPos);
+	setDescription(POINT_SRC_POS, "set the coninuous point source position(by particle ID)");
+    setGroup(POINT_SRC_POS, "diffusion");
 }
 
 void TemperatureDiffusion::step()
 {
     Simulation* sim = Simulation::getCurrent();
     const unsigned int numParticles = m_model->numActiveParticles();
-    const Real k = m_surfaceTension;
-    const Real kb = m_surfaceTensionBoundary;
-    const Real radius = sim->getValue<Real>(Simulation::PARTICLE_RADIUS);
-    const Real diameter = static_cast<Real>(2.0) * radius;
-    const Real diameter2 = diameter * diameter;
     const unsigned int fluidModelIndex = m_model->getPointSetIndex();
     const unsigned int nFluids = sim->numberOfFluidModels();
     const unsigned int nBoundaries = sim->numberOfBoundaryModels();
@@ -43,6 +47,9 @@ void TemperatureDiffusion::step()
     FluidModel* model = m_model;
     const Real h = sim->getSupportRadius();
     const Real dt = TimeManager::getCurrent()->getTimeStepSize();
+
+    if(m_pointSrcPos!=-1)
+        model->setTemperature(m_pointSrcPos, m_pointSrcVal);
 
     #pragma omp parallel default(shared)
     {

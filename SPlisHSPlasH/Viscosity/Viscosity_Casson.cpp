@@ -16,8 +16,8 @@ int Viscosity_Casson::MAX_ITERATIONS = -1;
 int Viscosity_Casson::MAX_ERROR = -1;
 int Viscosity_Casson::VISCOSITY_COEFFICIENT_BOUNDARY = -1;
 int Viscosity_Casson::VISCOSITY_FIELD = -1;
-Vector3r Viscosity_Casson::m_coaguBoxMin(0., 0., 0.);
-Vector3r Viscosity_Casson::m_coaguBoxMax(1., 1., 1.);
+Vector3r Viscosity_Casson::m_boxMin(0., 0., 0.);
+Vector3r Viscosity_Casson::m_boxMax(1., 1., 1.);
 
 Viscosity_Casson::Viscosity_Casson(FluidModel *model) :
 	ViscosityBase(model), m_vDiff()
@@ -316,8 +316,8 @@ void Viscosity_Casson::matrixVecProd(const Real* vec, Real *result, void *userDa
 
 				// ai += d * mu * (model->getMass(neighborIndex) / density_j) * (vi - vj).dot(xixj) / (xixj.squaredNorm() + 0.01*h2) * gradW;
 				// ai += d * (mu + visco->m_cassonViscosity[neighborIndex]) * (model->getMass(neighborIndex) / density_j) * (vi - vj).dot(xixj) / (xixj.squaredNorm() + 0.01*h2) * gradW;
-				// if ((xj[0] > m_coaguBoxMin[0]) && (xj[1] > m_coaguBoxMin[1]) && (xj[2] > m_coaguBoxMin[2]) &&
-				// 	(xj[0] < m_coaguBoxMax[0]) && (xj[1] < m_coaguBoxMax[1]) && (xj[2] < m_coaguBoxMax[2]))
+				// if ((xj[0] > m_boxMin[0]) && (xj[1] > m_boxMin[1]) && (xj[2] > m_boxMin[2]) &&
+				// 	(xj[0] < m_boxMax[0]) && (xj[1] < m_boxMax[1]) && (xj[2] < m_boxMax[2]))
 				if (model->getTemperature(neighborIndex) < 1.0)
 				{
 					ai += d * mu * visco->m_cassonViscosity[neighborIndex] * (model->getMass(neighborIndex) / density_j) * (vi - vj).dot(xixj) / (xixj.squaredNorm() + 0.01 * h2) * gradW;
@@ -341,8 +341,8 @@ void Viscosity_Casson::matrixVecProd(const Real* vec, Real *result, void *userDa
 						const Vector3r gradW = sim->gradW(xixj);
 						// const Vector3r a = d * mub * (density0 * bm_neighbor->getVolume(neighborIndex) / density_i) * (vi).dot(xixj) / (xixj.squaredNorm() + 0.01*h2) * gradW;
 						Vector3r a;
-						if ((xj[0] > m_coaguBoxMin[0]) && (xj[1] > m_coaguBoxMin[1]) && (xj[2] > m_coaguBoxMin[2]) &&
-							(xj[0] < m_coaguBoxMax[0]) && (xj[1] < m_coaguBoxMax[1]) && (xj[2] < m_coaguBoxMax[2])) {
+						if ((xj[0] > m_boxMin[0]) && (xj[1] > m_boxMin[1]) && (xj[2] > m_boxMin[2]) &&
+							(xj[0] < m_boxMax[0]) && (xj[1] < m_boxMax[1]) && (xj[2] < m_boxMax[2])) {
 							a = d * mub * visco->m_cassonViscosity[neighborIndex] * (density0 * bm_neighbor->getVolume(neighborIndex) / density_i) * (vi).dot(xixj) / (xixj.squaredNorm() + 0.01*h2) * gradW;
 						} else {
 							a = d * mub * (density0 * bm_neighbor->getVolume(neighborIndex) / density_i) * (vi).dot(xixj) / (xixj.squaredNorm() + 0.01*h2) * gradW;
@@ -922,8 +922,6 @@ void Viscosity_Casson::computeCassonViscosity()
 	const Real endTime = 5.0;
 	const Real endViscosity = 5000.0;
 
-
-
 	const Real m_muC = 0.00298;
 	const Real m_tauC = 0.02876;
 	const Real m_lambda = 4.020;
@@ -968,8 +966,6 @@ void Viscosity_Casson::computeCassonViscosity()
 		if (curTime > endTime)
 			m_cassonViscosity[i] = endViscosity;
 	}
-
-
 }
 
 void Viscosity_Casson::step()

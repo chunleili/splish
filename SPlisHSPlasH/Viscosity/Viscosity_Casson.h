@@ -25,8 +25,8 @@ namespace SPH
 		unsigned int m_iterations;
 		std::vector<Vector3r> m_vDiff;
 		Real m_tangentialDistanceFactor;
-		static  Vector3r m_coaguBoxMin;
-		static  Vector3r m_coaguBoxMax;
+		static  Vector3r m_boxMin;
+		static  Vector3r m_boxMax;
 
 #ifdef USE_BLOCKDIAGONAL_PRECONDITIONER
 		typedef Eigen::ConjugateGradient<MatrixReplacement, Eigen::Lower | Eigen::Upper, BlockJacobiPreconditioner3D> Solver;
