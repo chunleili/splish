@@ -164,6 +164,14 @@ set(DIFFUSION_SOURCE_FILES	#add diffusion
 	Diffusion/TemperatureDiffusion.cpp
 	)
 
+set(RIGID_BODY_SOURCE_FILES	#add rigid body
+	RigidBody/RigidBody.cpp
+	)
+	
+set(RIGID_BODY_HEADER_FILES	
+	RigidBody/RigidBody.h
+	)
+
 set(UTILS_HEADER_FILES
 	Utilities/AVX_math.h
 	Utilities/CholeskyAVXSolver.h	
@@ -291,6 +299,9 @@ add_library(SPlisHSPlasH
 
 	${DIFFUSION_HEADER_FILES}	#add Diffusion
 	${DIFFUSION_SOURCE_FILES}
+
+	${RIGID_BODY_HEADER_FILES}	#add RigidBody
+	${RIGID_BODY_SOURCE_FILES}
 )
 
 add_dependencies(SPlisHSPlasH
@@ -346,3 +357,5 @@ source_group("Header Files\\NonNewton" FILES ${NON_NEWTON_HEADER_FILES})	#add No
 source_group("Source Files\\NonNewton" FILES ${NON_NEWTON_SOURCE_FILES}) 
 source_group("Header Files\\Diffusion" FILES ${DIFFUSION_HEADER_FILES})	#add Diffusion
 source_group("Source Files\\Diffusion" FILES ${DIFFUSION_SOURCE_FILES}) 
+source_group("Header Files\\RigidBody" FILES ${RIGID_BODY_HEADER_FILES})	#add RigidBody
+source_group("Source Files\\RigidBody" FILES ${RIGID_BODY_SOURCE_FILES})
