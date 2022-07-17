@@ -3,6 +3,7 @@
 #include "SPlisHSPlasH/FluidModel.h"
 #include "SPlisHSPlasH/Common.h"
 #include "SPlisHSPlasH/TimeStep.h"
+#include "SPlisHSPlasH/NonPressureForceBase.h"
 namespace SPH
 {
 /**
@@ -12,18 +13,16 @@ namespace SPH
  * which is useful for phase change simulation(melting and freezing)
  * 
  */
-class RigidBody:TimeStep
+class RigidBody : NonPressureForceBase
 {
 private:
     Quaternionr quaternion{0.0, 0.0, 0.0, 0.0};
     Vector3r barycenter{0.0, 0.0, 0.0};
-    Vector3r velocity{0.0, 0.0, 0.0};
     Vector3r angular_velocity{0.0, 0.0, 0.0};
     Vector3r force{0.0, 0.0, 0.0};
     Real total_mass{0.0};
 
-    FluidModel *m_model;
-
+    void setStates();
     void computeBarycenter();
     void translation();
     void rotation();
@@ -35,6 +34,10 @@ public:
     void step();
     void addForce();
     void addTorque();
+    static NonPressureForceBase* creator(FluidModel* model) {return new RigidBody(model);}
+
+    Vector3r velocity{0.0, 0.0, 0.0};
+    Matrix3r rotationMatrix ;
 };
 
 }

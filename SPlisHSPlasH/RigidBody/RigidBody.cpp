@@ -1,10 +1,24 @@
+#include <math.h>
 #include "RigidBody.h"
 #include "SPlisHSPlasH/TimeManager.h"
+
+#define _USE_MATH_DEFINES
+
 using namespace SPH;
 
-RigidBody::RigidBody(FluidModel *model):
-m_model(model)
+RigidBody::RigidBody(FluidModel* model):
+NonPressureForceBase(model)
 {
+    
+}
+
+void RigidBody::setStates()
+{
+    unsigned int numParticles = m_model->numActiveParticles();
+    for(unsigned int i=0; i< numParticles ; i++)
+    {
+        m_model->setParticleState(i, ParticleState::RigidBody);
+    }
 }
 
 RigidBody::~RigidBody()
@@ -12,11 +26,12 @@ RigidBody::~RigidBody()
 }
 
 void RigidBody::step()
-{
+{   
+    setStates();
     computeBarycenter();
     addForce();
     translation();
-    addTorque();
+    // addTorque();
     rotation();
     animateParticles();
 }
@@ -36,18 +51,36 @@ void RigidBody::addForce()
     force = g;
 }
 
+
+void RigidBody::rotation()
+{   
+    float rotation_angle = 30.0;
+
+    float a =  rotation_angle / 180.0 * M_PI;
+
+    rotationMatrix <<
+            cos(a), -sin(a), 0, 
+            sin(a), cos(a), 0, 
+            0,  0,  1;  
+}
+
 void RigidBody::animateParticles()
 {
     const  int numParticles = (int) m_model->numActiveParticles();
     if (numParticles == 0)
 		return;
-    #pragma omp parallel default(shared)
-    {
-        #pragma omp for schedule(static) nowait 
-        for (int i = 0; i < numParticles; i++)
-        { 
+
+    TimeManager *tm = TimeManager::getCurrent ();
+	const Real h = tm->getTimeStepSize();
+
+ 
+    for (int i = 0; i < numParticles; i++)
+    { 
+        if (m_model->getParticleState(i) == ParticleState::RigidBody)
+        {
             Vector3r &xi = m_model->getPosition(i);
-            xi += barycenter;
+            xi += h * velocity; //rigid body translation
+            // xi *= rotationMatrix;  //rigid body rotation
         }
     }
 }
