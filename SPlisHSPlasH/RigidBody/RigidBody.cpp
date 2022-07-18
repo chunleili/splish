@@ -1,10 +1,12 @@
 #include <math.h>
 #include "RigidBody.h"
 #include "SPlisHSPlasH/TimeManager.h"
+#include <Eigen/Dense>
 
 #define _USE_MATH_DEFINES
 
 using namespace SPH;
+using namespace std;
 
 RigidBody::RigidBody(FluidModel* model):
 NonPressureForceBase(model)
@@ -51,17 +53,33 @@ void RigidBody::addForce()
     force = g;
 }
 
-
+//用四元数实现刚体旋转
 void RigidBody::rotation()
 {   
-    float rotation_angle = 30.0;
+    const  int numParticles = (int) m_model->numActiveParticles();
+    if (numParticles == 0)
+		return;
+    TimeManager *tm = TimeManager::getCurrent ();
+	const Real h = tm->getTimeStepSize();
+    
+    //转轴和转角
+    Vector3r axis{0.0, 0.0, 1.0};
+    axis = axis.normalized();
+    float theta = 0.1  / 180.0 * 3.14159265358979323846;
 
-    float a =  rotation_angle / 180.0 * M_PI;
+    for (int i = 0; i < numParticles; i++)
+    { 
+        if (m_model->getParticleState(i) == ParticleState::RigidBody)
+        {
+            Vector3r &point = m_model->getPosition(i);
+            Quaternionr p{0.0, point[0], point[1], point[2]};
 
-    rotationMatrix <<
-            cos(a), -sin(a), 0, 
-            sin(a), cos(a), 0, 
-            0,  0,  1;  
+            Quaternionr q{cos(theta/2), sin(theta/2) * axis[0], sin(theta/2) * axis[1], sin(theta/2) * axis[2]};
+            p = q * p * q.inverse();
+            point=p.vec();
+        }
+    }
+
 }
 
 void RigidBody::animateParticles()
