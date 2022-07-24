@@ -19,15 +19,22 @@ private:
     Quaternionr quaternion{0.0, 0.0, 0.0, 0.0};
     Vector3r barycenter{0.0, 0.0, 0.0};
     Vector3r angular_velocity{0.0, 0.0, 0.0};
-    Vector3r force{0.0, 0.0, 0.0};
+    std::vector<Vector3r> penalty_force;
+    std::vector<Vector3r> force;
+    std::vector<Vector3r> radius_vector;
+    std::vector<Vector3r> positions0;
     Real total_mass{0.0};
+    Matrix3r A_qq;
+
 
     void setStates();
     void computeBarycenter();
     void translation();
     void rotation();
     void animateParticles();
-    
+    void collision_response();
+    void shapeMatching();
+
 public:
     RigidBody(FluidModel *model);
     ~RigidBody();
