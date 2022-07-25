@@ -27,8 +27,11 @@ void RigidBody::setStates()
     unsigned int numParticles = m_model->numActiveParticles();
     for(unsigned int i=0; i< numParticles ; i++)
     {
-        m_model->setParticleState(i, ParticleState::RigidBody);
-    }
+        if(m_model->getTemperature(i) < 1.0)
+            m_model->setParticleState(i, ParticleState::RigidBody);
+        else 
+            m_model->setParticleState(i, ParticleState::Active);
+    }   
 }
 
 RigidBody::~RigidBody()
@@ -40,9 +43,9 @@ void RigidBody::step()
     static int steps = 0;
     if(steps == 0)
     {
-        setStates();
         computeBarycenter();
     }
+    setStates();
     collision_response();
     // addForce();
     shapeMatching();
