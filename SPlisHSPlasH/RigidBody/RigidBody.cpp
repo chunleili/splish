@@ -3,6 +3,7 @@
 #include "SPlisHSPlasH/TimeManager.h"
 #include <Eigen/Geometry>
 #include <Eigen/Dense>
+#include "SPlisHSPlasH/Utilities/MathFunctions.h"
 
 #define _USE_MATH_DEFINES
 
@@ -101,8 +102,8 @@ void RigidBody::shapeMatching()
 
     //polar decomposition
     Matrix3r R;
-    // R = polarDecompose(A_pq);
-    R.setIdentity();
+    R = polarDecompose(A_pq);
+    // R.setIdentity();
 
     // update vel and pos
     for(int i = 0; i < numParticles; i++)
@@ -121,11 +122,21 @@ void RigidBody::shapeMatching()
 
 inline Matrix3r polarDecompose(Matrix3r A_pq)
 {
-    Matrix3r R, S;
+    Matrix3r R,S;
     R.setZero();
-    S.setZero();
-    S = (A_pq.transpose() * A_pq).cwiseSqrt();
-    R = A_pq * S.inverse();
+
+    // S = (A_pq.transpose() * A_pq).cwiseSqrt();
+    // R = A_pq * S.inverse();
+
+    // Quaternionr q(R);
+    // MathFunctions::extractRotation(A_pq, q, 10);
+    // R = q.matrix();
+
+    Vector3r sigma;
+	Matrix3r U, VT;
+	MathFunctions::svdWithInversionHandling(A_pq, sigma, U, VT);
+	R = U * VT;
+
     return R;
 }
 
