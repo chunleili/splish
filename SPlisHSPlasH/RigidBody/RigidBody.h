@@ -22,7 +22,7 @@ private:
     std::vector<Vector3r> penalty_force;
     std::vector<Vector3r> force;
     std::vector<Vector3r> radius_vector;
-    std::vector<Vector3r> positions0;
+    std::vector<Vector3r> oldPosition;
     Real total_mass{0.0};
     Matrix3r A_qq;
 

@@ -18,7 +18,7 @@ NonPressureForceBase(model)
     penalty_force.resize(numParticles);
     force.resize(numParticles);
     radius_vector.resize(numParticles);
-    positions0.resize(numParticles);
+    oldPosition.resize(numParticles);
 }
 
 void RigidBody::setStates()
@@ -43,43 +43,49 @@ void RigidBody::step()
         computeBarycenter();
     }
     collision_response();
-    addForce();
+    // addForce();
     shapeMatching();
-    animateParticles();
+    // animateParticles();
     steps++;
 }
 
 void RigidBody::shapeMatching()
 {
-    const unsigned int numParticles = m_model->numActiveParticles();
-    Vector3r g(0.0, -9.8, 0.0);
-
+    const int numParticles = (int)m_model->numActiveParticles();
     TimeManager *tm = TimeManager::getCurrent ();
 	const Real dt = tm->getTimeStepSize();
 
+    Vector3r g(0.0, -9.8, 0.0);
+
     for(int i = 0; i < numParticles; i++)
     {
-        Vector3r &pos = m_model->getPosition(i);
-        Vector3r &pos0 = m_model->getPosition0(i);
-        Vector3r f;
-        Vector3r &vel = m_model->getVelocity(i);
-        Real &mass = m_model->getMass(i);
-        
-        pos0 = pos;
-        f = g + penalty_force[i];
-        vel += 1.0/mass * f * dt;
-        pos += vel *dt;
+        if (m_model->getParticleState(i) == ParticleState::RigidBody)
+        {
+            Vector3r &pos = m_model->getPosition(i);
+            Vector3r &vel = m_model->getVelocity(i);
+            Vector3r f ;
+            Real &mass = m_model->getMass(i);
+            Real mass_inv = 1.0/mass;
+            
+            oldPosition[i] = pos;
+            f = g + penalty_force[i];
+            vel +=  f * mass_inv * dt;
+            pos += vel *dt;
+        }
     }
 
     //compute the new(matched shape) mass center
     Vector3r c{0.0, 0.0, 0.0};
     for(int i = 0; i < numParticles; i++)
     {
-        Vector3r &pos = m_model->getPosition(i);
-
-        c += pos;
+        if (m_model->getParticleState(i) == ParticleState::RigidBody)
+        {
+            Vector3r &pos = m_model->getPosition(i);
+            c += pos;
+        }
     }
     c /= numParticles;
+    // cout<<"c:"<<c<<endl;
 
     // compute transformation matrix and extract rotation
     Matrix3r A, A_pq;
@@ -94,17 +100,21 @@ void RigidBody::shapeMatching()
     // A = A_pq * A_qq;
 
     //polar decomposition
-    Matrix3r R = polarDecompose(A_pq);
+    Matrix3r R;
+    // R = polarDecompose(A_pq);
+    R.setIdentity();
 
-    //update vel and pos
+    // update vel and pos
     for(int i = 0; i < numParticles; i++)
     {
-        Vector3r &pos = m_model->getPosition(i);
-        Vector3r &vel = m_model->getVelocity(i);
-        Vector3r &pos0 = m_model->getPosition0(i);
+        if (m_model->getParticleState(i) == ParticleState::RigidBody)
+        {
+            Vector3r &pos = m_model->getPosition(i);
+            Vector3r &vel = m_model->getVelocity(i);
 
-        pos = c + R * radius_vector[i];;
-        vel = (pos - pos0) / dt; 
+            pos = c + R * radius_vector[i];;
+            vel = (pos - oldPosition[i]) / dt; 
+        }
     }
 }
 
@@ -124,29 +134,17 @@ void RigidBody::collision_response()
 {
     float eps = 0.0; // the padding to prevent penatrating
     float k = 100.0; // stiffness of the penalty force
-    //boundary for skybox (xmin, ymin, zmin, xmax, ymax, zmax)
     const  int numParticles = (int) m_model->numActiveParticles();
 
     for (int i = 0; i < numParticles; i++)
     {
-        Vector3r &positions = m_model->getPosition(i);
-        if (positions.y() < eps)
+        Vector3r &pos = m_model->getPosition(i);
+        if (pos.y() < eps)
         {
             Vector3r n_dir(0.0, 1.0, 0.0);
-            float phi = positions.y();
+            float phi = pos.y();
             penalty_force[i] = k * abs(phi)  * n_dir;
         }
-    }
-}
-
-void RigidBody::addForce()
-{
-    const Vector3r g{0.0, -9.8, 0.0};
-    const  int numParticles = (int) m_model->numActiveParticles();
-
-    for (int i = 0; i < numParticles; i++)
-    {
-        force[i] = g + penalty_force[i];
     }
 }
 
@@ -158,7 +156,8 @@ void RigidBody::animateParticles()
 		return;
     TimeManager *tm = TimeManager::getCurrent ();
 	const Real h = tm->getTimeStepSize();
- 
+    Vector3r g(0.0, -9.8, 0.0);
+    
     for (int i = 0; i < numParticles; i++)
     { 
         if (m_model->getParticleState(i) == ParticleState::RigidBody)
@@ -166,7 +165,7 @@ void RigidBody::animateParticles()
             Vector3r &pos = m_model->getPosition(i);
             Vector3r &vel = m_model->getVelocity(i);
             float &mass = m_model->getMass(i);
-            vel += h * force[i]/mass;
+            vel += h * (g+penalty_force[i])/mass;
             pos += h * vel; 
         }
     }
@@ -181,29 +180,26 @@ void RigidBody::computeBarycenter()
     Vector3r sum_mass_pos = Vector3r(0.0, 0.0, 0.0);
     Real sum_mass = 0.0;
 
-    #pragma omp parallel default(shared)
-    {
-        #pragma omp for schedule(static) nowait 
-        for (int i = 0; i < numParticles; i++)
-        { 
-            const Vector3r &xi = m_model->getPosition(i);
-            const Real mass = m_model->getMass(i);
-            sum_mass += mass ;
-            sum_mass_pos += mass * xi;
-        }
-        total_mass = sum_mass;
-        barycenter = sum_mass_pos / sum_mass;
-        
-        //calculate  radius vector and A_qq
-        Matrix3r q;
-        q.setZero();
-        for (int i = 0; i < numParticles; i++)
-        { 
-            const Vector3r &xi = m_model->getPosition(i);
-            radius_vector[i] = xi - barycenter;
-
-            q += radius_vector[i]*(radius_vector[i]).transpose();
-        }
-        A_qq = q.inverse();
+    for (int i = 0; i < numParticles; i++)
+    { 
+        const Vector3r &xi = m_model->getPosition(i);
+        const Real mass = m_model->getMass(i);
+        sum_mass += mass ;
+        sum_mass_pos += mass * xi;
     }
+    total_mass = sum_mass;
+    barycenter = sum_mass_pos / sum_mass;
+    
+    //calculate  radius vector and A_qq
+    Matrix3r q;
+    q.setZero();
+    for (int i = 0; i < numParticles; i++)
+    { 
+        const Vector3r &xi = m_model->getPosition(i);
+        radius_vector[i] = xi - barycenter;
+
+        q += radius_vector[i]*(radius_vector[i]).transpose();
+    }
+    A_qq = q.inverse();
+
 }
