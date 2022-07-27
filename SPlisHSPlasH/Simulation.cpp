@@ -22,6 +22,7 @@
 #include "SPlisHSPlasH/Viscosity/Viscosity_Takahashi2015.h"
 #include "SPlisHSPlasH/Viscosity/Viscosity_Weiler2018.h"
 
+#include "SPlisHSPlasH/MyTimeStep/MyTimeStep.h"
 
 using namespace SPH;
 using namespace std;
@@ -67,6 +68,8 @@ int Simulation::BOUNDARY_HANDLING_METHOD = -1;
 int Simulation::ENUM_AKINCI2012 = -1;
 int Simulation::ENUM_KOSCHIER2017 = -1;
 int Simulation::ENUM_BENDER2019 = -1;
+
+int Simulation::ENUM_SIMULATION_MYTIMESTEP = -1;
 
 
 Simulation::Simulation () 
@@ -265,6 +268,7 @@ void Simulation::initParameters()
     enumParam->addEnumValue("DFSPH", ENUM_SIMULATION_DFSPH);
     enumParam->addEnumValue("Projective Fluids", ENUM_SIMULATION_PF);
     enumParam->addEnumValue("ICSPH", ENUM_SIMULATION_ICSPH);
+    enumParam->addEnumValue("MyTimeStep", ENUM_SIMULATION_MYTIMESTEP); //add MyTimeStep
 
     BOUNDARY_HANDLING_METHOD = createEnumParameter("boundaryHandlingMethod", "Boundary handling method", &m_boundaryHandlingMethod);
     setGroup(BOUNDARY_HANDLING_METHOD, "Simulation");
@@ -584,6 +588,14 @@ void Simulation::setSimulationMethod(const int val)
     else if (method == SimulationMethods::ICSPH)
     {
         m_timeStep = new TimeStepICSPH();
+        m_timeStep->init();
+        setValue(Simulation::KERNEL_METHOD, Simulation::ENUM_KERNEL_CUBIC);
+        setValue(Simulation::GRAD_KERNEL_METHOD, Simulation::ENUM_GRADKERNEL_CUBIC);
+    }
+
+    else if (method == SimulationMethods::MyTimeStep)
+    {
+        m_timeStep = new MyTimeStep();
         m_timeStep->init();
         setValue(Simulation::KERNEL_METHOD, Simulation::ENUM_KERNEL_CUBIC);
         setValue(Simulation::GRAD_KERNEL_METHOD, Simulation::ENUM_GRADKERNEL_CUBIC);

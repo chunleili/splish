@@ -302,6 +302,9 @@ add_library(SPlisHSPlasH
 
 	${RIGID_BODY_HEADER_FILES}	#add RigidBody
 	${RIGID_BODY_SOURCE_FILES}
+
+	MyTimeStep/MyTimeStep.h		#add MyTimeStep
+	MyTimeStep/MyTimeStep.cpp
 )
 
 add_dependencies(SPlisHSPlasH
@@ -359,3 +362,5 @@ source_group("Header Files\\Diffusion" FILES ${DIFFUSION_HEADER_FILES})	#add Dif
 source_group("Source Files\\Diffusion" FILES ${DIFFUSION_SOURCE_FILES}) 
 source_group("Header Files\\RigidBody" FILES ${RIGID_BODY_HEADER_FILES})	#add RigidBody
 source_group("Source Files\\RigidBody" FILES ${RIGID_BODY_SOURCE_FILES})
+source_group("Header Files\\MyTimeStep" FILES MyTimeStep.h)
+source_group("Source Files\\MyTimeStep" FILES MyTimeStep.cpp)
