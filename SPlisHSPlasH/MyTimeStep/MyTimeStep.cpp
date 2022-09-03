@@ -45,15 +45,5 @@ void MyTimeStep::reset()
 
 void MyTimeStep::performNeighborhoodSearch()
 {
-	// if (Simulation::getCurrent()->zSortEnabled())
-	// {
-	// 	if (m_counter % 500 == 0)
-	// 	{
-	// 		Simulation::getCurrent()->performNeighborhoodSearchSort();
-	// 		m_simulationData.performNeighborhoodSearchSort();
-	// 	}
-	// 	m_counter++;
-	// }
-
-	// Simulation::getCurrent()->performNeighborhoodSearch();
+	Simulation::getCurrent()->performNeighborhoodSearch();
 }
