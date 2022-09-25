@@ -6,6 +6,8 @@ using namespace SPH;
 using namespace GenParam;
 
 int Plastic::ALPHA = -1;
+int Plastic::ELASTIC_LIMIT = -1;
+int Plastic::PLASTIC_LIMIT = -1;
 
 
 Plastic::Plastic(FluidModel *model) :
@@ -20,6 +22,9 @@ Plastic::Plastic(FluidModel *model) :
 	m_stress.resize(numParticles);
 	m_F.resize(numParticles);
 	m_alpha = 0.0;
+
+	elasticLimit = 0.001;
+	plasticLimit = 0.486;
 
 	m_plasticStrain.resize(numParticles);
 
@@ -53,6 +58,19 @@ void Plastic::initParameters()
 	setGroup(ALPHA, "Elasticity");
 	setDescription(ALPHA, "Coefficent for zero-energy modes suppression method");
 	RealParameter *rparam = static_cast<RealParameter*>(getParameter(ALPHA));
+	rparam->setMinValue(0.0);
+
+	//for plasticity
+	ELASTIC_LIMIT = createNumericParameter("elasticLimit", "elastic limit", &elasticLimit);
+	setGroup(ELASTIC_LIMIT, "Plastic");
+	setDescription(ELASTIC_LIMIT, "elastic limit");
+	rparam = static_cast<RealParameter*>(getParameter(ELASTIC_LIMIT));
+	rparam->setMinValue(0.0);
+
+	PLASTIC_LIMIT = createNumericParameter("plasticLimit", "plastic limit", &plasticLimit);
+	setGroup(PLASTIC_LIMIT, "Plastic");
+	setDescription(PLASTIC_LIMIT, "plastic limit");
+	rparam = static_cast<RealParameter*>(getParameter(PLASTIC_LIMIT));
 	rparam->setMinValue(0.0);
 }
 
@@ -192,46 +210,19 @@ void Plastic::computeStress()
 		{
 			if (model->getParticleState(i) == ParticleState::Active)
 			{
-				const unsigned int i0 = m_current_to_initial_index[i];
-				const Vector3r& xi = m_model->getPosition(i);
-				const Vector3r& xi0 = m_model->getPosition0(i0);
-
+				//refactor and extract to a function
 				Matrix3r nablaU;
-				nablaU.setZero();
-				const size_t numNeighbors = m_initialNeighbors[i0].size();
+				computeNablaU(i, nablaU);
 
-				//////////////////////////////////////////////////////////////////////////
-				// Fluid
-				//////////////////////////////////////////////////////////////////////////
-				for (unsigned int j = 0; j < numNeighbors; j++)
-				{
-					const unsigned int neighborIndex = m_initial_to_current_index[m_initialNeighbors[i0][j]];
-					// get initial neighbor index considering the current particle order 
-					const unsigned int neighborIndex0 = m_initialNeighbors[i0][j];
-
-					const Vector3r& xj = model->getPosition(neighborIndex);
-					const Vector3r& xj0 = m_model->getPosition0(neighborIndex0);
-
-					const Vector3r xj_xi = xj - xi;
-					const Vector3r xj_xi_0 = xj0 - xi0;
-
-					const Vector3r uji = m_rotations[i].transpose() * xj_xi - xj_xi_0;
-					// subtract because kernel gradient is taken in direction of xji0 instead of xij0
-					nablaU -= (m_restVolumes[neighborIndex] * uji) * sim->gradW(xj_xi_0).transpose();
-				}
 				m_F[i] = nablaU + Matrix3r::Identity();
 				
-				// compute Cauchy strain: epsilon = 0.5 (nabla u + nabla u^T)
-				Vector6r strain;
-				strain[0] = nablaU(0, 0);						// \epsilon_{00}
-				strain[1] = nablaU(1, 1);						// \epsilon_{11}
-				strain[2] = nablaU(2, 2);						// \epsilon_{22}
-				strain[3] = static_cast<Real>(0.5) * (nablaU(0, 1) + nablaU(1, 0)); // \epsilon_{01}
-				strain[4] = static_cast<Real>(0.5) * (nablaU(0, 2) + nablaU(2, 0)); // \epsilon_{02}
-				strain[5] = static_cast<Real>(0.5) * (nablaU(1, 2) + nablaU(2, 1)); // \epsilon_{12}
+				//refactor and extract to a function
+				Vector6r totalStrain;
+				computeTotalStrain(nablaU, totalStrain);
 
-				// stress = C * epsilon
-				m_stress[i] = C * strain;
+				// computePlasticStrain(totalStrain); //TODO: not implemented now
+				Vector6r elasticStrain = totalStrain - m_plasticStrain[i];
+				m_stress[i] = C * elasticStrain;
 			}
 			else
 				m_stress[i].setZero();
@@ -239,9 +230,92 @@ void Plastic::computeStress()
 	}
 }
 
-void Plastic::computePlasticStrain()
+/**
+ * @brief compute NablaU
+ * 
+ * @param i: input, particle index
+ * @param nablaU: output, gradient of velocity
+ */
+void Plastic::computeNablaU(int i, Matrix3r &nablaU)
 {
-	
+	FluidModel *model = m_model;
+	Simulation *sim = Simulation::getCurrent();
+
+	const unsigned int i0 = m_current_to_initial_index[i];
+	const Vector3r& xi = m_model->getPosition(i);
+	const Vector3r& xi0 = m_model->getPosition0(i0);
+
+	nablaU.setZero();
+	const size_t numNeighbors = m_initialNeighbors[i0].size();
+
+	//////////////////////////////////////////////////////////////////////////
+	// Fluid
+	//////////////////////////////////////////////////////////////////////////
+	for (unsigned int j = 0; j < numNeighbors; j++)
+	{
+		const unsigned int neighborIndex = m_initial_to_current_index[m_initialNeighbors[i0][j]];
+		// get initial neighbor index considering the current particle order 
+		const unsigned int neighborIndex0 = m_initialNeighbors[i0][j];
+
+		const Vector3r& xj = model->getPosition(neighborIndex);
+		const Vector3r& xj0 = m_model->getPosition0(neighborIndex0);
+
+		const Vector3r xj_xi = xj - xi;
+		const Vector3r xj_xi_0 = xj0 - xi0;
+
+		const Vector3r uji = m_rotations[i].transpose() * xj_xi - xj_xi_0;
+		// subtract because kernel gradient is taken in direction of xji0 instead of xij0
+		// Eq(6) in Becker2009
+		nablaU -= (m_restVolumes[neighborIndex] * uji) * sim->gradW(xj_xi_0).transpose();
+	}	
+}
+
+/**
+ * @brief compute totalStrain
+ * 
+ * @param nablaU: input, gradient of velocity
+ * @param totalStrain: output
+ */
+void Plastic::computeTotalStrain(Matrix3r &nablaU, Vector6r & totalStrain)
+{
+	totalStrain.setZero();
+	// compute Cauchy strain: epsilon = 0.5 (nabla u + nabla u^T)
+	totalStrain[0] = nablaU(0, 0);						// \epsilon_{00}
+	totalStrain[1] = nablaU(1, 1);						// \epsilon_{11}
+	totalStrain[2] = nablaU(2, 2);						// \epsilon_{22}
+	totalStrain[3] = static_cast<Real>(0.5) * (nablaU(0, 1) + nablaU(1, 0)); // \epsilon_{01}
+	totalStrain[4] = static_cast<Real>(0.5) * (nablaU(0, 2) + nablaU(2, 0)); // \epsilon_{02}
+	totalStrain[5] = static_cast<Real>(0.5) * (nablaU(1, 2) + nablaU(2, 1)); // \epsilon_{12}
+}
+
+/**
+ * @brief Compute the plastic strain based on O'Brien 2002. 
+ * Note that m_plasticStrain will accumulate with steps. 
+ * It will not be cleared every timestep.
+ * 
+ * Ref: James F. O’Brien et. al. 2002, "Graphical Modeling and Animation of Ductile Fracture"
+ * 
+ * @param totalStrain: input. 
+ * m_plasticStrain: output
+ */
+void Plastic::computePlasticStrain(Vector6r & totalStrain)
+{
+	//Eq(2) in O'Brien 2002
+	Real trace = totalStrain[0] + totalStrain[1] + totalStrain[3];
+	Vector6r deviation;
+	trace /= 3.0;
+	deviation[0] -= trace;
+	deviation[1] -= trace;
+	deviation[2] -= trace;
+
+	//compute the Frobenius norm
+	Real FNorm;
+	for (int i = 0; i < 6; i++)
+		FNorm += deviation[i] * deviation[i];
+	FNorm = sqrt(FNorm)	;
+
+	//TODO:
+
 }
 
 void Plastic::computeForces()

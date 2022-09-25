@@ -25,14 +25,17 @@ namespace SPH
 		std::vector<Vector6r> m_stress;
 		std::vector<Matrix3r> m_F;
 		Real m_alpha;
-		std::vector<Vector6r> m_plasticStrain; //add Plastic Strain 
 
+		std::vector<Vector6r> m_plasticStrain; //add Plastic Strain 
 
 		void initValues();
 		void computeRotations();
 		void computeStress();
 		void computeForces();
-		void computePlasticStrain();
+
+		void computePlasticStrain(Vector6r & totalStrain);
+		void computeNablaU(int i, Matrix3r &nablaU);
+		void computeTotalStrain(Matrix3r &nablaU, Vector6r & totalStrain);
 
 		virtual void initParameters();
 
@@ -50,6 +53,12 @@ namespace SPH
 
 	public:
 		static int ALPHA;
+
+		//user defined parameters
+		float elasticLimit;
+		float plasticLimit;
+		static int ELASTIC_LIMIT;
+		static int PLASTIC_LIMIT;
 
 		Plastic(FluidModel *model);
 		virtual ~Plastic(void);
