@@ -30,6 +30,7 @@
 #include "Diffusion/Coagulation.h"
 #include "Diffusion/TemperatureDiffusion.h"
 #include "RigidBody/RigidBody.h"
+#include "My/Plastic/Plastic.h"
 
 using namespace SPH;
 
@@ -68,5 +69,7 @@ void Simulation::registerNonpressureForces()
 	addVorticityMethod("Micropolar model", MicropolarModel_Bender2017::creator);
 	addVorticityMethod("Vorticity confinement", VorticityConfinement::creator);
 	addVorticityMethod("NonNewton", NonNewton::creator);
-	addVorticityMethod("RigidBody", RigidBody::creator);
+	addVorticityMethod("RigidBody", RigidBody::creator);	//add Rigid body
+
+	addElasticityMethod("Plastic", Plastic::creator);	//add Plastic
 }

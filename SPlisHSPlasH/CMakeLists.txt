@@ -169,7 +169,15 @@ set(RIGID_BODY_SOURCE_FILES	#add rigid body
 	)
 	
 set(RIGID_BODY_HEADER_FILES	
-	RigidBody/RigidBody.h
+	RigidBody/RigidBody.h	#add rigid body
+	)
+
+set(PLASTIC_HEADER_FILES	
+	My/Plastic/Plastic.h	#add plastic
+	)
+
+set(PLASTIC_SOURCE_FILES	
+	My/Plastic/Plastic.cpp	#add plastic
 	)
 
 set(UTILS_HEADER_FILES
@@ -305,6 +313,9 @@ add_library(SPlisHSPlasH
 
 	MyTimeStep/MyTimeStep.h		#add MyTimeStep
 	MyTimeStep/MyTimeStep.cpp
+
+	${PLASTIC_HEADER_FILES}		#add Plastic
+	${PLASTIC_SOURCE_FILES}
 )
 
 add_dependencies(SPlisHSPlasH
@@ -362,5 +373,7 @@ source_group("Header Files\\Diffusion" FILES ${DIFFUSION_HEADER_FILES})	#add Dif
 source_group("Source Files\\Diffusion" FILES ${DIFFUSION_SOURCE_FILES}) 
 source_group("Header Files\\RigidBody" FILES ${RIGID_BODY_HEADER_FILES})	#add RigidBody
 source_group("Source Files\\RigidBody" FILES ${RIGID_BODY_SOURCE_FILES})
-source_group("Header Files\\MyTimeStep" FILES MyTimeStep.h)
+source_group("Header Files\\MyTimeStep" FILES MyTimeStep.h)		#add Plastic
 source_group("Source Files\\MyTimeStep" FILES MyTimeStep.cpp)
+source_group("Header Files\\MyTimeStep" FILES ${PLASTIC_HEADER_FILES})		#add Plastic
+source_group("Source Files\\MyTimeStep" FILES ${PLASTIC_SOURCE_FILES})
