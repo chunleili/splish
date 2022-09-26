@@ -27,6 +27,7 @@ Plastic::Plastic(FluidModel *model) :
 	plasticLimit = 0.486;
 
 	m_plasticStrain.resize(numParticles);
+	m_elasticStrain.resize(numParticles);
 
 	initValues();
 
@@ -36,6 +37,7 @@ Plastic::Plastic(FluidModel *model) :
 	model->addField({ "deformation gradient", FieldType::Matrix3, [&](const unsigned int i) -> Real* { return &m_F[i](0,0); } });
 
 	model->addField({ "plastic strain", FieldType::Vector6, [&](const unsigned int i) -> Real* { return &m_plasticStrain[i][0]; } });
+	model->addField({ "elastic strain", FieldType::Vector6, [&](const unsigned int i) -> Real* { return &m_elasticStrain[i][0]; } });
 }
 
 Plastic::~Plastic(void)
@@ -46,6 +48,7 @@ Plastic::~Plastic(void)
 	m_model->removeFieldByName("deformation gradient");
 
 	m_model->removeFieldByName("plastic strain");
+	m_model->removeFieldByName("elastic strain");
 
 }
 
@@ -202,9 +205,9 @@ void Plastic::computeStress()
 	C(0, 1) = C(0, 2) = C(1, 0) = C(1, 2) = C(2, 0) = C(2, 1) = factor * (m_poissonRatio);
 	C(3, 3) = C(4, 4) = C(5, 5) = factor * static_cast<Real>(0.5)*(static_cast<Real>(1.0) - static_cast<Real>(2.0) * m_poissonRatio);
 
-	#pragma omp parallel default(shared)
+	// #pragma omp parallel default(shared)
 	{
-		#pragma omp for schedule(static)  
+		// #pragma omp for schedule(static)  
 		for (int i = 0; i < (int)numParticles; i++)
 		{
 			if (model->getParticleState(i) == ParticleState::Active)
@@ -217,9 +220,9 @@ void Plastic::computeStress()
 				Vector6r totalStrain;
 				computeTotalStrain(nablaU, totalStrain);
 
-				// computePlasticStrain(totalStrain, i); //FIXME: with bug
-				Vector6r elasticStrain = totalStrain - m_plasticStrain[i];
-				m_stress[i] = C * elasticStrain;
+				// computePlasticStrain(i); //FIXME: with bug
+				m_elasticStrain[i] = totalStrain - m_plasticStrain[i];
+				m_stress[i] = C * m_elasticStrain[i];
 			}
 			else
 				m_stress[i].setZero();
@@ -292,13 +295,12 @@ void Plastic::computeTotalStrain(Matrix3r &nablaU, Vector6r & totalStrain)
  * 
  * Ref: James F. O’Brien et. al. 2002, "Graphical Modeling and Animation of Ductile Fracture"
  * 
- * @param totalStrain: input. 
- * @param i: input. 
+ * @param i: input
  */
-void Plastic::computePlasticStrain(Vector6r & totalStrain, int i)
+void Plastic::computePlasticStrain(int i)
 {
 	//Eq(2) in O'Brien 2002
-	Real trace = totalStrain[0] + totalStrain[1] + totalStrain[3];
+	Real trace = m_elasticStrain[i][0] + m_elasticStrain[i][1] + m_elasticStrain[i][3];
 	Vector6r deviation;
 	trace /= 3.0;
 	deviation[0] -= trace;

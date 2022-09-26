@@ -27,13 +27,14 @@ namespace SPH
 		Real m_alpha;
 
 		std::vector<Vector6r> m_plasticStrain; //add Plastic Strain 
+		std::vector<Vector6r> m_elasticStrain; //elastic strain 
 
 		void initValues();
 		void computeRotations();
 		void computeStress();
 		void computeForces();
 
-		void computePlasticStrain(Vector6r & totalStrain, int i);
+		void computePlasticStrain(int i);
 		void computeNablaU(int i, Matrix3r &nablaU);
 		void computeTotalStrain(Matrix3r &nablaU, Vector6r & totalStrain);
 
