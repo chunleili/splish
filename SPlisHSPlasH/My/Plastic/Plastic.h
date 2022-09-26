@@ -33,7 +33,7 @@ namespace SPH
 		void computeStress();
 		void computeForces();
 
-		void computePlasticStrain(Vector6r & totalStrain);
+		void computePlasticStrain(Vector6r & totalStrain, int i);
 		void computeNablaU(int i, Matrix3r &nablaU);
 		void computeTotalStrain(Matrix3r &nablaU, Vector6r & totalStrain);
 
@@ -48,6 +48,23 @@ namespace SPH
 			res[0] = M[0] * v[0] + M[3] * v[1] + M[4] * v[2];
 			res[1] = M[3] * v[0] + M[1] * v[1] + M[5] * v[2];
 			res[2] = M[4] * v[0] + M[5] * v[1] + M[2] * v[2];
+		}
+
+		/**
+		 * @brief compute the Frobenius norm of a symmetric 3x3matrix 
+		 * represented by vector6r
+		 * 
+		 * @param vec : the symmetric matrix
+		 * @return Real : the F norm
+		 */
+		FORCE_INLINE Real FNorm(Vector6r & vec)
+		{
+			Real FNorm;
+			for (int i = 0; i < 6; i++)
+				FNorm += vec[i] * vec[i];
+			FNorm = sqrt(FNorm)	;
+
+			return FNorm;
 		}
 
 

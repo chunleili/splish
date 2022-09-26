@@ -36,7 +36,6 @@ Plastic::Plastic(FluidModel *model) :
 	model->addField({ "deformation gradient", FieldType::Matrix3, [&](const unsigned int i) -> Real* { return &m_F[i](0,0); } });
 
 	model->addField({ "plastic strain", FieldType::Vector6, [&](const unsigned int i) -> Real* { return &m_plasticStrain[i][0]; } });
-
 }
 
 Plastic::~Plastic(void)
@@ -210,17 +209,15 @@ void Plastic::computeStress()
 		{
 			if (model->getParticleState(i) == ParticleState::Active)
 			{
-				//refactor and extract to a function
 				Matrix3r nablaU;
 				computeNablaU(i, nablaU);
 
 				m_F[i] = nablaU + Matrix3r::Identity();
 				
-				//refactor and extract to a function
 				Vector6r totalStrain;
 				computeTotalStrain(nablaU, totalStrain);
 
-				// computePlasticStrain(totalStrain); //TODO: not implemented now
+				// computePlasticStrain(totalStrain, i); //FIXME: with bug
 				Vector6r elasticStrain = totalStrain - m_plasticStrain[i];
 				m_stress[i] = C * elasticStrain;
 			}
@@ -234,7 +231,7 @@ void Plastic::computeStress()
  * @brief compute NablaU
  * 
  * @param i: input, particle index
- * @param nablaU: output, gradient of velocity
+ * @param nablaU: output, gradient of displacement
  */
 void Plastic::computeNablaU(int i, Matrix3r &nablaU)
 {
@@ -273,7 +270,7 @@ void Plastic::computeNablaU(int i, Matrix3r &nablaU)
 /**
  * @brief compute totalStrain
  * 
- * @param nablaU: input, gradient of velocity
+ * @param nablaU: input, gradient of displacement
  * @param totalStrain: output
  */
 void Plastic::computeTotalStrain(Matrix3r &nablaU, Vector6r & totalStrain)
@@ -296,9 +293,9 @@ void Plastic::computeTotalStrain(Matrix3r &nablaU, Vector6r & totalStrain)
  * Ref: James F. O’Brien et. al. 2002, "Graphical Modeling and Animation of Ductile Fracture"
  * 
  * @param totalStrain: input. 
- * m_plasticStrain: output
+ * @param i: input. 
  */
-void Plastic::computePlasticStrain(Vector6r & totalStrain)
+void Plastic::computePlasticStrain(Vector6r & totalStrain, int i)
 {
 	//Eq(2) in O'Brien 2002
 	Real trace = totalStrain[0] + totalStrain[1] + totalStrain[3];
@@ -308,14 +305,20 @@ void Plastic::computePlasticStrain(Vector6r & totalStrain)
 	deviation[1] -= trace;
 	deviation[2] -= trace;
 
-	//compute the Frobenius norm
-	Real FNorm;
-	for (int i = 0; i < 6; i++)
-		FNorm += deviation[i] * deviation[i];
-	FNorm = sqrt(FNorm)	;
+	//Eq(3),  Consider plasticity Onlyif exceeding elasticLimit
+	Real deviationNorm = FNorm(deviation);
+	if(deviationNorm <= elasticLimit)
+		return;
 
-	//TODO:
+	//Eq(4)
+	Vector6r strainIncrement  = ( deviationNorm - elasticLimit ) / deviationNorm * deviation;
 
+	//Eq(5) Calculate the accumulated plastic strain
+	Vector6r newPlastic = m_plasticStrain[i] + strainIncrement;
+	Real plasticNorm = FNorm(newPlastic);
+	Real ratio = (plasticLimit / plasticNorm);
+	Real min = 1.0 < ratio ? 1.0 : ratio;
+	m_plasticStrain[i] = newPlastic * min;
 }
 
 void Plastic::computeForces()
