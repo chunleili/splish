@@ -60,7 +60,7 @@ namespace SPH
 		 */
 		FORCE_INLINE Real FNorm(Vector6r & vec)
 		{
-			Real FNorm;
+			Real FNorm = 0.0;
 			for (int i = 0; i < 6; i++)
 				FNorm += vec[i] * vec[i];
 			FNorm = sqrt(FNorm)	;

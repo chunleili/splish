@@ -300,14 +300,14 @@ void Plastic::computeTotalStrain(Matrix3r &nablaU, Vector6r & totalStrain)
 void Plastic::computePlasticStrain(int i)
 {
 	//Eq(2) in O'Brien 2002
-	Real trace = m_elasticStrain[i][0] + m_elasticStrain[i][1] + m_elasticStrain[i][3];
-	Vector6r deviation;
+	Vector6r deviation =  m_elasticStrain[i];
+	Real trace = m_elasticStrain[i][0] + m_elasticStrain[i][1] + m_elasticStrain[i][2];
 	trace /= 3.0;
 	deviation[0] -= trace;
 	deviation[1] -= trace;
 	deviation[2] -= trace;
 
-	//Eq(3),  Consider plasticity Onlyif exceeding elasticLimit
+	//Eq(3),  Consider plasticity only if exceeding elasticLimit
 	Real deviationNorm = FNorm(deviation);
 	if(deviationNorm <= elasticLimit)
 		return;
