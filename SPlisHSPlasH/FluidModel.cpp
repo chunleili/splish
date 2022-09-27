@@ -324,8 +324,8 @@ void FluidModel::initModel(const std::string &id, const unsigned int nFluidParti
             m_objectId0[i] = fluidObjectIds[i];
             if (m_particleState[i] != ParticleState::Fixed)
                 m_particleState[i] = ParticleState::Active;
-            if (m_myParticleState[i] != 0)
-                m_myParticleState[i] = 0;
+            if (m_myParticleState[i] != myParticleState::Viscous)
+                m_myParticleState[i] = myParticleState::Viscous;
         }
     }
     // set IDs for emitted particles

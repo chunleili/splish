@@ -28,6 +28,9 @@ Plastic::Plastic(FluidModel *model) :
 
 	m_plasticStrain.resize(numParticles);
 	m_elasticStrain.resize(numParticles);
+	m_totalStrain.resize(numParticles);
+	m_deviationNorm.resize(numParticles);
+	m_isFracture.resize(numParticles);
 
 	initValues();
 
@@ -36,8 +39,11 @@ Plastic::Plastic(FluidModel *model) :
 	model->addField({ "stress", FieldType::Vector6, [&](const unsigned int i) -> Real* { return &m_stress[i][0]; } });
 	model->addField({ "deformation gradient", FieldType::Matrix3, [&](const unsigned int i) -> Real* { return &m_F[i](0,0); } });
 
-	model->addField({ "plastic strain", FieldType::Vector6, [&](const unsigned int i) -> Real* { return &m_plasticStrain[i][0]; } });
-	model->addField({ "elastic strain", FieldType::Vector6, [&](const unsigned int i) -> Real* { return &m_elasticStrain[i][0]; } });
+	model->addField({ "plastic strain", FieldType::Vector6, [&](const unsigned int i) -> Real* { return &m_plasticStrain[i][0]; }, true });
+	model->addField({ "elastic strain", FieldType::Vector6, [&](const unsigned int i) -> Real* { return &m_elasticStrain[i][0]; }, true });
+	model->addField({ "total strain", FieldType::Vector6, [&](const unsigned int i) -> Real* { return &m_totalStrain[i][0]; }, true  });
+	model->addField({ "m_deviationNorm", FieldType::Scalar, [&](const unsigned int i) -> Real* { return &m_deviationNorm[i]; }, true  });
+	model->addField({ "m_isFracture", FieldType::UInt, [&](const unsigned int i) -> int* { return &m_isFracture[i]; }, true  });
 }
 
 Plastic::~Plastic(void)
@@ -49,6 +55,9 @@ Plastic::~Plastic(void)
 
 	m_model->removeFieldByName("plastic strain");
 	m_model->removeFieldByName("elastic strain");
+	m_model->removeFieldByName("total strain");
+	m_model->removeFieldByName("m_deviationNorm");
+	m_model->removeFieldByName("m_isFracture");
 
 }
 
@@ -108,11 +117,10 @@ void Plastic::initValues()
 				density += model->getMass(neighborIndex) * sim->W(xi - xj);
 			)
 			m_restVolumes[i] = model->getMass(i) / density;
+
+			// model->setParticleState(i, ParticleState::Elastic);
 		}
 	}
-
-	// mark all particles in the bounding box as fixed
-	determineFixedParticles();
 }
 
 void Plastic::step()
@@ -219,8 +227,12 @@ void Plastic::computeStress()
 				
 				Vector6r totalStrain;
 				computeTotalStrain(nablaU, totalStrain);
+				m_totalStrain[i] = totalStrain;
 
-				// computePlasticStrain(i); //FIXME: with bug
+				computePlasticStrain(i); //FIXME: with bug
+				if (m_isFracture[i]) //remove from neighbors
+					fracture(i);
+
 				m_elasticStrain[i] = totalStrain - m_plasticStrain[i];
 				m_stress[i] = C * m_elasticStrain[i];
 			}
@@ -229,6 +241,24 @@ void Plastic::computeStress()
 		}
 	}
 }
+
+/**
+ * @brief Treat the fracture. 
+ * Release the fractured particles from neighbors, 
+ * and set them as fluid. 
+ * 
+ */
+void Plastic::fracture(int k)
+{
+	// //release the particle from neighbors
+	// remove(m_current_to_initial_index.begin(), m_current_to_initial_index.end(), k);
+	// remove(m_initial_to_current_index.begin(), m_initial_to_current_index.end(), k);
+
+	// mark the released particles as fluid
+	//TODO: set the particle i as another state
+	// m_model->setParticleState(k, ParticleState::Fixed);
+}
+
 
 /**
  * @brief compute NablaU
@@ -318,6 +348,11 @@ void Plastic::computePlasticStrain(int i)
 	//Eq(5) Calculate the accumulated plastic strain
 	Vector6r newPlastic = m_plasticStrain[i] + strainIncrement;
 	Real plasticNorm = FNorm(newPlastic);
+	if(plasticNorm > plasticLimit)
+	{
+		m_isFracture[i] = 1; //if exceed the plastic limit then fracture
+		return;
+	}
 	Real ratio = (plasticLimit / plasticNorm);
 	Real min = 1.0 < ratio ? 1.0 : ratio;
 	m_plasticStrain[i] = newPlastic * min;
@@ -362,7 +397,7 @@ void Plastic::computeForces()
 					const Vector3r dij = -m_restVolumes[neighborIndex] * gradW0;
 
 					Vector3r sdji, sdij;
-					symMatTimesVec(m_stress[neighborIndex], dji, sdji);
+					symMatTimesVec(m_stress[neighborIndex], dji, sdji); //stress times dji
 					symMatTimesVec(m_stress[i], dij, sdij);
 
 					const Vector3r fij = -m_restVolumes[neighborIndex] * sdji;
@@ -371,50 +406,6 @@ void Plastic::computeForces()
 					fi += m_rotations[neighborIndex] * fij - m_rotations[i] * fji;
 				}
 				fi = 0.5*fi;
-
-				if (m_alpha != 0.0)
-				{
-					//////////////////////////////////////////////////////////////////////////
-					// Ganzenmüller, G.C. 2015. An hourglass control algorithm for Lagrangian
-					// Smooth Particle Hydrodynamics. Computer Methods in Applied Mechanics and 
-					// Engineering 286, 87.106.
-					//////////////////////////////////////////////////////////////////////////
-					Vector3r fi_hg;
-					fi_hg.setZero();
-					const Vector3r& xi = m_model->getPosition(i);
-					for (unsigned int j = 0; j < numNeighbors; j++)
-					{
-						const unsigned int neighborIndex = m_initial_to_current_index[m_initialNeighbors[i0][j]];
-						// get initial neighbor index considering the current particle order 
-						const unsigned int neighborIndex0 = m_initialNeighbors[i0][j];
-
-						const Vector3r& xj = model->getPosition(neighborIndex);
-						const Vector3r& xj0 = m_model->getPosition0(neighborIndex0);
-
-						// Note: Ganzenm�ller defines xij = xj-xi
-						const Vector3r xi_xj = -(xi - xj);
-						const Real xixj_l = xi_xj.norm();
-						if (xixj_l > 1.0e-6)
-						{
-							// Note: Ganzenm�ller defines xij = xj-xi
-							const Vector3r xi_xj_0 = -(xi0 - xj0);
-							const Real xixj0_l2 = xi_xj_0.squaredNorm();
-							const Real W0 = sim->W(xi_xj_0);
-
-							const Vector3r xij_i = m_F[i] * m_rotations[i] * xi_xj_0;
-							const Vector3r xji_j = -m_F[neighborIndex] * m_rotations[neighborIndex] * xi_xj_0;
-							const Vector3r epsilon_ij_i = xij_i - xi_xj;
-							const Vector3r epsilon_ji_j = xji_j + xi_xj;
-
-							const Real delta_ij_i = epsilon_ij_i.dot(xi_xj) / xixj_l;
-							const Real delta_ji_j = -epsilon_ji_j.dot(xi_xj) / xixj_l;
-
-							fi_hg -= m_restVolumes[neighborIndex] * W0 / xixj0_l2 * (delta_ij_i + delta_ji_j) * xi_xj / xixj_l;
-						}
-					}
-					fi_hg *= m_alpha * m_youngsModulus * m_restVolumes[i];
-					model->getAcceleration(i) += fi_hg / model->getMass(i);
-				}
 
 				// elastic acceleration
 				Vector3r& ai = model->getAcceleration(i);

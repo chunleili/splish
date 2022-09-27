@@ -26,8 +26,12 @@ namespace SPH
 		std::vector<Matrix3r> m_F;
 		Real m_alpha;
 
+		//added variables
 		std::vector<Vector6r> m_plasticStrain; //add Plastic Strain 
 		std::vector<Vector6r> m_elasticStrain; //elastic strain 
+		std::vector<Vector6r> m_totalStrain; //total strain 
+		std::vector<Real> m_deviationNorm; //total strain 
+		std::vector<int> m_isFracture; // determine wheter a particle should be fracture and release 
 
 		void initValues();
 		void computeRotations();
@@ -37,6 +41,7 @@ namespace SPH
 		void computePlasticStrain(int i);
 		void computeNablaU(int i, Matrix3r &nablaU);
 		void computeTotalStrain(Matrix3r &nablaU, Vector6r & totalStrain);
+		void fracture(int i);
 
 		virtual void initParameters();
 
