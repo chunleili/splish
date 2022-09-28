@@ -32,6 +32,8 @@ namespace SPH
 		unsigned int numParticles=0;
 		std::vector<Vector3r> m_displacement;
 		std::vector<Vector6r> m_totalStrain;
+		std::vector<Vector6r> m_elasticStrain;
+		unsigned int m_step=0;
 
 		void initValues();
 		void computeRotations();

@@ -16,8 +16,6 @@ RigidBody::RigidBody(FluidModel* model):
 NonPressureForceBase(model)
 {
     unsigned int numParticles = m_model->numActiveParticles();
-    penalty_force.resize(numParticles);
-    force.resize(numParticles);
     radius_vector.resize(numParticles);
     oldPosition.resize(numParticles);
 }
@@ -27,10 +25,7 @@ void RigidBody::setStates()
     unsigned int numParticles = m_model->numActiveParticles();
     for(unsigned int i=0; i< numParticles ; i++)
     {
-        if(m_model->getTemperature(i) < 1.0)
-            m_model->setParticleState(i, ParticleState::RigidBody);
-        else 
-            m_model->setParticleState(i, ParticleState::Active);
+        m_model->setParticleState(i, ParticleState::RigidBody);
     }   
 }
 
@@ -42,14 +37,9 @@ void RigidBody::step()
 {   
     static int steps = 0;
     if(steps == 0)
-    {
         computeBarycenter();
-    }
     setStates();
-    collision_response();
-    // addForce();
     shapeMatching();
-    // animateParticles();
     steps++;
 }
 
@@ -72,9 +62,14 @@ void RigidBody::shapeMatching()
             Real mass_inv = 1.0/mass;
             
             oldPosition[i] = pos;
-            f = g + penalty_force[i];
+            f = g ;
             vel +=  f * mass_inv * dt;
             pos += vel *dt;
+            if(pos[1] < 1e-5)
+            {
+                pos = oldPosition[i];
+                pos[1] = 0.0 + 1e-5;
+            }
         }
     }
 
@@ -143,47 +138,6 @@ inline Matrix3r polarDecompose(Matrix3r A_pq)
     return R;
 }
 
-
-void RigidBody::collision_response()
-{
-    float eps = 0.0; // the padding to prevent penatrating
-    float k = 100.0; // stiffness of the penalty force
-    const  int numParticles = (int) m_model->numActiveParticles();
-
-    for (int i = 0; i < numParticles; i++)
-    {
-        Vector3r &pos = m_model->getPosition(i);
-        if (pos.y() < eps)
-        {
-            Vector3r n_dir(0.0, 1.0, 0.0);
-            float phi = pos.y();
-            penalty_force[i] = k * abs(phi)  * n_dir;
-        }
-    }
-}
-
-
-void RigidBody::animateParticles()
-{
-    const  int numParticles = (int) m_model->numActiveParticles();
-    if (numParticles == 0)
-		return;
-    TimeManager *tm = TimeManager::getCurrent ();
-	const Real h = tm->getTimeStepSize();
-    Vector3r g(0.0, -9.8, 0.0);
-    
-    for (int i = 0; i < numParticles; i++)
-    { 
-        if (m_model->getParticleState(i) == ParticleState::RigidBody)
-        {
-            Vector3r &pos = m_model->getPosition(i);
-            Vector3r &vel = m_model->getVelocity(i);
-            float &mass = m_model->getMass(i);
-            vel += h * (g+penalty_force[i])/mass;
-            pos += h * vel; 
-        }
-    }
-}
 
 void RigidBody::computeBarycenter()
 {

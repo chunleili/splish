@@ -19,8 +19,6 @@ private:
     Quaternionr quaternion{0.0, 0.0, 0.0, 0.0};
     Vector3r barycenter{0.0, 0.0, 0.0};
     Vector3r angular_velocity{0.0, 0.0, 0.0};
-    std::vector<Vector3r> penalty_force;
-    std::vector<Vector3r> force;
     std::vector<Vector3r> radius_vector;
     std::vector<Vector3r> oldPosition;
     Real total_mass{0.0};
@@ -29,9 +27,6 @@ private:
 
     void setStates();
     void computeBarycenter();
-    void translation();
-    void rotation();
-    void animateParticles();
     void collision_response();
     void shapeMatching();
 

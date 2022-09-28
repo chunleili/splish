@@ -1,6 +1,7 @@
 #include "Plastic.h"
 #include "SPlisHSPlasH/Simulation.h"
 #include "SPlisHSPlasH/Utilities/MathFunctions.h"
+#include "../Utils/myPrint.h"
 
 using namespace SPH;
 using namespace GenParam;
@@ -29,6 +30,7 @@ Plastic::Plastic(FluidModel *model) :
 	m_plasticStrain.resize(numParticles);
 	m_isFracture.resize(numParticles,0);
 	m_totalStrain.resize(numParticles);
+	m_elasticStrain.resize(numParticles);
 
 	initValues();
 
@@ -109,22 +111,24 @@ void Plastic::initValues()
 			)
 			m_restVolumes[i] = model->getMass(i) / density;
 
-			// model->setParticleState(i, ParticleState::Elastic);
 			//setzero for plastic strain
-			for (size_t j = 0; j < 6; j++)
-				m_plasticStrain[i][j] = 0.0;
-			
+			m_plasticStrain[i].setZero();
+			m_elasticStrain[i].setZero();
 		}
 	}
 }
 
 void Plastic::step()
 {
-	computeRotations();
+	// computeRotations();
 	computeStress();
 	computeForces();
-	// fracture(); //FIXME:
-	// absorbDeformation();
+	m_step++;
+	// std::string fname = "m_initial_to_current_index_" + std::to_string(m_step)+ ".txt";
+	// printScalarField(fname,m_initial_to_current_index,0);
+	// std::string fname = "m_initialNeighbors_" + std::to_string(m_step)+ ".txt";
+	// printVectorField(fname,m_initialNeighbors,0);
+
 }
 
 
@@ -142,6 +146,8 @@ void Plastic::performNeighborhoodSearchSort()
 	auto const& d = sim->getNeighborhoodSearch()->point_set(m_model->getPointSetIndex());
 	d.sort_field(&m_restVolumes[0]);
 	d.sort_field(&m_current_to_initial_index[0]);
+	d.sort_field(&m_plasticStrain[0]);
+	d.sort_field(&m_isFracture[0]);
 
 	for (unsigned int i = 0; i < numParticles; i++)
 		m_initial_to_current_index[m_current_to_initial_index[i]] = i;
@@ -230,45 +236,17 @@ void Plastic::computeStress()
 				computeTotalStrain(nablaU, totalStrain);
 				m_totalStrain[i] = totalStrain;
 
-				computePlasticStrain(i, totalStrain); //FIXME: with bug
-				if (m_isFracture[i]) 
-					continue;
+				computePlasticStrain(i, m_elasticStrain[i]); //FIXME: with bug
 
 				Vector6r elasticStrain;
 				elasticStrain = totalStrain - m_plasticStrain[i];
+				m_elasticStrain[i] = elasticStrain;
 				m_stress[i] = C * elasticStrain;
 			}
 			else
 				m_stress[i].setZero();
 		}
 	}
-}
-
-/**
- * @brief Treat the fracture. 
- * Release the fractured particles from neighbors, 
- * and set them as fluid. 
- * 
- */
-void Plastic::fracture()
-{
-	int numFrac=0;
-	for (size_t k = 0; k < numParticles; k++)
-	{
-		if(m_isFracture[k] == 1)
-		{
-			//release the particle from neighbors
-			m_initialNeighbors.erase(m_initialNeighbors.begin()+k);
-			remove(m_current_to_initial_index.begin(), m_current_to_initial_index.end(), k);
-			remove(m_initial_to_current_index.begin(), m_initial_to_current_index.end(), k);
-			numFrac++; 
-		}
-	}
-	numParticles -= numFrac;
-
-	// mark the released particles as fluid
-	//TODO: set the particle i as another state
-	// m_model->setParticleState(k, ParticleState::Fixed);
 }
 
 
@@ -339,11 +317,11 @@ void Plastic::computeTotalStrain(Matrix3r &nablaU, Vector6r & totalStrain)
  * 
  * @param i: input
  */
-void Plastic::computePlasticStrain(int i, Vector6r &totalStrain)
+void Plastic::computePlasticStrain(int i, Vector6r &strain)
 {
 	//Eq(2) in O'Brien 2002
-	Vector6r deviation =  totalStrain;
-	Real trace = totalStrain[0] + totalStrain[1] + totalStrain[2];
+	Vector6r deviation =  strain;
+	Real trace = strain[0] + strain[1] + strain[2];
 	trace /= 3.0;
 	deviation[0] -= trace;
 	deviation[1] -= trace;
@@ -351,41 +329,30 @@ void Plastic::computePlasticStrain(int i, Vector6r &totalStrain)
 
 	//Eq(3),  Consider plasticity only if exceeding elasticLimit
 	Real deviationNorm = FNorm(deviation);
+	// if(i==0)
+		// printf("deviationNorm: %.4f, step %d\n", i, m_step);
 	if(deviationNorm <= elasticLimit)
+	{
 		return;
-
+	}
+	// printf("particle %d is plastic in step %d\n", i, m_step);
+	
 	//Eq(4)
 	Vector6r strainIncrement  = ( deviationNorm - elasticLimit ) / deviationNorm * deviation;
 
 	//Eq(5) Calculate the accumulated plastic strain
 	Vector6r newPlastic = m_plasticStrain[i] + strainIncrement;
 	Real plasticNorm = FNorm(newPlastic);
-	if(plasticNorm > plasticLimit)
-	{
-		m_isFracture[i] = 1; //if exceed the plastic limit then fracture
-		m_plasticStrain[i].setZero(); // clear the plastic strain
-		return;
-	}
+	// if(deviationNorm >= plasticLimit) //barrier of plastic strain
+	// {
+	// 	m_isFracture[i] = 1;
+	// 	printf("particle %d is fractured in step %d\n", i, m_step);
+	// }
 	Real ratio = (plasticLimit / plasticNorm);
 	Real min = 1.0 < ratio ? 1.0 : ratio;
 	m_plasticStrain[i] = newPlastic * min;
 }
 
-/**
- * @brief Ref: Muller, et.al., 2004, "Point Based Animation of Elastic, Plastic and Melting Objects".
- * 
- */
-void Plastic::absorbDeformation()
-{
-	for (size_t i = 0; i < numParticles; i++)
-	{
-		Vector3r& x = m_model->getPosition(i);
-		m_plasticStrain[i] -= m_totalStrain[i];
-		x += m_displacement[i];
-		m_displacement[i].setZero();
-	}
-	
-}
 
 
 void Plastic::computeForces()
