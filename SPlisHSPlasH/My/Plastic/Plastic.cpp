@@ -120,7 +120,7 @@ void Plastic::initValues()
 
 void Plastic::step()
 {
-	// computeRotations();
+	computeRotations();
 	computeStress();
 	computeForces();
 	m_step++;
@@ -148,6 +148,7 @@ void Plastic::performNeighborhoodSearchSort()
 	d.sort_field(&m_current_to_initial_index[0]);
 	d.sort_field(&m_plasticStrain[0]);
 	d.sort_field(&m_isFracture[0]);
+	d.sort_field(&m_elasticStrain[0]);
 
 	for (unsigned int i = 0; i < numParticles; i++)
 		m_initial_to_current_index[m_current_to_initial_index[i]] = i;
