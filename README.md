@@ -1,3 +1,14 @@
+# My
+This is a forked repo from https://github.com/InteractiveComputerGraphics/SPlisHSPlasH
+
+we add these models to the splishsplash:
+1. Diffusion: see temperatureDiffusion
+2. Local dynamic viscosity: see Viscosity/Viscosity_Casson
+3. Plasticity: see My/Plasticity
+4. ShapeMatching: see RigidBody
+5. NonNewton: see NonNewton
+
+
 <img src="https://raw.githubusercontent.com/InteractiveComputerGraphics/SPlisHSPlasH/master/doc/images/logo.jpg" width="250">
 <br>
 
