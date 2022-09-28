@@ -28,6 +28,7 @@ Plastic::Plastic(FluidModel *model) :
 
 	m_plasticStrain.resize(numParticles);
 	m_isFracture.resize(numParticles,0);
+	m_totalStrain.resize(numParticles);
 
 	initValues();
 
@@ -123,6 +124,7 @@ void Plastic::step()
 	computeStress();
 	computeForces();
 	// fracture(); //FIXME:
+	// absorbDeformation();
 }
 
 
@@ -226,6 +228,7 @@ void Plastic::computeStress()
 				
 				Vector6r totalStrain;
 				computeTotalStrain(nablaU, totalStrain);
+				m_totalStrain[i] = totalStrain;
 
 				computePlasticStrain(i, totalStrain); //FIXME: with bug
 				if (m_isFracture[i]) 
@@ -303,6 +306,8 @@ void Plastic::computeNablaU(int i, Matrix3r &nablaU)
 		const Vector3r xj_xi_0 = xj0 - xi0;
 
 		const Vector3r uji = m_rotations[i].transpose() * xj_xi - xj_xi_0;
+
+		// m_displacement[i] = uji;
 		// subtract because kernel gradient is taken in direction of xji0 instead of xij0
 		// Eq(6) in Becker2009
 		nablaU -= (m_restVolumes[neighborIndex] * uji) * sim->gradW(xj_xi_0).transpose();
@@ -358,12 +363,30 @@ void Plastic::computePlasticStrain(int i, Vector6r &totalStrain)
 	if(plasticNorm > plasticLimit)
 	{
 		m_isFracture[i] = 1; //if exceed the plastic limit then fracture
+		m_plasticStrain[i].setZero(); // clear the plastic strain
 		return;
 	}
 	Real ratio = (plasticLimit / plasticNorm);
 	Real min = 1.0 < ratio ? 1.0 : ratio;
 	m_plasticStrain[i] = newPlastic * min;
 }
+
+/**
+ * @brief Ref: Muller, et.al., 2004, "Point Based Animation of Elastic, Plastic and Melting Objects".
+ * 
+ */
+void Plastic::absorbDeformation()
+{
+	for (size_t i = 0; i < numParticles; i++)
+	{
+		Vector3r& x = m_model->getPosition(i);
+		m_plasticStrain[i] -= m_totalStrain[i];
+		x += m_displacement[i];
+		m_displacement[i].setZero();
+	}
+	
+}
+
 
 void Plastic::computeForces()
 {
