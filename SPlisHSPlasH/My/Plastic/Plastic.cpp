@@ -13,7 +13,7 @@ int Plastic::PLASTIC_LIMIT = -1;
 Plastic::Plastic(FluidModel *model) :
 	ElasticityBase(model)
 {
-	const unsigned int numParticles = model->numActiveParticles();
+	numParticles = model->numActiveParticles();
 	m_restVolumes.resize(numParticles);
 	m_current_to_initial_index.resize(numParticles);
 	m_initial_to_current_index.resize(numParticles);
@@ -27,10 +27,7 @@ Plastic::Plastic(FluidModel *model) :
 	plasticLimit = 0.486;
 
 	m_plasticStrain.resize(numParticles);
-	m_elasticStrain.resize(numParticles);
-	m_totalStrain.resize(numParticles);
-	m_deviationNorm.resize(numParticles);
-	m_isFracture.resize(numParticles);
+	m_isFracture.resize(numParticles,0);
 
 	initValues();
 
@@ -40,10 +37,7 @@ Plastic::Plastic(FluidModel *model) :
 	model->addField({ "deformation gradient", FieldType::Matrix3, [&](const unsigned int i) -> Real* { return &m_F[i](0,0); } });
 
 	model->addField({ "plastic strain", FieldType::Vector6, [&](const unsigned int i) -> Real* { return &m_plasticStrain[i][0]; }, true });
-	model->addField({ "elastic strain", FieldType::Vector6, [&](const unsigned int i) -> Real* { return &m_elasticStrain[i][0]; }, true });
-	model->addField({ "total strain", FieldType::Vector6, [&](const unsigned int i) -> Real* { return &m_totalStrain[i][0]; }, true  });
-	model->addField({ "m_deviationNorm", FieldType::Scalar, [&](const unsigned int i) -> Real* { return &m_deviationNorm[i]; }, true  });
-	model->addField({ "m_isFracture", FieldType::UInt, [&](const unsigned int i) -> int* { return &m_isFracture[i]; }, true  });
+	model->addField({ "isFracture", FieldType::UInt, [&](const unsigned int i) -> int* { return &m_isFracture[i]; }, true  });
 }
 
 Plastic::~Plastic(void)
@@ -54,10 +48,7 @@ Plastic::~Plastic(void)
 	m_model->removeFieldByName("deformation gradient");
 
 	m_model->removeFieldByName("plastic strain");
-	m_model->removeFieldByName("elastic strain");
-	m_model->removeFieldByName("total strain");
-	m_model->removeFieldByName("m_deviationNorm");
-	m_model->removeFieldByName("m_isFracture");
+	m_model->removeFieldByName("isFracture");
 
 }
 
@@ -91,7 +82,6 @@ void Plastic::initValues()
 	sim->getNeighborhoodSearch()->find_neighbors();
 
 	FluidModel *model = m_model;
-	const unsigned int numParticles = model->numActiveParticles();
 	const unsigned int fluidModelIndex = model->getPointSetIndex();
 
 	// Store the neighbors in the reference configurations and
@@ -119,6 +109,10 @@ void Plastic::initValues()
 			m_restVolumes[i] = model->getMass(i) / density;
 
 			// model->setParticleState(i, ParticleState::Elastic);
+			//setzero for plastic strain
+			for (size_t j = 0; j < 6; j++)
+				m_plasticStrain[i][j] = 0.0;
+			
 		}
 	}
 }
@@ -128,6 +122,7 @@ void Plastic::step()
 	computeRotations();
 	computeStress();
 	computeForces();
+	// fracture(); //FIXME:
 }
 
 
@@ -138,8 +133,7 @@ void Plastic::reset()
 
 void Plastic::performNeighborhoodSearchSort()
 {
-	const unsigned int numPart = m_model->numActiveParticles();
-	if (numPart == 0)
+	if (numParticles == 0)
 		return;
 
 	Simulation *sim = Simulation::getCurrent();
@@ -147,53 +141,57 @@ void Plastic::performNeighborhoodSearchSort()
 	d.sort_field(&m_restVolumes[0]);
 	d.sort_field(&m_current_to_initial_index[0]);
 
-	for (unsigned int i = 0; i < numPart; i++)
+	for (unsigned int i = 0; i < numParticles; i++)
 		m_initial_to_current_index[m_current_to_initial_index[i]] = i;
 }
 
 void Plastic::computeRotations()
 {
 	Simulation *sim = Simulation::getCurrent();
-	const unsigned int numParticles = m_model->numActiveParticles();
 	const unsigned int fluidModelIndex = m_model->getPointSetIndex();
 	FluidModel *model = m_model;
 
-	#pragma omp parallel default(shared)
+// #pragma omp parallel default(shared)
 	{
-		#pragma omp for schedule(static)  
+// #pragma omp for schedule(static)
 		for (int i = 0; i < (int)numParticles; i++)
 		{
-			const unsigned int i0 = m_current_to_initial_index[i];
-			const Vector3r &xi = m_model->getPosition(i);
-			const Vector3r &xi0 = m_model->getPosition0(i0);
-			Matrix3r Apq;
-			Apq.setZero();
-
-			const size_t numNeighbors = m_initialNeighbors[i0].size();
-
-			//////////////////////////////////////////////////////////////////////////
-			// Fluid
-			//////////////////////////////////////////////////////////////////////////
-			for (unsigned int j = 0; j < numNeighbors; j++)
+			if (model->getParticleState(i) == ParticleState::Active && 		
+				m_isFracture[i] == 0)
 			{
-				const unsigned int neighborIndex = m_initial_to_current_index[m_initialNeighbors[i0][j]];
-				// get initial neighbor index considering the current particle order 
-				const unsigned int neighborIndex0 = m_initialNeighbors[i0][j];
 
-				const Vector3r &xj = model->getPosition(neighborIndex);
-				const Vector3r &xj0 = m_model->getPosition0(neighborIndex0);
-				const Vector3r xj_xi = xj - xi;
-				const Vector3r xj_xi_0 = xj0 - xi0;
-				Apq += m_model->getMass(neighborIndex) * sim->W(xj_xi_0) * (xj_xi * xj_xi_0.transpose());
+				const unsigned int i0 = m_current_to_initial_index[i];
+				const Vector3r &xi = m_model->getPosition(i);
+				const Vector3r &xi0 = m_model->getPosition0(i0);
+				Matrix3r Apq;
+				Apq.setZero();
+
+				const size_t numNeighbors = m_initialNeighbors[i0].size();
+
+				//////////////////////////////////////////////////////////////////////////
+				// Fluid
+				//////////////////////////////////////////////////////////////////////////
+				for (unsigned int j = 0; j < numNeighbors; j++)
+				{
+					const unsigned int neighborIndex = m_initial_to_current_index[m_initialNeighbors[i0][j]];
+					// get initial neighbor index considering the current particle order
+					const unsigned int neighborIndex0 = m_initialNeighbors[i0][j];
+
+					const Vector3r &xj = model->getPosition(neighborIndex);
+					const Vector3r &xj0 = m_model->getPosition0(neighborIndex0);
+					const Vector3r xj_xi = xj - xi;
+					const Vector3r xj_xi_0 = xj0 - xi0;
+					Apq += m_model->getMass(neighborIndex) * sim->W(xj_xi_0) * (xj_xi * xj_xi_0.transpose());
+				}
+
+				// 			Vector3r sigma;
+				// 			Matrix3r U, VT;
+				// 			MathFunctions::svdWithInversionHandling(Apq, sigma, U, VT);
+				// 			m_rotations[i] = U * VT;
+				Quaternionr q(m_rotations[i]);
+				MathFunctions::extractRotation(Apq, q, 10);
+				m_rotations[i] = q.matrix();
 			}
-
-// 			Vector3r sigma;
-// 			Matrix3r U, VT;
-// 			MathFunctions::svdWithInversionHandling(Apq, sigma, U, VT);
-// 			m_rotations[i] = U * VT;
-			Quaternionr q(m_rotations[i]);
-			MathFunctions::extractRotation(Apq, q, 10);
-			m_rotations[i] = q.matrix();
 		}
 	}
 }
@@ -201,7 +199,6 @@ void Plastic::computeRotations()
 void Plastic::computeStress()
 {
 	Simulation *sim = Simulation::getCurrent();
-	const unsigned int numParticles = m_model->numActiveParticles();
 	const unsigned int fluidModelIndex = m_model->getPointSetIndex();
 	FluidModel *model = m_model;
 
@@ -218,7 +215,9 @@ void Plastic::computeStress()
 		// #pragma omp for schedule(static)  
 		for (int i = 0; i < (int)numParticles; i++)
 		{
-			if (model->getParticleState(i) == ParticleState::Active)
+			if (model->getParticleState(i) == ParticleState::Active
+				&& m_isFracture[i] == 0
+			)
 			{
 				Matrix3r nablaU;
 				computeNablaU(i, nablaU);
@@ -227,14 +226,14 @@ void Plastic::computeStress()
 				
 				Vector6r totalStrain;
 				computeTotalStrain(nablaU, totalStrain);
-				m_totalStrain[i] = totalStrain;
 
-				computePlasticStrain(i); //FIXME: with bug
-				if (m_isFracture[i]) //remove from neighbors
-					fracture(i);
+				computePlasticStrain(i, totalStrain); //FIXME: with bug
+				if (m_isFracture[i]) 
+					continue;
 
-				m_elasticStrain[i] = totalStrain - m_plasticStrain[i];
-				m_stress[i] = C * m_elasticStrain[i];
+				Vector6r elasticStrain;
+				elasticStrain = totalStrain - m_plasticStrain[i];
+				m_stress[i] = C * elasticStrain;
 			}
 			else
 				m_stress[i].setZero();
@@ -248,11 +247,21 @@ void Plastic::computeStress()
  * and set them as fluid. 
  * 
  */
-void Plastic::fracture(int k)
+void Plastic::fracture()
 {
-	// //release the particle from neighbors
-	// remove(m_current_to_initial_index.begin(), m_current_to_initial_index.end(), k);
-	// remove(m_initial_to_current_index.begin(), m_initial_to_current_index.end(), k);
+	int numFrac=0;
+	for (size_t k = 0; k < numParticles; k++)
+	{
+		if(m_isFracture[k] == 1)
+		{
+			//release the particle from neighbors
+			m_initialNeighbors.erase(m_initialNeighbors.begin()+k);
+			remove(m_current_to_initial_index.begin(), m_current_to_initial_index.end(), k);
+			remove(m_initial_to_current_index.begin(), m_initial_to_current_index.end(), k);
+			numFrac++; 
+		}
+	}
+	numParticles -= numFrac;
 
 	// mark the released particles as fluid
 	//TODO: set the particle i as another state
@@ -320,18 +329,16 @@ void Plastic::computeTotalStrain(Matrix3r &nablaU, Vector6r & totalStrain)
 
 /**
  * @brief Compute the plastic strain based on O'Brien 2002. 
- * Note that m_plasticStrain will accumulate with steps. 
- * It will not be cleared every timestep.
  * 
  * Ref: James F. O’Brien et. al. 2002, "Graphical Modeling and Animation of Ductile Fracture"
  * 
  * @param i: input
  */
-void Plastic::computePlasticStrain(int i)
+void Plastic::computePlasticStrain(int i, Vector6r &totalStrain)
 {
 	//Eq(2) in O'Brien 2002
-	Vector6r deviation =  m_elasticStrain[i];
-	Real trace = m_elasticStrain[i][0] + m_elasticStrain[i][1] + m_elasticStrain[i][2];
+	Vector6r deviation =  totalStrain;
+	Real trace = totalStrain[0] + totalStrain[1] + totalStrain[2];
 	trace /= 3.0;
 	deviation[0] -= trace;
 	deviation[1] -= trace;
@@ -370,7 +377,8 @@ void Plastic::computeForces()
 		#pragma omp for schedule(static)  
 		for (int i = 0; i < (int)numParticles; i++)
 		{
-			if (model->getParticleState(i) == ParticleState::Active)
+			if (model->getParticleState(i) == ParticleState::Active
+				&& m_isFracture[i] == 0)
 			{
 				const unsigned int i0 = m_current_to_initial_index[i];
 				const Vector3r& xi0 = m_model->getPosition0(i0);
