@@ -120,6 +120,7 @@ void Plastic::step()
 	computeRotations();
 	computeStress();
 	computeForces();
+	fracture();
 	m_step++;
 	// std::string fname = "m_initial_to_current_index_" + std::to_string(m_step)+ ".txt";
 	// printScalarField(fname,m_initial_to_current_index,0);
@@ -385,3 +386,5 @@ void Plastic::computeForces()
 		}
 	}
 }
+
+// void fracture()
