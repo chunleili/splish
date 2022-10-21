@@ -163,8 +163,7 @@ void Plastic::computeRotations()
 // #pragma omp for schedule(static)
 		for (int i = 0; i < (int)numParticles; i++)
 		{
-			if (m_model->getParticleState(i) == ParticleState::Active && 		
-				m_isFracture[i] == 0)
+			if (m_model->getParticleState(i) == ParticleState::Active)
 			{
 
 				const unsigned int i0 = m_current_to_initial_index[i];
@@ -210,9 +209,7 @@ void Plastic::computeStress()
 		// #pragma omp for schedule(static)  
 		for (int i = 0; i < (int)numParticles; i++)
 		{
-			if (m_model->getParticleState(i) == ParticleState::Active
-				&& m_isFracture[i] == 0
-			)
+			if (m_model->getParticleState(i) == ParticleState::Active)
 			{
 				Matrix3r nablaU;
 				computeNablaU(i, nablaU);
@@ -347,8 +344,7 @@ void Plastic::computeForces()
 		#pragma omp for schedule(static)  
 		for (int i = 0; i < (int)numParticles; i++)
 		{
-			if (m_model->getParticleState(i) == ParticleState::Active
-				&& m_isFracture[i] == 0)
+			if (m_model->getParticleState(i) == ParticleState::Active)
 			{
 				const unsigned int i0 = m_current_to_initial_index[i];
 				const Vector3r& xi0 = m_model->getPosition0(i0);
