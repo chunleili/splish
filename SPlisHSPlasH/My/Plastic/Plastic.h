@@ -44,7 +44,7 @@ namespace SPH
 		void computeNablaU(int i, Matrix3r &nablaU);
 		void computeTotalStrain(Matrix3r &nablaU, Vector6r & totalStrain);
 		void fracture();
-		void absorbDeformation();
+		void computeC(Matrix6r &nablaU);
 
 		virtual void initParameters();
 
@@ -95,8 +95,6 @@ namespace SPH
 		virtual void reset();
 		virtual void performNeighborhoodSearchSort();
 
-		virtual void saveState(BinaryFileWriter &binWriter);
-		virtual void loadState(BinaryFileReader &binReader);
 	};
 }
 
