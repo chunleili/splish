@@ -22,17 +22,18 @@
 	},
 	"Materials": [
 		{
-			"id": "yellow",
+			"id": "1-yellow",
 			"density0": 1000, 
 			"viscosityMethod": 0,
 			"elasticityMethod":4,
 			"colorField": "id",
 			"colorMapType": 2,
 			"renderMinValue": 0.0,
-			"renderMaxValue": 0.0		
+			"renderMaxValue": 0.0,
+            "elasticLimit":0.0		
 		},
 		{
-			"id": "white",
+			"id": "2-white",
 			"density0": 1000, 
 			"viscosityMethod": 0,
 			"elasticityMethod":1,
@@ -53,7 +54,7 @@
 			"isDynamic": false,
 			"isWall": true,
 			"restitution" : 0.6,
-			"friction" : 0.0,
+			"friction" : 0.5,
 			"collisionObjectType": 2,
 			"collisionObjectScale": [2.1, 4, 2.1],	
 			"invertSDF": true,
@@ -64,17 +65,17 @@
 	],
 	"FluidModels": [
 		{
-			"id" : "white",
+			"id" : "1-yellow",
 			"particleFile": "../models/Egg.obj",
-			"translation": [0.0, 1.0, 0.0],
+			"translation": [1.0, 1.0, 0.0],
 			"rotationAxis": [0, 0, 1],
 			"rotationAngle": 0,
 			"scale": [0.1, 0.1, 0.1]
 		},
 		{
-			"id" : "yellow",
+			"id" : "2-white",
 			"particleFile": "../models/Egg.obj",
-			"translation": [1.0, 1.0, 1.0],
+			"translation": [0.0, 1.0, 0.0],
 			"rotationAxis": [0, 0, 1],
 			"rotationAngle": 0,
 			"scale": [0.1, 0.1, 0.1]

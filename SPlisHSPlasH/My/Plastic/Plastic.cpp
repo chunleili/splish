@@ -6,9 +6,9 @@
 using namespace SPH;
 using namespace GenParam;
 
-int Plastic::ALPHA = -1;
 int Plastic::ELASTIC_LIMIT = -1;
 int Plastic::PLASTIC_LIMIT = -1;
+int Plastic::IS_PLASTIC = -1;
 
 
 Plastic::Plastic(FluidModel *model) :
@@ -22,7 +22,6 @@ Plastic::Plastic(FluidModel *model) :
 	m_rotations.resize(numParticles, Matrix3r::Identity());
 	m_stress.resize(numParticles);
 	m_F.resize(numParticles);
-	m_alpha = 0.0;
 
 	elasticLimit = 0.001;
 	plasticLimit = 0.486;
@@ -59,24 +58,21 @@ void Plastic::initParameters()
 {
 	ElasticityBase::initParameters();
 
-	ALPHA = createNumericParameter("alpha", "Zero-energy modes suppression", &m_alpha);
-	setGroup(ALPHA, "Elasticity");
-	setDescription(ALPHA, "Coefficent for zero-energy modes suppression method");
-	RealParameter *rparam = static_cast<RealParameter*>(getParameter(ALPHA));
-	rparam->setMinValue(0.0);
-
 	//for plasticity
 	ELASTIC_LIMIT = createNumericParameter("elasticLimit", "elastic limit", &elasticLimit);
-	setGroup(ELASTIC_LIMIT, "Plastic");
+	setGroup(ELASTIC_LIMIT, "Elasticity");
 	setDescription(ELASTIC_LIMIT, "elastic limit");
-	rparam = static_cast<RealParameter*>(getParameter(ELASTIC_LIMIT));
+	RealParameter* rparam = static_cast<RealParameter*>(getParameter(ELASTIC_LIMIT));
 	rparam->setMinValue(0.0);
 
 	PLASTIC_LIMIT = createNumericParameter("plasticLimit", "plastic limit", &plasticLimit);
-	setGroup(PLASTIC_LIMIT, "Plastic");
+	setGroup(PLASTIC_LIMIT, "Elasticity");
 	setDescription(PLASTIC_LIMIT, "plastic limit");
 	rparam = static_cast<RealParameter*>(getParameter(PLASTIC_LIMIT));
 	rparam->setMinValue(0.0);
+
+	IS_PLASTIC = createBoolParameter("isPlastic","isPlastic",&isPlastic);
+	setGroup(IS_PLASTIC, "Elasticity");
 }
 
 void Plastic::initValues()
@@ -220,7 +216,8 @@ void Plastic::computeStress()
 				computeTotalStrain(nablaU, totalStrain);
 				m_totalStrain[i] = totalStrain;
 
-				computePlasticStrain(i, m_elasticStrain[i]); //FIXME: with bug
+				if(isPlastic)
+					computePlasticStrain(i, m_elasticStrain[i]); //FIXME: with bug
 
 				m_elasticStrain[i] = m_totalStrain[i] - m_plasticStrain[i];
 				m_stress[i] = C * m_elasticStrain[i];

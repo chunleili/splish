@@ -24,7 +24,6 @@ namespace SPH
 		std::vector<Matrix3r> m_rotations;
 		std::vector<Vector6r> m_stress;
 		std::vector<Matrix3r> m_F;
-		Real m_alpha;
 
 		//added variables
 		std::vector<Vector6r> m_plasticStrain; //add Plastic Strain 
@@ -78,13 +77,13 @@ namespace SPH
 
 
 	public:
-		static int ALPHA;
-
 		//user defined parameters
 		float elasticLimit;
 		float plasticLimit;
+		bool isPlastic=1;
 		static int ELASTIC_LIMIT;
 		static int PLASTIC_LIMIT;
+		static int IS_PLASTIC;
 
 		Plastic(FluidModel *model);
 		virtual ~Plastic(void);
