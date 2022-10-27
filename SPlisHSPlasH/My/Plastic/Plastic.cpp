@@ -387,4 +387,5 @@ void Plastic::computeForces()
 	}
 }
 
-// void fracture()
+void Plastic::fracture()
+{}

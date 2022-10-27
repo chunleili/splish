@@ -100,7 +100,7 @@ namespace SPH
 		static int mouse_button;
 		static double mouse_wheel_pos;
 		static int modifier_key;
-		static double mouse_pos_x_old;
+		static double mouse_pos_x_old; //TODO:mouse position
 		static double mouse_pos_y_old;
 		static int drawMode;
 		static unsigned char texData[IMAGE_ROWS][IMAGE_COLS][3];		
@@ -168,7 +168,7 @@ namespace SPH
 		static void setProjectionMatrix (int width, int height);
 		static void setSelectionFunc(void(*func) (const Vector2i&, const Vector2i&, void*), void *clientData);
 		static void setMouseMoveFunc(int button, void(*func) (int, int, void*));
-		static void unproject(const int x, const int y, Vector3r &pos);
+		static void unproject(const int x, const int y, Vector3r &pos); //TODO: project to 3D world space
 		static float getZNear();
 		static float getZFar();
 		static void hsvToRgb(float h, float s, float v, float *rgb);

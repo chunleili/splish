@@ -17,6 +17,13 @@
 using namespace SPH;
 using namespace Utilities;
 
+//Interactive Simulator_GUI_imgui::inter;
+static Interactive inter()
+{
+	static Interactive inter;
+	return inter;
+}
+
 Simulator_GUI_imgui::Simulator_GUI_imgui(SimulatorBase *base) :
 	Simulator_GUI_Base(base)
 {	
@@ -406,6 +413,13 @@ void Simulator_GUI_imgui::selection(const Vector2i &start, const Vector2i &end, 
 		MiniGL::setMouseMoveFunc(2, mouseMove);
 	else
 		MiniGL::setMouseMoveFunc(-1, NULL);
+
+	//TODO: get mouse pos in world space!
+	printf("last world space pos: (%.4f,\t%.4f,\t%.4f)\n", gui->m_oldMousePos[0],gui->m_oldMousePos[1],gui->m_oldMousePos[2]);
+
+	inter().set_mouse_pos(gui->m_oldMousePos);
+	// inter.mouse_pos = gui->m_oldMousePos;
+	inter().operation();
 
 	MiniGL::unproject(end[0], end[1], gui->m_oldMousePos);
 }

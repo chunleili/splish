@@ -768,6 +768,10 @@ void MiniGL::rotateX(Real x)
 
 void MiniGL::mousePress(GLFWwindow* window, int button, int action, int mods)
 {
+	//TODO: get mouse pos in screen space
+	// printf("screen space pos: x:%f\t",mouse_pos_x_old);
+	// printf("y:%f\n",mouse_pos_y_old);
+
 	//getting cursor position
 	glfwGetCursorPos(m_glfw_window, &mouse_pos_x_old, &mouse_pos_y_old);
 
@@ -833,6 +837,7 @@ void MiniGL::mouseMove (GLFWwindow* window, double x, double y)
 	double d_x = mouse_pos_x_old - x;
 	double d_y = y - mouse_pos_y_old;
 
+	//TODO: 旋转平移和缩放的辅助键 modifier key
 	if (mouse_button == GLFW_MOUSE_BUTTON_1)
 	{
 		// translate scene in z direction		
@@ -877,6 +882,9 @@ void MiniGL::unproject(const int x, const int y, Vector3r &pos)
 	pos[0] = (Real) resx;
 	pos[1] = (Real) resy;
 	pos[2] = (Real) resz;
+
+	//TODO: world space pos
+	printf("current world pos:(%.4f,\t%.4f,\t%.4f)\n",pos[0],pos[1],pos[2]);
 }
 
 float MiniGL::getZNear()
