@@ -9,6 +9,11 @@ struct Interactive
 {
     Vector3r mouse_pos;
 
+    static Interactive& get_inter()
+    {
+        static Interactive inter;
+        return inter;
+    }
     
     void operation()
     {

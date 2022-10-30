@@ -4,7 +4,6 @@
 #include "SPlisHSPlasH/Common.h"
 #include "../Simulator_GUI_Base.h"
 #include <vector>
-#include "SPlisHSPlasH\My\Interactive\Interactive.h" 
 namespace SPH 
 {	
 	class Simulator_GUI_imgui : public Simulator_GUI_Base
@@ -46,8 +45,6 @@ namespace SPH
 			virtual void addKeyFunc(char k, std::function<void()> const& func);
 
 			void createSimulationParameterGUI();
-
-			//static Interactive inter;
 	};
 }
 

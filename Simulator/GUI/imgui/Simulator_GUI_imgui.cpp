@@ -14,15 +14,17 @@
 #include "imgui_impl_opengl3.h"
 
 
+#include "SPlisHSPlasH\My\Interactive\Interactive.h" 
+
 using namespace SPH;
 using namespace Utilities;
 
-//Interactive Simulator_GUI_imgui::inter;
-static Interactive& inter()
-{
-	static Interactive inter;
-	return inter;
-}
+// //Interactive Simulator_GUI_imgui::inter;
+// static Interactive& inter()
+// {
+// 	static Interactive inter;
+// 	return inter;
+// }
 
 Simulator_GUI_imgui::Simulator_GUI_imgui(SimulatorBase *base) :
 	Simulator_GUI_Base(base)
@@ -419,9 +421,9 @@ void Simulator_GUI_imgui::selection(const Vector2i &start, const Vector2i &end, 
 
 	MiniGL::unproject(end[0], end[1], gui->m_oldMousePos);
 	
-	inter().set_mouse_pos(gui->m_oldMousePos);
+	Interactive::get_inter().set_mouse_pos(gui->m_oldMousePos);
 	// inter.mouse_pos = gui->m_oldMousePos;
-	inter().operation();
+	Interactive::get_inter().operation();
 }
 
 
