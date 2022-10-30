@@ -33,7 +33,7 @@ struct Interactive
         
         std::cout<< "rb_pos: "<< (rb_pos)<<"\n";
         
-        rb_pos[2]=0;
+        // rb_pos[2]=0;
 
         // if(rb_pos[2]<-0.5)
         //     rb_pos[2] = -.5;
