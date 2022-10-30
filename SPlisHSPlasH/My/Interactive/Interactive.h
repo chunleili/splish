@@ -26,11 +26,11 @@ struct Interactive
         mouse_pos[2] = rhs[2];
     }
 
-    //获取刚体的控制权，也就是位置的指针。
-    void set_rb_pos(Vector3r* rb_pos)
+    //获取刚体的控制权。
+    void set_rb_pos(Vector3r& rb_pos)
     {
-        (*rb_pos) = mouse_pos; // 获取并设定位置
+        (rb_pos) = mouse_pos; // 获取并设定位置
         
-        std::cout<< "rb_pos: "<< (*rb_pos)<<"\n";
+        std::cout<< "rb_pos: "<< (rb_pos)<<"\n";
     }
 };

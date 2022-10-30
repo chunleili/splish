@@ -92,7 +92,7 @@ PBDWrapper::~PBDWrapper()
 	//rb[0]是天空盒，所以rb[1]是第一个运动的刚体
 	Vector3r & rb_pos = rb[1]->getPosition();
 
-	Interactive::get_inter().set_rb_pos(&rb_pos);
+	Interactive::get_inter().set_rb_pos(rb_pos);
 	
 }
  
