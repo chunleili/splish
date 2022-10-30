@@ -32,5 +32,12 @@ struct Interactive
         (rb_pos) = mouse_pos; // 获取并设定位置
         
         std::cout<< "rb_pos: "<< (rb_pos)<<"\n";
+        
+        rb_pos[2]=0;
+
+        // if(rb_pos[2]<-0.5)
+        //     rb_pos[2] = -.5;
+        // if(rb_pos[2]>0.5)
+        //     rb_pos[2] = .5;
     }
 };

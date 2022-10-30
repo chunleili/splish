@@ -382,6 +382,60 @@ void Simulator_GUI_imgui::reset()
 	m_selectedParticles.clear();
 }
 
+
+//根据屏幕坐标得到视点空间坐标
+void Get3Dpos(int x, int y, Vector3r* pp) {
+    GLint viewport[4];
+    GLdouble modelview[16];
+    GLdouble projection[16];
+    GLfloat winX, winY, winZ;
+    GLdouble object_x, object_y, object_z;
+    int mouse_x = x;
+    int mouse_y = y;
+    glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
+    glGetDoublev(GL_PROJECTION_MATRIX, projection);
+    glGetIntegerv(GL_VIEWPORT, viewport);
+
+    winX = (float)mouse_x;
+    winY = (float)viewport[3] - (float)mouse_y - 1.0f;
+    glReadBuffer(GL_BACK);
+    glReadPixels(mouse_x, int(winY), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ);
+    gluUnProject((GLdouble)winX, (GLdouble)winY, (GLdouble)winZ, modelview, projection, viewport, &object_x, &object_y, &object_z);
+    (*pp)[0] = object_x;
+    (*pp)[1] = object_y;
+    (*pp)[2] = object_z;
+}
+
+//根据视点空间坐标得到世界空间坐标
+Vector3r GetWorldPos(int x,int y){
+    //得到观察空间的坐标
+    Vector3r pp;
+    Get3Dpos(x, y, &pp);
+
+    //求视点的UVN系统
+    Vector3r U, V, N;                   //Vector3r为自定义向量类
+    Vector3r up = {0.0,1.0,0.0};
+    Vector3r eye, direction;            //视点坐标与观察点坐标
+
+    N = eye - direction;                 //矢量减法
+    U = N.cross(up);                    //矢量叉乘
+    V = N.cross(U);
+
+    N.normalize();                      //矢量归一化
+    U.normalize();
+    V.normalize();
+
+    //求世界坐标
+    Vector3r worldpos = { 0.0f, 0.0f, 0.0f };
+    worldpos[0] = U[0] * pp[0] + V[0] * pp[1] + N[0] * pp[2] + eye[0];
+    worldpos[0] = U[1] * pp[0] + V[1] * pp[1] + N[1] * pp[2] + eye[1];
+    worldpos[2] = U[2] * pp[0] + V[2] * pp[1] + N[2] * pp[2] + eye[2];
+
+	return worldpos;
+}
+
+
+
 void Simulator_GUI_imgui::selection(const Vector2i &start, const Vector2i &end, void *clientData)
 {
 	Simulator_GUI_imgui *gui = (Simulator_GUI_imgui*)clientData;
@@ -417,7 +471,6 @@ void Simulator_GUI_imgui::selection(const Vector2i &start, const Vector2i &end, 
 	
 	//transfer mouse pos from the Simulator_GUI_imgui to Interactive
 	Interactive::get_inter().get_mouse_pos(gui->m_oldMousePos);
-	// inter.mouse_pos = gui->m_oldMousePos;
 	Interactive::get_inter().operation();
 }
 
