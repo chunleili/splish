@@ -383,85 +383,34 @@ void Simulator_GUI_imgui::reset()
 }
 
 
-// //根据屏幕坐标得到视点空间坐标
-// void Get3Dpos(int x, int y, Vector3r* pp) {
-//     GLint viewport[4];
-//     GLdouble modelview[16];
-//     GLdouble projection[16];
-//     GLfloat winX, winY, winZ;
-//     GLdouble object_x, object_y, object_z;
-//     int mouse_x = x;
-//     int mouse_y = y;
-//     glGetDoublev(GL_MODELVIEW_MATRIX, modelview);
-//     glGetDoublev(GL_PROJECTION_MATRIX, projection);
-//     glGetIntegerv(GL_VIEWPORT, viewport);
 
-//     winX = (float)mouse_x;
-//     winY = (float)viewport[3] - (float)mouse_y - 1.0f;
-//     glReadBuffer(GL_BACK);
-//     glReadPixels(mouse_x, int(winY), 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ);
-//     gluUnProject((GLdouble)winX, (GLdouble)winY, (GLdouble)winZ, modelview, projection, viewport, &object_x, &object_y, &object_z);
-//     (*pp)[0] = object_x;
-//     (*pp)[1] = object_y;
-//     (*pp)[2] = object_z;
-// }
 
-// //根据视点空间坐标得到世界空间坐标
-// void GetWorldPos(int x,int y, Vector3r& out){
-//     //得到观察空间的坐标
-//     Vector3r pp;
-//     Get3Dpos(x, y, &pp);
+//获取鼠标在世界坐标的位置: not use yet FIXME: 
+void get_worldpos(int x, int y, Vector3r& worldpos)
+{
+	// int x = end[0];
+	// int y = end[1];
+	GLint viewport[4];
+	GLdouble mvmatrix[16], projmatrix[16];
+	GLint realy;
+	GLdouble wx, wy, wz;
+	glGetIntegerv(GL_VIEWPORT, viewport);
+	glGetDoublev(GL_MODELVIEW_MATRIX, mvmatrix);
+	glGetDoublev(GL_PROJECTION_MATRIX, projmatrix);
+	realy = viewport[3] - y - 1;
 
-//     //求视点的UVN系统
-//     Vector3r U, V, N;                   //Vector3r为自定义向量类
-//     Vector3r up = {0.0,1.0,0.0};
-//     Vector3r eye, direction;            //视点坐标与观察点坐标
+	printf("Coordinate at curosr are (%4d, %4d, %4d)\n", x, y,viewport[3]);
+	gluUnProject(x, realy, 0.5, mvmatrix, projmatrix, viewport, &wx,
+		&wy, &wz);
+	printf("World coords at z=0.5 are (%f, %f, %f)\n", wx, wy, wz);
 
-//     N = eye - direction;                 //矢量减法
-//     U = N.cross(up);                    //矢量叉乘
-//     V = N.cross(U);
+	worldpos = {(float)wx,(float)wy,(float)wz};
 
-//     N.normalize();                      //矢量归一化
-//     U.normalize();
-//     V.normalize();
+	const Utilities::SceneLoader::Scene& scene = SceneConfiguration::getCurrent()->getScene();
+	// Vector3r ray = worldpos - scene.camPosition;
+	worldpos = (worldpos + scene.camPosition) * 0.5;
+}
 
-//     //求世界坐标
-//     // out = { 0.0f, 0.0f, 0.0f };
-//     out[0] = U[0] * pp[0] + V[0] * pp[1] + N[0] * pp[2] + eye[0];
-//     out[0] = U[1] * pp[0] + V[1] * pp[1] + N[1] * pp[2] + eye[1];
-//     out[2] = U[2] * pp[0] + V[2] * pp[1] + N[2] * pp[2] + eye[2];
-
-// 	// return worldpos;
-// }
-
-// //求鼠标在世界坐标系中的位置
-// void mouse(int button, int state, int x, int y)
-// {
-// 	GLint viewport[4];
-// 	GLdouble mvmatrix[16], projmatrix[16];
-// 	GLint realy;
-// 	GLdouble wx, wy, wz;
-// 	switch (button) {
-// 	case GLUT_LEFT_BUTTON:
-// 		if (state == GLUT_DOWN) {
-// 			glGetIntegerv(GL_VIEWPORT, viewport);
-// 			glGetDoublev(GL_MODELVIEW_MATRIX, mvmatrix);
-// 			glGetDoublev(GL_PROJECTION_MATRIX, projmatrix);
-// 			realy = viewport[3] - y - 1;
-// 			printf("Coordinate at curosr are (%4d, %4d, %4d)\n", x, y,viewport[3]);
-// 			gluUnProject(x, realy, 0, mvmatrix, projmatrix, viewport, &wx,
-// 				&wy, &wz);
-// 			printf("World coords at z=0 are (%f, %f, %f)\n", wx, wy, wz);
-// 			gluUnProject(x, realy, 1, mvmatrix, projmatrix, viewport, &wx,
-// 				&wy, &wz);
-// 			printf("World coords at z=1 are (%f, %f, %f)\n", wx, wy, wz);
-// 		}break;
-// 	case GLUT_RIGHT_BUTTON:
-// 		if (state == GLUT_DOWN)
-// 			exit(0); break;
-// 	default: break;
-// 	}
-// }
 
 void Simulator_GUI_imgui::selection(const Vector2i &start, const Vector2i &end, void *clientData)
 {
@@ -491,49 +440,17 @@ void Simulator_GUI_imgui::selection(const Vector2i &start, const Vector2i &end, 
 	else
 		MiniGL::setMouseMoveFunc(-1, NULL);
 
-	//TODO: get mouse pos in world space!
-	// printf("last world space pos: (%.3f,\t%.3f,\t%.3f)\n", gui->m_oldMousePos[0],gui->m_oldMousePos[1],gui->m_oldMousePos[2]);
 
 	MiniGL::unproject(end[0], end[1], gui->m_oldMousePos);
 	
-	//transfer mouse pos from the Simulator_GUI_imgui to Interactive
-	// Interactive::get_inter().get_mouse_pos(gui->m_oldMousePos);
+	//FIXME: get mouse pos in world space and transfer it to my class!
+	//old way
+	Interactive::get_inter().get_mouse_pos(gui->m_oldMousePos);
 
+	//new way
 	// Vector3r worldpos{0,0,0};
-	// GetWorldPos(end[0], end[1], worldpos);
+	// get_worldpos(end[0], end[1], worldpos);
 	// Interactive::get_inter().get_mouse_pos(worldpos);
-
-
-	int x = end[0];
-	int y = end[1];
-	GLint viewport[4];
-	GLdouble mvmatrix[16], projmatrix[16];
-	GLint realy;
-	GLdouble wx, wy, wz;
-	glGetIntegerv(GL_VIEWPORT, viewport);
-	glGetDoublev(GL_MODELVIEW_MATRIX, mvmatrix);
-	glGetDoublev(GL_PROJECTION_MATRIX, projmatrix);
-	realy = viewport[3] - y - 1;
-
-	printf("Coordinate at curosr are (%4d, %4d, %4d)\n", x, y,viewport[3]);
-	// gluUnProject(x, realy, 0, mvmatrix, projmatrix, viewport, &wx,
-	// 	&wy, &wz);
-	// printf("World coords at z=0 are (%f, %f, %f)\n", wx, wy, wz);
-	gluUnProject(x, realy, 0.5, mvmatrix, projmatrix, viewport, &wx,
-		&wy, &wz);
-	printf("World coords at z=0.5 are (%f, %f, %f)\n", wx, wy, wz);
-
-	Vector3r worldpos = {(float)wx,(float)wy,(float)wz};
-
-	const Utilities::SceneLoader::Scene& scene = SceneConfiguration::getCurrent()->getScene();
-
-	// Vector3r ray = worldpos - scene.camPosition;
-
-	worldpos = (worldpos + scene.camPosition) * 0.5;
-
-	Interactive::get_inter().get_mouse_pos(worldpos);
-	
-	Interactive::get_inter().operation();
 }
 
 
