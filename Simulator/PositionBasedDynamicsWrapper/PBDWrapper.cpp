@@ -14,7 +14,7 @@
 #define _USE_MATH_DEFINES
 #include "math.h"
 
-// #include "SPlisHSPlasH\My\Interactive\Interactive.h"
+#include "SPlisHSPlasH/My/Interactive/Interactive.h"
 
 using namespace Eigen;
 using namespace std;
@@ -91,10 +91,8 @@ PBDWrapper::~PBDWrapper()
 
 	//rb[0]是天空盒，所以rb[1]是第一个运动的刚体
 	Vector3r & rb_pos = rb[1]->getPosition();
-	// printf(" &rb[1]->getPosition(): %p\n", &rb[1]->getPosition());
-	// printf(" rb_pos: %p\n", &rb[1]->getPosition());
 
-	std::cout<< "rb_pos: "<< rb_pos<<"\n";
+	Interactive::get_inter().set_rb_pos(&rb_pos);
 	
 }
  

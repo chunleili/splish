@@ -1,14 +1,10 @@
 #pragma once
 #include "SPlisHSPlasH/Common.h"
-// #include "GUI/OpenGL/MiniGL.h"
-#include "Simulator/GUI/imgui/Simulator_GUI_imgui.h"
-using namespace SPH;
 
 //点击时获取鼠标位置
 struct Interactive
 {
     Vector3r mouse_pos;
-    Vector3r* rb_pos;
 
     //a singleton method to get the object
     static Interactive& get_inter()
@@ -31,8 +27,10 @@ struct Interactive
     }
 
     //获取刚体的控制权，也就是位置的指针。
-    void get_rb_pos(Vector3r* out_pos)
+    void set_rb_pos(Vector3r* rb_pos)
     {
-        // rb_pos = &out_pos;
+        (*rb_pos) = mouse_pos; // 获取并设定位置
+        
+        std::cout<< "rb_pos: "<< (*rb_pos)<<"\n";
     }
 };

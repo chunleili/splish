@@ -19,12 +19,6 @@
 using namespace SPH;
 using namespace Utilities;
 
-// //Interactive Simulator_GUI_imgui::inter;
-// static Interactive& inter()
-// {
-// 	static Interactive inter;
-// 	return inter;
-// }
 
 Simulator_GUI_imgui::Simulator_GUI_imgui(SimulatorBase *base) :
 	Simulator_GUI_Base(base)
