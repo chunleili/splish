@@ -421,7 +421,8 @@ void Simulator_GUI_imgui::selection(const Vector2i &start, const Vector2i &end, 
 
 	MiniGL::unproject(end[0], end[1], gui->m_oldMousePos);
 	
-	Interactive::get_inter().set_mouse_pos(gui->m_oldMousePos);
+	//transfer mouse pos from the Simulator_GUI_imgui to Interactive
+	Interactive::get_inter().get_mouse_pos(gui->m_oldMousePos);
 	// inter.mouse_pos = gui->m_oldMousePos;
 	Interactive::get_inter().operation();
 }
