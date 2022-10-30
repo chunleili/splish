@@ -12,7 +12,7 @@ struct Interactive
     
     void operation()
     {
-        printf("mouse pos in Inter:(%f,\t%f,\t%f)", mouse_pos[0],mouse_pos[1],mouse_pos[2]);
+        printf("mouse pos in Inter:(%.3f,\t%.3f,\t%.3f)\n", mouse_pos[0],mouse_pos[1],mouse_pos[2]);
     }
 
     void set_mouse_pos(const Vector3r& rhs)

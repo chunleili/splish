@@ -884,7 +884,7 @@ void MiniGL::unproject(const int x, const int y, Vector3r &pos)
 	pos[2] = (Real) resz;
 
 	//TODO: world space pos
-	printf("current world pos:(%.4f,\t%.4f,\t%.4f)\n",pos[0],pos[1],pos[2]);
+	// printf("current world pos:(%.4f,\t%.4f,\t%.4f)\n",pos[0],pos[1],pos[2]);
 }
 
 float MiniGL::getZNear()
