@@ -1,10 +1,11 @@
 #pragma once
 #include "SPlisHSPlasH/Common.h"
 
-//点击时获取鼠标位置
+//用户交互（键盘鼠标）的中介类，用于传递和处理数据
 struct Interactive
 {
     Vector3r mouse_pos;
+    enum KEY{left=0, right, up, down, forward, backward};
 
     //a singleton method to get the object
     static Interactive& get_inter()
@@ -20,6 +21,23 @@ struct Interactive
         mouse_pos[1] = rhs[1];
         mouse_pos[2] = rhs[2];
         printf("mouse pos in Inter:(%.3f,\t%.3f,\t%.3f)\n", mouse_pos[0],mouse_pos[1],mouse_pos[2]);
+    }
+
+    //获取键盘的输入：从GUI\OpenGL\MiniGL.cpp MiniGL::keyboard
+    void get_key_input(enum KEY input)
+    {
+        if(input == KEY::down)
+            printf("down!\n");
+        else if(input == KEY::up)
+            printf("up!\n");
+        else if(input == KEY::left)
+            printf("left!\n");
+        else if(input == KEY::right)
+            printf("righ!\n");
+        else if(input == KEY::forward)
+            printf("forward!\n");
+        else if(input == KEY::backward)
+            printf("backward!\n");
     }
 
     //获取刚体的控制权。

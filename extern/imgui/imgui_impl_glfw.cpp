@@ -107,6 +107,7 @@ void ImGui_ImplGlfw_ScrollCallback(GLFWwindow* window, double xoffset, double yo
     io.MouseWheel += (float)yoffset;
 }
 
+//TODO: 设置键盘的回调！
 void ImGui_ImplGlfw_KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
     if (g_PrevUserCallbackKey != NULL)
@@ -138,6 +139,7 @@ void ImGui_ImplGlfw_CharCallback(GLFWwindow* window, unsigned int c)
     io.AddInputCharacter(c);
 }
 
+//TODO: 绑定按键！
 static bool ImGui_ImplGlfw_Init(GLFWwindow* window, bool install_callbacks, GlfwClientApi client_api)
 {
     g_Window = window;
