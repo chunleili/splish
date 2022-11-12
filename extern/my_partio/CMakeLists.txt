@@ -91,6 +91,10 @@ if(TEST_MYPARTIO)
     add_executable(test_mypartio my_test/test_mypartio.cpp)
     target_compile_definitions(test_mypartio PRIVATE  PARTIO_USE_ZLIB)
     target_link_libraries(test_mypartio mypartio )
+    add_test(
+      NAME test_mypartio
+      COMMAND $<TARGET_FILE:test_mypartio>
+    )
 
 # test_readwrite_particles
     add_executable(test_readwrite_particles my_test/test_readwrite_particles.cpp)

@@ -17,7 +17,8 @@
 		"exponent": 7,
 		"velocityUpdateMethod": 0,
 		"enableDivergenceSolver": true,
-		"boundaryHandlingMethod": 2
+		"boundaryHandlingMethod": 2,
+		"particleAttributes": "velocity;density;temperature"
 	},
 	"Simulation": 
 	{

@@ -88,6 +88,6 @@ struct Interactive
         //用wasdfb来移动
         // 获取刚体质心指针
         p_rb_pos = &rb_pos; 
-        std::cout<< "rb_pos: "<< (rb_pos)<<"\n";
+        // std::cout<< "rb_pos: "<< (rb_pos)<<"\n";
     }
 };

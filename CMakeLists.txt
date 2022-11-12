@@ -5,6 +5,8 @@ cmake_minimum_required(VERSION 3.1)
 
 project(SPlisHSPlasH)
 
+
+
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake" ${CMAKE_MODULE_PATH})
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
@@ -28,7 +30,7 @@ option(USE_IMGUI "Use imgui instead of AntTweakBar"	ON)
 ################################################################################
 add_subdirectory(extern/zlib)
 add_subdirectory(extern/partio)
-# add_subdirectory(extern/my_partio) #MYADD
+add_subdirectory(extern/my_partio) #MYADD
 add_subdirectory(extern/md5)
 add_subdirectory(extern/tinyexpr)
 if (NOT SPH_LIBS_ONLY)
@@ -62,7 +64,14 @@ if (NOT SPH_LIBS_ONLY)
 	include(DataCopyTargets)
 	add_subdirectory(Tools)
 	add_subdirectory(Simulator)
-	add_subdirectory(Tests)
+
+	# MYADD
+	option(ENABLE_TESTS "enable the tests" OFF)
+	if(ENABLE_TESTS)
+		enable_testing()
+		add_subdirectory(Tests)
+	endif()
+
 	if (USE_PYTHON_BINDINGS)
 		add_subdirectory(pySPlisHSPlasH)
 	endif ()
