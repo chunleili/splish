@@ -235,3 +235,53 @@ void PartioReaderWriter::writeParticles(const std::string &fileName, const unsig
 	Partio::write(fileName.c_str(), particleData, true);
 	particleData.release();
 }
+
+
+
+void PartioReaderWriter::writeParticles_my(const std::string &fileName, const unsigned int numParticles, const Vector3r *particlePositions,
+	const Vector3r *particleVelocities, const Real particleRadius)
+{
+	if (numParticles == 0)
+		return;
+
+	Partio::ParticlesDataMutable& particleData = *Partio::create();
+	Partio::ParticleAttribute posAttr = particleData.addAttribute("position", Partio::VECTOR, 3);
+	Partio::ParticleAttribute velAttr;
+	if (particleVelocities != NULL)
+		velAttr = particleData.addAttribute("velocity", Partio::VECTOR, 3);
+	Partio::ParticleAttribute scaleAttr;
+	if (particleRadius != 0.0)
+		scaleAttr = particleData.addAttribute("pscale", Partio::FLOAT, 1);
+	Partio::ParticleAttribute idAttr = particleData.addAttribute("id", Partio::INT, 1);
+
+	for (unsigned int i = 0; i < numParticles; i++)
+	{
+		Partio::ParticleIndex index = particleData.addParticle();
+		float* pos = particleData.dataWrite<float>(posAttr, index);
+		int* id = particleData.dataWrite<int>(idAttr, index);
+
+		const Vector3r &x = particlePositions[i];
+		pos[0] = (float)x[0];
+		pos[1] = (float)x[1];
+		pos[2] = (float)x[2];
+
+		if (particleVelocities != NULL)
+		{
+			float* vel = particleData.dataWrite<float>(velAttr, index);
+			const Vector3r &v = particleVelocities[i];
+			vel[0] = (float)v[0];
+			vel[1] = (float)v[1];
+			vel[2] = (float)v[2];
+		}
+
+		if (particleRadius != 0.0)
+		{
+			float* scale = particleData.dataWrite<float>(scaleAttr, index);
+			scale[0] = (float)particleRadius;
+		}
+		id[0] = i;
+	}
+
+	Partio::write(fileName.c_str(), particleData, true);
+	particleData.release();
+}

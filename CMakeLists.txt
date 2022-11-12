@@ -28,6 +28,7 @@ option(USE_IMGUI "Use imgui instead of AntTweakBar"	ON)
 ################################################################################
 add_subdirectory(extern/zlib)
 add_subdirectory(extern/partio)
+# add_subdirectory(extern/my_partio) #MYADD
 add_subdirectory(extern/md5)
 add_subdirectory(extern/tinyexpr)
 if (NOT SPH_LIBS_ONLY)

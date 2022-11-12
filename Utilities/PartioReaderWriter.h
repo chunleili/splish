@@ -22,6 +22,9 @@ namespace Utilities
 
 		static void writeParticles(const std::string &fileName, const unsigned int numParticles, const Vector3r *particlePositions,
 			const Vector3r *particleVelocities, const Real particleRadius);
+
+		static void PartioReaderWriter::writeParticles_my(const std::string &fileName, const unsigned int numParticles, const Vector3r *particlePositions,
+			const Vector3r *particleVelocities, const Real particleRadius);
 	};
 
 }

@@ -71,7 +71,8 @@ set(EXPORTER_SOURCE_FILES
 	${PROJECT_SOURCE_DIR}/Simulator/Exporter/RigidBodyExporter_BIN.cpp
 	${PROJECT_SOURCE_DIR}/Simulator/Exporter/RigidBodyExporter_OBJ.cpp
 	${PROJECT_SOURCE_DIR}/Simulator/Exporter/RigidBodyExporter_VTK.cpp
-	${PROJECT_SOURCE_DIR}/Simulator/Exporter/ParticleExporter_xyz.cpp
+	${PROJECT_SOURCE_DIR}/Simulator/Exporter/ParticleExporter_xyz.cpp # MYADD
+	${PROJECT_SOURCE_DIR}/Simulator/Exporter/ParticleExporter_MyPartio.cpp
 )
 
 set(EXPORTER_HEADER_FILES
@@ -81,7 +82,8 @@ set(EXPORTER_HEADER_FILES
 	${PROJECT_SOURCE_DIR}/Simulator/Exporter/RigidBodyExporter_BIN.h
 	${PROJECT_SOURCE_DIR}/Simulator/Exporter/RigidBodyExporter_OBJ.h
 	${PROJECT_SOURCE_DIR}/Simulator/Exporter/RigidBodyExporter_VTK.h
-	${PROJECT_SOURCE_DIR}/Simulator/Exporter/ParticleExporter_xyz.h
+	${PROJECT_SOURCE_DIR}/Simulator/Exporter/ParticleExporter_xyz.h	# MYADD
+	${PROJECT_SOURCE_DIR}/Simulator/Exporter/ParticleExporter_MyPartio.h
 )
 
 if (USE_EMBEDDED_PYTHON)
