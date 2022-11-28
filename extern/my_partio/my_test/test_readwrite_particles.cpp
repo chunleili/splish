@@ -2,7 +2,7 @@
 #include <string>
 #include <array>
 #include "Partio.h"
-#include "PartioIO.h"
+#include "WriteToPartio.h"
 using namespace Partio;
 int main()
 {

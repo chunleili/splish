@@ -4,6 +4,7 @@
 #include "Utilities/FileSystem.h"
 #include "SPlisHSPlasH/TimeManager.h"
 #include "Utilities/PartioReaderWriter.h"
+#include "Utilities/MyPartioReaderWriter.h" //MYADD
 #include "SPlisHSPlasH/Emitter.h"
 #include "SPlisHSPlasH/EmitterSystem.h"
 #include "SPlisHSPlasH/Simulation.h"
@@ -1197,6 +1198,11 @@ void SimulatorBase::initFluidData()
                 for (unsigned int j = size_before_sampling; j < size_after_sampling; j++)
                     fluidParticles[fluidIndex][j] = scene.fluidModels[i]->rotation * fluidParticles[fluidIndex][j] + scene.fluidModels[i]->translation;
             }
+        }
+        else if(ext =="bgeo")
+        {
+            if (!MyPartioReaderWriter::readParticles(fileName,fluidParticles[fluidIndex]))
+                LOG_ERR << "File not found: " << fileName;
         }
         else
         {
