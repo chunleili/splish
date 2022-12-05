@@ -49,11 +49,7 @@
 	],
 	"FluidModels": [
 		{
-			"particleFile": "../models/ice-cream.bgeo",
-			"translation": [0.0, 1.8, -0.2],
-			"scale": [0.1,0.1,0.1],
-			"rotationAxis": [0, 1, 0],
-			"rotationAngle": 1.57
+			"particleFile": "../models/ice-cream.bhclassic"
 		}
 	]
 

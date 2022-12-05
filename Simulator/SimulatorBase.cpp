@@ -1199,7 +1199,7 @@ void SimulatorBase::initFluidData()
                     fluidParticles[fluidIndex][j] = scene.fluidModels[i]->rotation * fluidParticles[fluidIndex][j] + scene.fluidModels[i]->translation;
             }
         }
-        else if(ext =="bgeo")
+        else if(ext =="bhclassic")
         {
             if (!MyPartioReaderWriter::readParticles(fileName,fluidParticles[fluidIndex]))
                 LOG_ERR << "File not found: " << fileName;

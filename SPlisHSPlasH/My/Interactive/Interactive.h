@@ -21,7 +21,7 @@ struct Interactive
         mouse_pos[0] = rhs[0];
         mouse_pos[1] = rhs[1];
         mouse_pos[2] = rhs[2];
-        printf("mouse pos in Inter:(%.3f,\t%.3f,\t%.3f)\n", mouse_pos[0],mouse_pos[1],mouse_pos[2]);
+        printf("Mouse world space pos: (%.3f, %.3f, %.3f)\n", mouse_pos[0],mouse_pos[1],mouse_pos[2]);
     }
 
     //获取键盘的输入：从GUI\OpenGL\MiniGL.cpp MiniGL::keyboard
@@ -79,7 +79,7 @@ struct Interactive
         }
     }
 
-    //获取刚体的控制权。
+    //获取刚体的控制权。在PBDWrapper.cpp中调用
     void set_rb_pos(Vector3r& rb_pos)
     {
         // 获取并设定位置为鼠标点击位置 FIXME:

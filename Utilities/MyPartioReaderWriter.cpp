@@ -4,11 +4,13 @@
 
 using namespace Utilities;
 
+void readToVector(const std::string filename, std::vector<Vector3r> &positions);
+
 bool MyPartioReaderWriter::readParticles(const std::string &fileName, std::vector<Vector3r> &positions)
 {
+    std::cout<<"Reading the "<<fileName<<std::endl;
 	if (!FileSystem::fileExists(fileName))
 		return false;
-    std::vector<Vector3r> positions;
 	readToVector(fileName,positions);
 }
 

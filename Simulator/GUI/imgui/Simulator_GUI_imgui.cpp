@@ -432,7 +432,15 @@ void Simulator_GUI_imgui::selection(const Vector2i &start, const Vector2i &end, 
 				&model->getPosition(model->numActiveParticles() - 1),
 				selectedParticles[i]);
 			if (selectedParticles[i].size() > 0)
+			{
+				for (size_t j = 0; j < selectedParticles[i].size(); j++)
+				{
+					std::cout<<"selecting particles: "<<selectedParticles[i][j]<<"\n";
+				}
+				
 				selected = true;
+			}
+
 		}
 	}
 	if (selected)
