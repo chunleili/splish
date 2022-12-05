@@ -885,7 +885,18 @@ void MiniGL::mouseMove (GLFWwindow* window, double x, double y)
 	double d_x = mouse_pos_x_old - x;
 	double d_y = y - mouse_pos_y_old;
 
-	//TODO: 旋转平移和缩放的辅助键 modifier key
+	//MYADD:增加我们自己的视角变换按钮。用鼠标中键平移，右键旋转视角（左键被选择占用了）。
+	if (mouse_button == GLFW_MOUSE_BUTTON_MIDDLE)
+	{
+		move (-static_cast<Real>(d_x) / static_cast<Real>(20.0), -static_cast<Real>(d_y) / static_cast<Real>(20.0), 0);
+	}
+	else if (mouse_button == GLFW_MOUSE_BUTTON_RIGHT)
+	{
+		rotateX(static_cast<Real>(d_y)/ static_cast<Real>(100.0));
+		rotateY(-static_cast<Real>(d_x)/ static_cast<Real>(100.0));
+	}
+
+	//IMPORTANT: 旋转平移和缩放的辅助键 modifier key
 	if (mouse_button == GLFW_MOUSE_BUTTON_1)
 	{
 		// translate scene in z direction		
