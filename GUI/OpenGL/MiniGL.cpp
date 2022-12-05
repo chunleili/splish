@@ -857,20 +857,26 @@ void MiniGL::mousePress(GLFWwindow* window, int button, int action, int mods)
 
 void MiniGL::mouseWheel(GLFWwindow* window, double xoffset, double yoffset)
 {
-	mouse_wheel_pos += yoffset;
+	// 根据滚轮进行缩放
+	move(0, 0, static_cast<Real>(yoffset));
 
-	// Check if registered listener wants the event
-	for (auto i = 0; i < m_mouseWheelFct.size(); i++)
-	{
-		if (m_mouseWheelFct[i](static_cast<int>(mouse_wheel_pos), xoffset, yoffset))
-			return;
-	}
 
-	if (yoffset > 0)
-		movespeed *= 2.0;
-	else
-		movespeed *= 0.5;
+	//原本代码，勿删
+	// mouse_wheel_pos += yoffset;
+
+	// // Check if registered listener wants the event
+	// for (auto i = 0; i < m_mouseWheelFct.size(); i++)
+	// {
+	// 	if (m_mouseWheelFct[i](static_cast<int>(mouse_wheel_pos), xoffset, yoffset))
+	// 		return;
+	// }
+
+	// if (yoffset > 0)
+	// 	movespeed *= 2.0;
+	// else
+	// 	movespeed *= 0.5;
 }
+
 
 //TODO: 利用鼠标移动视角，比如control+左键拉近拉远，alt+左键旋转视角
 void MiniGL::mouseMove (GLFWwindow* window, double x, double y)
@@ -888,7 +894,7 @@ void MiniGL::mouseMove (GLFWwindow* window, double x, double y)
 	//MYADD:增加我们自己的视角变换按钮。用鼠标中键平移，右键旋转视角（左键被选择占用了）。
 	if (mouse_button == GLFW_MOUSE_BUTTON_MIDDLE)
 	{
-		move (-static_cast<Real>(d_x) / static_cast<Real>(20.0), -static_cast<Real>(d_y) / static_cast<Real>(20.0), 0);
+		move (-static_cast<Real>(d_x) / static_cast<Real>(100.0), -static_cast<Real>(d_y) / static_cast<Real>(100.0), 0);
 	}
 	else if (mouse_button == GLFW_MOUSE_BUTTON_RIGHT)
 	{
