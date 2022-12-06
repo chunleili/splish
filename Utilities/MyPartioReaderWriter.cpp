@@ -41,3 +41,35 @@ void readToVector(const std::string filename, std::vector<Vector3r> &positions)
     // // 释放内存
 	data->release();
 }
+
+
+// MYADD
+bool MyPartioReaderWriter::readParticlesUv(const std::string &fileName, std::vector<Vector3r> &uv)
+{
+    std::cout<<"Reading the "<<fileName<<std::endl;
+	if (!FileSystem::fileExists(fileName))
+		return false;
+    
+	// 先将文件读取到partio内部的数据结构
+    Partio::ParticlesDataMutable* data=Partio::read(fileName.c_str());
+    // 粒子的数目为data->numParticles()
+    std::cout<<"Reading partio particles uv, numParticles: "<<data->numParticles()<<"\n";
+    uv.resize(data->numParticles());
+    std::cout<<"uv size: "<<uv.size()<<"\n";
+
+    // 建立一个attribute
+    Partio::ParticleAttribute uvAttr;
+    uvAttr = data->addAttribute("uv", Partio::VECTOR, 3);
+    // 遍历并拷贝粒子位置到uv(我们要存到的C++ vector)
+    for (int i = 0; i < data->numParticles(); i++)
+    {
+            //从partio的数据结构中取出数据，得到的是C数组的形式
+            const float* d=data->data<float>(uvAttr,i);
+            uv[i][0] = d[0];
+            uv[i][1] = d[1];
+            uv[i][2] = d[2];
+            std::cout<<"uv["<<i<<"]: "<<uv[i][0]<<"\n";
+    }
+    // // 释放内存
+	data->release();
+}

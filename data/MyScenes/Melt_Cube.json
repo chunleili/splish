@@ -26,9 +26,10 @@
 			"id": "Fluid",
 			"surfaceTensionMethod": 4,
 			"viscosityMethod": 8,
+			"viscosity": 10000,
 			"colorField": "temperature",
 			"renderMaxValue": 1.0,
-			"boxMax": [1,0.1,1],
+			"boxMax": [1,0.0,1],
 			"boxMin": [-1,0.0,-1]
 		}
 	],

@@ -66,15 +66,17 @@ void ParticleExporter_MyPartio::setActive(const bool active)
 void ParticleExporter_MyPartio::writeParticlesPartio(const std::string& fileName, FluidModel* model, const unsigned int objId)
 {
     m_particleData = Partio::create();
-    Partio::ParticleAttribute posAttr, densityAttr;
+    Partio::ParticleAttribute posAttr, densityAttr,uvAttr;
     posAttr = m_particleData->addAttribute("position", Partio::VECTOR, 3);
     densityAttr = m_particleData->addAttribute("density", Partio::FLOAT, 1);
+    uvAttr = m_particleData->addAttribute("uv", Partio::VECTOR, 3);
 
     for (int i = 0; i < model->numActiveParticles(); i++)
     {
         int idx = m_particleData->addParticle();
         float* p = m_particleData->dataWrite<float>(posAttr, idx);
         float* den = m_particleData->dataWrite<float>(densityAttr, idx);
+        float* uv = m_particleData->dataWrite<float>(uvAttr, idx);
 
 		const Vector3r& x = model->getPosition(i);
         p[0] = x[0];
