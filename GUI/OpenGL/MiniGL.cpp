@@ -470,11 +470,11 @@ void MiniGL::setClientSceneFunc (SceneFct func)
 	scenefunc = func;
 }
 
-//TODO: 重点！ 初始化
+//IMPORTANT: 重点！ 初始化
 void MiniGL::init(int argc, char **argv, const int width, const int height, const char *name)
 {
 	fovy = 60;
-	znear = 0.5f;  //TODO: 设置znear和zfar默认值！
+	znear = 0.5f;  //IMPORTANT: 设置znear和zfar默认值！
 	zfar = 1000;
 
 	m_width = width;
@@ -597,7 +597,7 @@ void MiniGL::reshape (GLFWwindow* glfw_window, int w, int h)
 	}
 }
 
-//TODO: 重点！绑定IdleFunc，一般就会绑定到SimulatorBase的timestep上！
+//IMPORTANT: 重点！绑定IdleFunc，一般就会绑定到SimulatorBase的timestep上！
 void MiniGL::setClientIdleFunc (IdleFct func)
 {
 	idlefunc = func;
@@ -616,7 +616,7 @@ void MiniGL::addKeyFunc (unsigned char k, std::function<void()> const& func)
 		keyfunc.push_back({ func, k });
 }
 
-//TODO: 重点！处理键盘的输入
+//IMPORTANT: 重点！处理键盘的输入
 void MiniGL::keyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
 {
 	// Check if registered listener wants the event
@@ -638,7 +638,7 @@ void MiniGL::keyboard(GLFWwindow* window, int key, int scancode, int action, int
 		return;
 	}
 
-	//TODO: 增加我们新的按键 CONTROL + WASDFB 
+	//IMPORTANT: 增加我们新的按键 CONTROL + WASDFB 
 	else if(mods == GLFW_MOD_CONTROL )
 	{
 		if (key == GLFW_KEY_W)
@@ -814,11 +814,11 @@ void MiniGL::rotateX(Real x)
 //初始鼠标的点击
 void MiniGL::mousePress(GLFWwindow* window, int button, int action, int mods)
 {
-	//TODO: get mouse pos in screen space
+	//IMPORTANT: get mouse pos in screen space
 	// printf("screen space pos: x:%f\t",mouse_pos_x_old);
 	// printf("y:%f\n",mouse_pos_y_old);
 
-	//TODO:获取鼠标的二维像素位置
+	//IMPORTANT:获取鼠标的二维像素位置
 	//getting cursor position
 	glfwGetCursorPos(m_glfw_window, &mouse_pos_x_old, &mouse_pos_y_old);
 
@@ -878,7 +878,7 @@ void MiniGL::mouseWheel(GLFWwindow* window, double xoffset, double yoffset)
 }
 
 
-//TODO: 利用鼠标移动视角，比如control+左键拉近拉远，alt+左键旋转视角
+//IMPORTANT: 利用鼠标移动视角，比如control+左键拉近拉远，alt+左键旋转视角
 void MiniGL::mouseMove (GLFWwindow* window, double x, double y)
 {
 	// Check if registered listener wants the event
@@ -933,7 +933,7 @@ void MiniGL::mouseMove (GLFWwindow* window, double x, double y)
 	mouse_pos_y_old = y;
 }
 
-//TODO: 重点！从二维像素位置值到三维世界坐标的反投影
+//IMPORTANT: 重点！从二维像素位置值到三维世界坐标的反投影
 void MiniGL::unproject(const int x, const int y, Vector3r &pos)
 {
 	GLint viewport[4];
@@ -948,11 +948,11 @@ void MiniGL::unproject(const int x, const int y, Vector3r &pos)
 	pos[1] = (Real) resy;
 	pos[2] = (Real) resz;
 
-	//TODO: world space pos
+	//IMPORTANT: world space pos
 	// printf("current world pos:(%.4f,\t%.4f,\t%.4f)\n",pos[0],pos[1],pos[2]);
 }
 
-//TODO: 获取znear和zfar
+//IMPORTANT: 获取znear和zfar
 float MiniGL::getZNear()
 {
 	return znear;
@@ -1022,7 +1022,7 @@ void MiniGL::error_callback(int error, const char* description)
 	LOG_ERR << description;
 }
 
-//TODO: 重点！ 主循环
+//IMPORTANT: 重点！ 主循环
 void MiniGL::mainLoop()
 {
 	while (!glfwWindowShouldClose(m_glfw_window))

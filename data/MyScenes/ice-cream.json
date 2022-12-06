@@ -5,7 +5,7 @@
 		"numberOfStepsPerRenderUpdate": 4,
 		"density0": 1000, 
 		"simulationMethod": 4,
-		"gravitation": [0,-9.81,0], 
+		"gravitation": [0,0,0], 
 		"timeStepSize": 0.005,
 		"cflMethod": 1, 
 		"cflFactor": 1,
@@ -24,7 +24,7 @@
 	"Materials": [
 		{
 			"id": "Fluid",
-			"surfaceTensionMethod": 4,
+			"surfaceTensionMethod": 5,
 			"viscosityMethod": 8,
 			"colorField": "temperature",
 			"renderMaxValue": 1.0,
