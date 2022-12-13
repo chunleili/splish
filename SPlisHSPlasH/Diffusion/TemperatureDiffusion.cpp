@@ -1,6 +1,7 @@
 #include "TemperatureDiffusion.h"
 #include "SPlisHSPlasH/Simulation.h"
 #include "SPlisHSPlasH/TimeManager.h"
+#include "SPlisHSPlasH/My/findSurfaceParticles/SurfaceParticles.h"
 
 using namespace SPH;
 using namespace GenParam;
@@ -8,6 +9,8 @@ int TemperatureDiffusion::DIFFUSIVITY = -1;
 int TemperatureDiffusion::R_SOURCE = -1;
 int TemperatureDiffusion::POINT_SRC_VAL = -1;
 int TemperatureDiffusion::POINT_SRC_POS = -1;
+int TemperatureDiffusion::MELT_SURFACE = -1;
+int TemperatureDiffusion::SURFACE_TEMP = -1;
 
 TemperatureDiffusion::TemperatureDiffusion(FluidModel* model) :
     NonPressureForceBase(model),
@@ -15,8 +18,9 @@ TemperatureDiffusion::TemperatureDiffusion(FluidModel* model) :
     m_rSource(0.0)
 {
     // model->setTemperature(1501, 100.0);
-}
 
+
+}
 
 
 TemperatureDiffusion::~TemperatureDiffusion(void)
@@ -34,10 +38,18 @@ void TemperatureDiffusion::initParameters()
     POINT_SRC_POS = createNumericParameter("pointSrcPos", "pointSrcPos", &m_pointSrcPos);
 	setDescription(POINT_SRC_POS, "set the coninuous point source position(by particle ID)");
     setGroup(POINT_SRC_POS, "diffusion");
+
+    MELT_SURFACE = createBoolParameter("MeltSurface", "MeltSurface", &m_meltSurface);
+    setGroup(MELT_SURFACE, "diffusion");
+
+    SURFACE_TEMP = createNumericParameter("surfaceTemp", "surfaceTemp", &m_surfaceTemp);
+    setGroup(SURFACE_TEMP, "diffusion");
 }
 
 void TemperatureDiffusion::step()
-{
+{   
+    static unsigned int steps = 0;
+    steps++;
     Simulation* sim = Simulation::getCurrent();
     const unsigned int numParticles = m_model->numActiveParticles();
     const unsigned int fluidModelIndex = m_model->getPointSetIndex();
@@ -50,6 +62,20 @@ void TemperatureDiffusion::step()
 
     if(m_pointSrcPos!=-1)
         model->setTemperature(m_pointSrcPos, m_pointSrcVal);
+
+
+    if (m_meltSurface && steps==1)
+    {
+        std::vector<int> surf_id; 
+        findSurfaceParticles(m_model, surf_id);
+        printf("\nSurface particles:\n");
+        for (size_t i = 0; i < surf_id.size(); i++)
+        {
+            printf("%d\t", surf_id[i]);
+            m_model->setTemperature(surf_id[i], m_surfaceTemp);
+        }
+        printf("\nTotal surface particles number: %d\n", surf_id.size());
+    }
 
     #pragma omp parallel default(shared)
     {
@@ -87,4 +113,6 @@ void TemperatureDiffusion::deferredInit()
 {}
 
 void TemperatureDiffusion::initValues()
-{}
+{
+
+}

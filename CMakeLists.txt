@@ -5,7 +5,10 @@ cmake_minimum_required(VERSION 3.1)
 
 project(SPlisHSPlasH)
 
-
+# MYADD 关闭警告C4819
+if(MSVC)
+	add_compile_options(/wd4819)
+endif()
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake" ${CMAKE_MODULE_PATH})
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)

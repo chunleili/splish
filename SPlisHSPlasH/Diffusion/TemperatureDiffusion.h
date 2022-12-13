@@ -18,6 +18,8 @@ namespace SPH
 		Real m_rSource;
 		Real m_pointSrcVal=0.0;
 		int m_pointSrcPos=-1;
+		bool m_meltSurface=false;
+		Real m_surfaceTemp=0.0;
 
 	public:
 		TemperatureDiffusion();
@@ -31,6 +33,8 @@ namespace SPH
 		static int R_SOURCE;
 		static int POINT_SRC_VAL;
 		static int POINT_SRC_POS;
+		static int MELT_SURFACE;
+		static int SURFACE_TEMP;
 	};
 }
 

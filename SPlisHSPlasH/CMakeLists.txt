@@ -341,6 +341,8 @@ target_link_libraries(SPlisHSPlasH
 	${DISCREGRID_LIBRARIES}
 )
 
+add_subdirectory(My)
+
 source_group("Header Files\\WCSPH" FILES ${WCSPH_HEADER_FILES})
 source_group("Source Files\\WCSPH" FILES ${WCSPH_SOURCE_FILES})
 source_group("Header Files\\PCISPH" FILES ${PCISPH_HEADER_FILES})
