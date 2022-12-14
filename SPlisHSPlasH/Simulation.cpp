@@ -22,7 +22,7 @@
 #include "SPlisHSPlasH/Viscosity/Viscosity_Takahashi2015.h"
 #include "SPlisHSPlasH/Viscosity/Viscosity_Weiler2018.h"
 
-#include "SPlisHSPlasH/MyTimeStep/MyTimeStep.h"
+#include "SPlisHSPlasH/My/MyTimeStep/MyTimeStep.h"
 
 using namespace SPH;
 using namespace std;

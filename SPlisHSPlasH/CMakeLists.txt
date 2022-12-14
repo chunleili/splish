@@ -274,9 +274,6 @@ add_library(SPlisHSPlasH
 
 	${UTILS_HEADER_FILES}
 	${UTILS_SOURCE_FILES}
-
-	MyTimeStep/MyTimeStep.h		#add MyTimeStep
-	MyTimeStep/MyTimeStep.cpp
 )
 
 # MYADD:
@@ -332,6 +329,3 @@ source_group("Header Files\\Elasticity" FILES ${ELASTICITY_HEADER_FILES})
 source_group("Source Files\\Elasticity" FILES ${ELASTICITY_SOURCE_FILES})
 source_group("Header Files\\Utils" FILES ${UTILS_HEADER_FILES})
 source_group("Source Files\\Utils" FILES ${UTILS_SOURCE_FILES})
-
-source_group("Header Files\\MyTimeStep" FILES MyTimeStep.h)		
-source_group("Source Files\\MyTimeStep" FILES MyTimeStep.cpp)

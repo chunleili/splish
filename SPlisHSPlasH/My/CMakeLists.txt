@@ -23,4 +23,7 @@ PUBLIC
     
     ${CMAKE_CURRENT_LIST_DIR}/Plastic/Plastic.cpp
     ${CMAKE_CURRENT_LIST_DIR}/Plastic/Plastic.h
+
+    ${CMAKE_CURRENT_LIST_DIR}/MyTimeStep/MyTimeStep.h
+	${CMAKE_CURRENT_LIST_DIR}/MyTimeStep/MyTimeStep.cpp
 )
