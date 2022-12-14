@@ -19,11 +19,12 @@ we add these models to the splishsplash:
 1. Diffusion: 按照温度进行扩散。请看 temperatureDiffusion和Coagulation。
 2. Viscosity_Casson: 请看 Viscosity/Viscosity_Casson。根据Casson公式计算黏度，并且根据温度动态调整黏度。
 3. Plasticity: 弹塑性，请看塑性冲击的例子plastic_strike.json。请看 My/Plasticity。
-4. (FIXME)ShapeMatching: 刚体。请看RigidBody_Bunny.json的例子。
-5. (FIXME)NonNewton: 请看 NonNewton。非牛顿剪切变稀和剪切变稠。
+4. (有BUG)ShapeMatching: 刚体。请看RigidBody_Bunny.json的例子。
+5. (未完成)NonNewton: 请看 NonNewton。非牛顿剪切变稀和剪切变稠。
 6. MyPartioReader：粒子的导入器，可以直接导入Houdini的 .bhclassic 文件(.bhclassic是Houdini旧版（12以前）的bgeo文件）。
 7. 用户交互：现在可以用鼠标右键旋转视角，鼠标滚轮缩放视角，鼠标中键平移视角。更加符合人类直觉。
 8. Interactive: 交互类。可以获取点击的鼠标世界位置（打印到屏幕上）。还可以控制刚体（通过control+WASDF控制第0号刚体）。
 9. SurfaceParticles: 自由函数findSurfaceParticles。用于找到所有表面粒子（定义为邻居数量<10的粒子）
-10. Exporter_xyz: 导出粒子信息为xyz格式（就是每行输出ascii）
-11. Exporter_MyPartio: 修复了原有partio导出器的BUG。现在这种导出的bgeo格式可以直接被Houdini读取（splish原本不行）
+10.  Exporter_xyz: 导出粒子信息为xyz格式（就是每行输出ascii）。目前位于Simulator/exporter中
+11.  Exporter_MyPartio: 导出的bgeo格式可以直接被Houdini读取。修复了原有partio导出器的BUG。目前位于Simulator/exporter中。
+12. (未完成)MyTimeStep: 留空，以后将DFSPH搬到这里修改。
