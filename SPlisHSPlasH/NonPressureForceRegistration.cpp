@@ -10,7 +10,7 @@
 #include "SPlisHSPlasH/Viscosity/Viscosity_Peer2016.h"
 #include "SPlisHSPlasH/Viscosity/Viscosity_Takahashi2015.h"
 #include "SPlisHSPlasH/Viscosity/Viscosity_Weiler2018.h"
-#include "SPlisHSPlasH/Viscosity/Viscosity_Casson.h"
+#include "SPlisHSPlasH/My/Viscosity_Casson/Viscosity_Casson.h"
 
 #include "SPlisHSPlasH/Vorticity/VorticityConfinement.h"
 #include "SPlisHSPlasH/Vorticity/MicropolarModel_Bender2017.h"
@@ -27,8 +27,8 @@
 #endif
 
 #include "NonNewton/NonNewton.h"
-#include "Diffusion/Coagulation.h"
-#include "Diffusion/TemperatureDiffusion.h"
+#include "My/Diffusion/Coagulation.h"
+#include "My/Diffusion/TemperatureDiffusion.h"
 #include "RigidBody/RigidBody.h"
 #include "My/Plastic/Plastic.h"
 

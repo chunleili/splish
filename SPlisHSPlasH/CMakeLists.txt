@@ -93,7 +93,6 @@ set(VISCOSITY_HEADER_FILES
 	Viscosity/Viscosity_Peer2016.h
 	Viscosity/Viscosity_Takahashi2015.h
 	Viscosity/Viscosity_Weiler2018.h
-	Viscosity/Viscosity_Casson.h	# added Viscosity
 	)
 	
 set(VISCOSITY_SOURCE_FILES
@@ -105,7 +104,6 @@ set(VISCOSITY_SOURCE_FILES
 	Viscosity/Viscosity_Peer2016.cpp
 	Viscosity/Viscosity_Takahashi2015.cpp
 	Viscosity/Viscosity_Weiler2018.cpp
-	Viscosity/Viscosity_Casson.cpp	# added Viscosity
 	)	
 	
 set(VORTICITY_HEADER_FILES
@@ -154,15 +152,6 @@ set(NON_NEWTON_SOURCE_FILES
 	NonNewton/NonNewton.cpp	#add NonNewton
 	)
 
-set(DIFFUSION_HEADER_FILES	#add diffusion
-	Diffusion/Coagulation.h	
-	Diffusion/TemperatureDiffusion.h
-	)
-	
-set(DIFFUSION_SOURCE_FILES	#add diffusion
-	Diffusion/Coagulation.cpp
-	Diffusion/TemperatureDiffusion.cpp
-	)
 
 set(RIGID_BODY_SOURCE_FILES	#add rigid body
 	RigidBody/RigidBody.cpp
@@ -305,9 +294,6 @@ add_library(SPlisHSPlasH
 	${NON_NEWTON_HEADER_FILES}	#add NonNewton
 	${NON_NEWTON_SOURCE_FILES}
 
-	${DIFFUSION_HEADER_FILES}	#add Diffusion
-	${DIFFUSION_SOURCE_FILES}
-
 	${RIGID_BODY_HEADER_FILES}	#add RigidBody
 	${RIGID_BODY_SOURCE_FILES}
 
@@ -318,6 +304,11 @@ add_library(SPlisHSPlasH
 	${PLASTIC_SOURCE_FILES}
 )
 
+# MYADD:
+add_subdirectory(My)
+
+
+
 add_dependencies(SPlisHSPlasH
 	Utilities
 	tinyexpr
@@ -325,8 +316,8 @@ add_dependencies(SPlisHSPlasH
 	Ext_NeighborhoodSearch
 	Ext_GenericParameters
 	Ext_Discregrid
-)
-
+	)
+	
 target_include_directories(SPlisHSPlasH PUBLIC
 	${EIGEN3_INCLUDE_DIR}
 	${NEIGHBORHOOD_SEARCH_INCLUDE_DIR}
@@ -341,7 +332,6 @@ target_link_libraries(SPlisHSPlasH
 	${DISCREGRID_LIBRARIES}
 )
 
-add_subdirectory(My)
 
 source_group("Header Files\\WCSPH" FILES ${WCSPH_HEADER_FILES})
 source_group("Source Files\\WCSPH" FILES ${WCSPH_SOURCE_FILES})
@@ -371,8 +361,6 @@ source_group("Header Files\\Utils" FILES ${UTILS_HEADER_FILES})
 source_group("Source Files\\Utils" FILES ${UTILS_SOURCE_FILES})
 source_group("Header Files\\NonNewton" FILES ${NON_NEWTON_HEADER_FILES})	#add NonNewton
 source_group("Source Files\\NonNewton" FILES ${NON_NEWTON_SOURCE_FILES}) 
-source_group("Header Files\\Diffusion" FILES ${DIFFUSION_HEADER_FILES})	#add Diffusion
-source_group("Source Files\\Diffusion" FILES ${DIFFUSION_SOURCE_FILES}) 
 source_group("Header Files\\RigidBody" FILES ${RIGID_BODY_HEADER_FILES})	#add RigidBody
 source_group("Source Files\\RigidBody" FILES ${RIGID_BODY_SOURCE_FILES})
 source_group("Header Files\\MyTimeStep" FILES MyTimeStep.h)		#add Plastic

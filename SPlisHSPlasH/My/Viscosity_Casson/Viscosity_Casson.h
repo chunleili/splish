@@ -3,7 +3,7 @@
 
 #include "SPlisHSPlasH/Common.h"
 #include "SPlisHSPlasH/FluidModel.h"
-#include "ViscosityBase.h"
+#include "SPlisHSPlasH/Viscosity/ViscosityBase.h"
 #include "SPlisHSPlasH/Utilities/MatrixFreeSolver.h"
 
 #define USE_BLOCKDIAGONAL_PRECONDITIONER
