@@ -30,7 +30,7 @@
 #include "My/NonNewton/NonNewton.h"
 #include "My/Diffusion/Coagulation.h"
 #include "My/Diffusion/TemperatureDiffusion.h"
-#include "RigidBody/RigidBody.h"
+#include "My/ShapeMatching/ShapeMatching.h"
 #include "My/Plastic/Plastic.h"
 
 using namespace SPH;
@@ -50,8 +50,7 @@ void Simulation::registerNonpressureForces()
 	addSurfaceTensionMethod("Becker & Teschner 2007", SurfaceTension_Becker2007::creator);
 	addSurfaceTensionMethod("Akinci et al. 2013", SurfaceTension_Akinci2013::creator);
 	addSurfaceTensionMethod("He et al. 2014", SurfaceTension_He2014::creator);
-	addSurfaceTensionMethod("Coagulation method", Coagulation::creator); //added Coagulation
-	addSurfaceTensionMethod("TemperatureDiffusion", TemperatureDiffusion::creator); //add temperature diffusion
+
 #ifdef USE_THIRD_PARTY_METHODS
 	addSurfaceTensionMethod("Zorilla, Ritter, et al. 2020", SurfaceTension_ZorillaRitter2020::creator);
 #endif
@@ -64,13 +63,16 @@ void Simulation::registerNonpressureForces()
 	addViscosityMethod("Peer et al. 2016", Viscosity_Peer2016::creator);
 	addViscosityMethod("Takahashi et al. 2015 (improved)", Viscosity_Takahashi2015::creator);
 	addViscosityMethod("Weiler et al. 2018", Viscosity_Weiler2018::creator);
-	addViscosityMethod("Viscosity_Casson", Viscosity_Casson::creator); //added a viscosity
 
 	addVorticityMethod("None", [](FluidModel*) -> NonPressureForceBase* { return nullptr; });
 	addVorticityMethod("Micropolar model", MicropolarModel_Bender2017::creator);
 	addVorticityMethod("Vorticity confinement", VorticityConfinement::creator);
-	addVorticityMethod("NonNewton", NonNewton::creator);
-	addVorticityMethod("RigidBody", RigidBody::creator);	//add Rigid body
 
-	addElasticityMethod("Plastic", Plastic::creator);	//add Plastic
+	//MYADD
+	addViscosityMethod("Viscosity_Casson", Viscosity_Casson::creator);
+	addSurfaceTensionMethod("Coagulation method", Coagulation::creator);
+	addSurfaceTensionMethod("TemperatureDiffusion", TemperatureDiffusion::creator);
+	addVorticityMethod("NonNewton", NonNewton::creator);
+	addVorticityMethod("ShapeMatching", ShapeMatching::creator);
+	addElasticityMethod("Plastic", Plastic::creator);
 }

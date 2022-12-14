@@ -1,5 +1,5 @@
 #include <math.h>
-#include "RigidBody.h"
+#include "ShapeMatching.h"
 #include "SPlisHSPlasH/TimeManager.h"
 #include <Eigen/Geometry>
 #include <Eigen/Dense>
@@ -12,7 +12,7 @@ using namespace std;
 
 inline Matrix3r polarDecompose(Matrix3r A_pq);
 
-RigidBody::RigidBody(FluidModel* model):
+ShapeMatching::ShapeMatching(FluidModel* model):
 NonPressureForceBase(model)
 {
     unsigned int numParticles = m_model->numActiveParticles();
@@ -20,20 +20,20 @@ NonPressureForceBase(model)
     oldPosition.resize(numParticles);
 }
 
-void RigidBody::setStates()
+void ShapeMatching::setStates()
 {
     unsigned int numParticles = m_model->numActiveParticles();
     for(unsigned int i=0; i< numParticles ; i++)
     {
-        m_model->setParticleState(i, ParticleState::RigidBody);
+        m_model->setParticleState(i, ParticleState::ShapeMatching);
     }   
 }
 
-RigidBody::~RigidBody()
+ShapeMatching::~ShapeMatching()
 {
 }
 
-void RigidBody::step()
+void ShapeMatching::step()
 {   
     static int steps = 0;
     if(steps == 0)
@@ -43,7 +43,7 @@ void RigidBody::step()
     steps++;
 }
 
-void RigidBody::shapeMatching()
+void ShapeMatching::shapeMatching()
 {
     const int numParticles = (int)m_model->numActiveParticles();
     TimeManager *tm = TimeManager::getCurrent ();
@@ -53,7 +53,7 @@ void RigidBody::shapeMatching()
 
     for(int i = 0; i < numParticles; i++)
     {
-        if (m_model->getParticleState(i) == ParticleState::RigidBody)
+        if (m_model->getParticleState(i) == ParticleState::ShapeMatching)
         {
             Vector3r &pos = m_model->getPosition(i);
             Vector3r &vel = m_model->getVelocity(i);
@@ -77,7 +77,7 @@ void RigidBody::shapeMatching()
     Vector3r c{0.0, 0.0, 0.0};
     for(int i = 0; i < numParticles; i++)
     {
-        if (m_model->getParticleState(i) == ParticleState::RigidBody)
+        if (m_model->getParticleState(i) == ParticleState::ShapeMatching)
         {
             Vector3r &pos = m_model->getPosition(i);
             c += pos;
@@ -106,7 +106,7 @@ void RigidBody::shapeMatching()
     // update vel and pos
     for(int i = 0; i < numParticles; i++)
     {
-        if (m_model->getParticleState(i) == ParticleState::RigidBody)
+        if (m_model->getParticleState(i) == ParticleState::ShapeMatching)
         {
             Vector3r &pos = m_model->getPosition(i);
             Vector3r &vel = m_model->getVelocity(i);
@@ -139,7 +139,7 @@ inline Matrix3r polarDecompose(Matrix3r A_pq)
 }
 
 
-void RigidBody::computeBarycenter()
+void ShapeMatching::computeBarycenter()
 {
     const  int numParticles = (int) m_model->numActiveParticles();
     if (numParticles == 0)

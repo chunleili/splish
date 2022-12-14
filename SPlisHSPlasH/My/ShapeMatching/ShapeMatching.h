@@ -1,5 +1,5 @@
-#ifndef __RigidBody_h__
-#define __RigidBody_h__
+#ifndef __ShapeMatching_h__
+#define __ShapeMatching_h__
 #include "SPlisHSPlasH/FluidModel.h"
 #include "SPlisHSPlasH/Common.h"
 #include "SPlisHSPlasH/TimeStep.h"
@@ -13,7 +13,7 @@ namespace SPH
  * which is useful for phase change simulation(melting and freezing)
  * 
  */
-class RigidBody : NonPressureForceBase
+class ShapeMatching : NonPressureForceBase
 {
 private:
     Quaternionr quaternion{0.0, 0.0, 0.0, 0.0};
@@ -31,12 +31,12 @@ private:
     void shapeMatching();
 
 public:
-    RigidBody(FluidModel *model);
-    ~RigidBody();
+    ShapeMatching(FluidModel *model);
+    ~ShapeMatching();
     void step();
     void addForce();
     void addTorque();
-    static NonPressureForceBase* creator(FluidModel* model) {return new RigidBody(model);}
+    static NonPressureForceBase* creator(FluidModel* model) {return new ShapeMatching(model);}
 
     Vector3r velocity{0.0, 0.0, 0.0};
     Matrix3r rotationMatrix ;

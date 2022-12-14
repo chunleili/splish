@@ -15,29 +15,15 @@ PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/NonNewton/NonNewton.h
     ${CMAKE_CURRENT_LIST_DIR}/NonNewton/NonNewton.cpp
 
-    ${CMAKE_CURRENT_LIST_DIR}/MyPartioReader/MyPartioReader.cpp #MYADD
+    ${CMAKE_CURRENT_LIST_DIR}/MyPartioReader/MyPartioReader.cpp 
 	${CMAKE_CURRENT_LIST_DIR}/MyPartioReader/MyPartioReader.h
 
+    ${CMAKE_CURRENT_LIST_DIR}/ShapeMatching/ShapeMatching.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/ShapeMatching/ShapeMatching.h
 )
 
 
 
-# set(NON_NEWTON_HEADER_FILES
-# 	NonNewton/NonNewton.h	#add NonNewton
-# 	)
-	
-# set(NON_NEWTON_SOURCE_FILES
-# 	NonNewton/NonNewton.cpp	#add NonNewton
-# 	)
-
-
-# set(RIGID_BODY_SOURCE_FILES	#add rigid body
-# 	RigidBody/RigidBody.cpp
-# 	)
-	
-# set(RIGID_BODY_HEADER_FILES	
-# 	RigidBody/RigidBody.h	#add rigid body
-# 	)
 
 # set(PLASTIC_HEADER_FILES	
 # 	My/Plastic/Plastic.h	#add plastic
