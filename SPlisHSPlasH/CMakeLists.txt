@@ -144,13 +144,6 @@ set(ELASTICITY_SOURCE_FILES
 	Elasticity/Elasticity_Kugelstadt2021.cpp
 	)
 
-# set(NON_NEWTON_HEADER_FILES
-# 	NonNewton/NonNewton.h	#add NonNewton
-# 	)
-	
-# set(NON_NEWTON_SOURCE_FILES
-# 	NonNewton/NonNewton.cpp	#add NonNewton
-# 	)
 
 
 set(RIGID_BODY_SOURCE_FILES	#add rigid body
@@ -291,9 +284,6 @@ add_library(SPlisHSPlasH
 	${UTILS_HEADER_FILES}
 	${UTILS_SOURCE_FILES}
 
-	# ${NON_NEWTON_HEADER_FILES}	#add NonNewton
-	# ${NON_NEWTON_SOURCE_FILES}
-
 	${RIGID_BODY_HEADER_FILES}	#add RigidBody
 	${RIGID_BODY_SOURCE_FILES}
 
@@ -359,8 +349,6 @@ source_group("Header Files\\Elasticity" FILES ${ELASTICITY_HEADER_FILES})
 source_group("Source Files\\Elasticity" FILES ${ELASTICITY_SOURCE_FILES})
 source_group("Header Files\\Utils" FILES ${UTILS_HEADER_FILES})
 source_group("Source Files\\Utils" FILES ${UTILS_SOURCE_FILES})
-# source_group("Header Files\\NonNewton" FILES ${NON_NEWTON_HEADER_FILES})	#add NonNewton
-# source_group("Source Files\\NonNewton" FILES ${NON_NEWTON_SOURCE_FILES}) 
 source_group("Header Files\\RigidBody" FILES ${RIGID_BODY_HEADER_FILES})	#add RigidBody
 source_group("Source Files\\RigidBody" FILES ${RIGID_BODY_SOURCE_FILES})
 source_group("Header Files\\MyTimeStep" FILES MyTimeStep.h)		#add Plastic
