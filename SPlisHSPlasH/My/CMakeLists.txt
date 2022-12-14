@@ -1,25 +1,25 @@
 target_sources(SPlisHSPlasH 
 PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/findSurfaceParticles/SurfaceParticles.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/findSurfaceParticles/SurfaceParticles.h
 
     ${CMAKE_CURRENT_LIST_DIR}/Viscosity_Casson/Viscosity_Casson.cpp
     ${CMAKE_CURRENT_LIST_DIR}/Viscosity_Casson/Viscosity_Casson.h
+
     ${CMAKE_CURRENT_LIST_DIR}/Diffusion/Coagulation.h	
     ${CMAKE_CURRENT_LIST_DIR}/Diffusion/Coagulation.cpp
+
 	${CMAKE_CURRENT_LIST_DIR}/Diffusion/TemperatureDiffusion.h
     ${CMAKE_CURRENT_LIST_DIR}/Diffusion/TemperatureDiffusion.cpp
+
+    ${CMAKE_CURRENT_LIST_DIR}/NonNewton/NonNewton.h
+    ${CMAKE_CURRENT_LIST_DIR}/NonNewton/NonNewton.cpp
+
+    ${CMAKE_CURRENT_LIST_DIR}/MyPartioReaderWriter/MyPartioReader.cpp #MYADD
+	${CMAKE_CURRENT_LIST_DIR}/MyPartioReaderWriter/MyPartioReader.h
+
 )
 
-
-set(DIFFUSION_HEADER_FILES	#add diffusion
-	Diffusion/Coagulation.h	
-	Diffusion/TemperatureDiffusion.h
-	)
-	
-set(DIFFUSION_SOURCE_FILES	#add diffusion
-	Diffusion/Coagulation.cpp
-	Diffusion/TemperatureDiffusion.cpp
-	)
 
 
 # set(NON_NEWTON_HEADER_FILES

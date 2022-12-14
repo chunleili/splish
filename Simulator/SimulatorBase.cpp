@@ -4,7 +4,7 @@
 #include "Utilities/FileSystem.h"
 #include "SPlisHSPlasH/TimeManager.h"
 #include "Utilities/PartioReaderWriter.h"
-#include "Utilities/MyPartioReaderWriter.h" //MYADD
+#include "SPlisHSPlasH/My/MyPartioReaderWriter/MyPartioReader.h" //MYADD
 #include "SPlisHSPlasH/Emitter.h"
 #include "SPlisHSPlasH/EmitterSystem.h"
 #include "SPlisHSPlasH/Simulation.h"
@@ -1201,7 +1201,7 @@ void SimulatorBase::initFluidData()
         }
         else if(ext =="bhclassic")
         {
-            if (!MyPartioReaderWriter::readParticles(fileName,fluidParticles[fluidIndex]))
+            if (!MyPartioReader::readParticles(fileName,fluidParticles[fluidIndex]))
                 LOG_ERR << "File not found: " << fileName;
         }
         else

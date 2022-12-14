@@ -6,7 +6,7 @@
 namespace Utilities
 {
 
-	class MyPartioReaderWriter
+	class MyPartioReader
 	{
 	public:
 		static bool readParticles(const std::string &fileName, std::vector<Vector3r> &pos);

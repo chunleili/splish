@@ -21,8 +21,8 @@ add_library(Utilities
 	OBJLoader.h
 	PartioReaderWriter.cpp
 	PartioReaderWriter.h
-	MyPartioReaderWriter.cpp #MYADD
-	MyPartioReaderWriter.h
+	# MyPartioReaderWriter.cpp #MYADD
+	# MyPartioReaderWriter.h
 	StringTools.h	
 	SystemInfo.h
 	Timing.h

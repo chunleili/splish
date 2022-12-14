@@ -1,12 +1,12 @@
-#include "MyPartioReaderWriter.h"
+#include "MyPartioReader.h"
 #include "extern/partio/src/lib/Partio.h"
-#include "FileSystem.h"
+#include "Utilities/FileSystem.h"
 
 using namespace Utilities;
 
 void readToVector(const std::string filename, std::vector<Vector3r> &positions);
 
-bool MyPartioReaderWriter::readParticles(const std::string &fileName, std::vector<Vector3r> &positions)
+bool MyPartioReader::readParticles(const std::string &fileName, std::vector<Vector3r> &positions)
 {
     std::cout<<"Reading the "<<fileName<<std::endl;
 	if (!FileSystem::fileExists(fileName))
@@ -44,7 +44,7 @@ void readToVector(const std::string filename, std::vector<Vector3r> &positions)
 
 
 // MYADD
-bool MyPartioReaderWriter::readParticlesUv(const std::string &fileName, std::vector<Vector3r> &uv)
+bool MyPartioReader::readParticlesUv(const std::string &fileName, std::vector<Vector3r> &uv)
 {
     std::cout<<"Reading the "<<fileName<<std::endl;
 	if (!FileSystem::fileExists(fileName))
