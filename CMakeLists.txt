@@ -5,9 +5,10 @@ cmake_minimum_required(VERSION 3.1)
 
 project(SPlisHSPlasH)
 
-# MYADD 关闭警告C4819
+# MYADD 关闭警告C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
+# MYADD 关闭警告C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
 if(MSVC)
-	add_compile_options(/wd4819)
+	add_compile_options(/wd4819 /wd4267)
 endif()
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake" ${CMAKE_MODULE_PATH})

@@ -277,9 +277,6 @@ add_library(SPlisHSPlasH
 
 	MyTimeStep/MyTimeStep.h		#add MyTimeStep
 	MyTimeStep/MyTimeStep.cpp
-
-	${PLASTIC_HEADER_FILES}		#add Plastic
-	${PLASTIC_SOURCE_FILES}
 )
 
 # MYADD:
@@ -336,7 +333,5 @@ source_group("Source Files\\Elasticity" FILES ${ELASTICITY_SOURCE_FILES})
 source_group("Header Files\\Utils" FILES ${UTILS_HEADER_FILES})
 source_group("Source Files\\Utils" FILES ${UTILS_SOURCE_FILES})
 
-source_group("Header Files\\MyTimeStep" FILES MyTimeStep.h)		#add Plastic
+source_group("Header Files\\MyTimeStep" FILES MyTimeStep.h)		
 source_group("Source Files\\MyTimeStep" FILES MyTimeStep.cpp)
-source_group("Header Files\\MyTimeStep" FILES ${PLASTIC_HEADER_FILES})		#add Plastic
-source_group("Source Files\\MyTimeStep" FILES ${PLASTIC_SOURCE_FILES})

@@ -20,15 +20,7 @@ PUBLIC
 
     ${CMAKE_CURRENT_LIST_DIR}/ShapeMatching/ShapeMatching.cpp
     ${CMAKE_CURRENT_LIST_DIR}/ShapeMatching/ShapeMatching.h
+    
+    ${CMAKE_CURRENT_LIST_DIR}/Plastic/Plastic.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/Plastic/Plastic.h
 )
-
-
-
-
-# set(PLASTIC_HEADER_FILES	
-# 	My/Plastic/Plastic.h	#add plastic
-# 	)
-
-# set(PLASTIC_SOURCE_FILES	
-# 	My/Plastic/Plastic.cpp	#add plastic
-# 	)
