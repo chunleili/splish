@@ -4,7 +4,7 @@
 #include "Utilities/FileSystem.h"
 #include "SPlisHSPlasH/TimeManager.h"
 #include "Utilities/PartioReaderWriter.h"
-#include "SPlisHSPlasH/My/MyPartioReaderWriter/MyPartioReader.h" //MYADD
+#include "SPlisHSPlasH/My/MyPartioReader/MyPartioReader.h" //MYADD
 #include "SPlisHSPlasH/Emitter.h"
 #include "SPlisHSPlasH/EmitterSystem.h"
 #include "SPlisHSPlasH/Simulation.h"

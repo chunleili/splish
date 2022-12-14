@@ -15,8 +15,8 @@ PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}/NonNewton/NonNewton.h
     ${CMAKE_CURRENT_LIST_DIR}/NonNewton/NonNewton.cpp
 
-    ${CMAKE_CURRENT_LIST_DIR}/MyPartioReaderWriter/MyPartioReader.cpp #MYADD
-	${CMAKE_CURRENT_LIST_DIR}/MyPartioReaderWriter/MyPartioReader.h
+    ${CMAKE_CURRENT_LIST_DIR}/MyPartioReader/MyPartioReader.cpp #MYADD
+	${CMAKE_CURRENT_LIST_DIR}/MyPartioReader/MyPartioReader.h
 
 )
 
