@@ -1,7 +1,7 @@
 #include "TemperatureDiffusion.h"
 #include "SPlisHSPlasH/Simulation.h"
 #include "SPlisHSPlasH/TimeManager.h"
-#include "SPlisHSPlasH/My/findSurfaceParticles/SurfaceParticles.h"
+#include "SPlisHSPlasH/My/SurfaceParticles/SurfaceParticles.h"
 
 using namespace SPH;
 using namespace GenParam;

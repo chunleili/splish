@@ -1,7 +1,7 @@
 target_sources(SPlisHSPlasH 
 PUBLIC
-    ${CMAKE_CURRENT_LIST_DIR}/findSurfaceParticles/SurfaceParticles.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/findSurfaceParticles/SurfaceParticles.h
+    ${CMAKE_CURRENT_LIST_DIR}/SurfaceParticles/SurfaceParticles.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/SurfaceParticles/SurfaceParticles.h
 
     ${CMAKE_CURRENT_LIST_DIR}/Viscosity_Casson/Viscosity_Casson.cpp
     ${CMAKE_CURRENT_LIST_DIR}/Viscosity_Casson/Viscosity_Casson.h

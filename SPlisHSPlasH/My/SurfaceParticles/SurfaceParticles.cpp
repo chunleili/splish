@@ -1,8 +1,8 @@
 #pragma once
 
 #include <vector>
-#include "../../FluidModel.h"
-#include "../../Simulation.h"
+#include "SPlisHSPlasH/FluidModel.h"
+#include "SPlisHSPlasH/Simulation.h"
 
 //获取哪些粒子是表面粒子
 namespace SPH

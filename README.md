@@ -24,4 +24,5 @@ we add these models to the splishsplash:
 6. MyPartio：粒子的导入导出器，可以直接导入导出Houdini的bgeo文件(从Houdini导入建议使用.bhclassic后缀）。
 7. 用户交互：现在可以用鼠标右键旋转视角，鼠标滚轮缩放视角，鼠标中键平移视角。更加符合人类直觉。
 8. Interactive: 交互类。可以获取点击的鼠标世界位置（打印到屏幕上）。还可以控制刚体（通过control+WASDF控制第0号刚体）。
-9. 
+9. SurfaceParticles: 自由函数findSurfaceParticles。用于找到所有表面粒子（定义为邻居数量<10的粒子）
+10. 
