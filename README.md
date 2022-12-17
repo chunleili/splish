@@ -1,12 +1,6 @@
 # My
 This is a forked repo from https://github.com/InteractiveComputerGraphics/SPlisHSPlasH
 
-we add these models to the splishsplash:
-1. Diffusion: see temperatureDiffusion
-2. Local dynamic viscosity: see Viscosity/Viscosity_Casson
-3. Plasticity: see My/Plasticity
-4. ShapeMatching: see RigidBody
-5. NonNewton: see NonNewton
 
 这是对Jan Bender原本repo的fork。原repo为：https://github.com/InteractiveComputerGraphics/SPlisHSPlasH
 
