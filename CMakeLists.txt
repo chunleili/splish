@@ -11,9 +11,8 @@ if(MSVC)
 	add_compile_options(/wd4819 /wd4267)
 endif()
 
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/CMake" ${CMAKE_MODULE_PATH})
+set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/CMake" ${CMAKE_MODULE_PATH})
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-
 include(Common)
 if (NOT WIN32)
 	message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
