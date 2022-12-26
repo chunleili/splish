@@ -43,7 +43,7 @@ target_include_directories(mypartio PUBLIC ${CMAKE_CURRENT_LIST_DIR})
 target_include_directories(mypartio PUBLIC ../zlib/src )
 
 
-option(TEST_MYPARTIO "test my partio" ON)
+option(TEST_MYPARTIO "test my partio" OFF)
 if(TEST_MYPARTIO)
 # test_mypartio
     add_executable(test_mypartio my_test/test_mypartio.cpp)
