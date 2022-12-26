@@ -46,6 +46,8 @@ if (NOT SPH_LIBS_ONLY)
 endif()
 
 ## Eigen3 is used by most of the libraries that follow
+# include(FindEigen3)
+set(Eigen3_DIR "${PROJECT_SOURCE_DIR}/extern/eigen")
 find_package(Eigen3 REQUIRED)
 add_definitions(-DEIGEN_DISABLE_UNALIGNED_ARRAY_ASSERT)
 
