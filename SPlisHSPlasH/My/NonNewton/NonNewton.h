@@ -1,5 +1,4 @@
-#ifndef __NonNewton_h__
-#define __NonNewton_h__
+#pragma once
 
 #include "SPlisHSPlasH/Common.h"
 #include "SPlisHSPlasH/FluidModel.h"
@@ -13,19 +12,23 @@ namespace SPH
 	class NonNewton : public NonPressureForceBase
 	{
 	private:
-		Real m_viscosity;
-		Real m_boundaryViscosity;
 		int m_nonNewtonMethod = 0;
 		std::vector<Vector6r> m_strainRate;
 		virtual void initParameters() override;
 		void calcStrainRate();
+		void computeViscosity();
 	public:
-		static int NON_NEWTON;
+		float m_boundaryViscosity;
+		std::vector<float> m_viscosity;
+		float power_index;
+		float consistency_index;
+		static int NON_NEWTON_METHOD;
 		static int VISCOSITY_COEFFICIENT;
 		static int VISCOSITY_COEFFICIENT_BOUNDARY;
 		static int ENUM_NEWTONIAN;
-		static int ENUM_SHEAR_THINNING;
-		static int ENUM_SHEAR_THICKENING;
+		static int ENUM_POWER_LAW;
+		static int POWER_INDEX;
+		static int CONSISTENCY_INDEX;
 		NonNewton(FluidModel *model);
         virtual void init() override;
 		virtual ~NonNewton(void);
@@ -34,5 +37,3 @@ namespace SPH
         static NonPressureForceBase* creator(FluidModel* model) {return new NonNewton(model);}
 	};
 }
-
-#endif
