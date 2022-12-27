@@ -27,3 +27,5 @@ PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/MyTimeStep/MyTimeStep.h
 	${CMAKE_CURRENT_LIST_DIR}/MyTimeStep/MyTimeStep.cpp
 )
+
+target_include_directories(SPlisHSPlasH PRIVATE ${CMAKE_CURRENT_LIST_DIR})

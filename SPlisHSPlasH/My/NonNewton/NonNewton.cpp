@@ -4,6 +4,7 @@
 #include "SPlisHSPlasH/BoundaryModel_Koschier2017.h"
 #include "SPlisHSPlasH/BoundaryModel_Bender2019.h"
 #include "NonNewton.h"
+#include "Utils/myPrint.h"
 
 using namespace SPH;
 using namespace GenParam;
@@ -15,6 +16,7 @@ int NonNewton::ENUM_NEWTONIAN = -1;
 int NonNewton::ENUM_POWER_LAW = -1;
 int NonNewton::POWER_INDEX = -1;
 int NonNewton::CONSISTENCY_INDEX = -1;
+int NonNewton::VISCOSITY0 = -1;
 
 NonNewton::NonNewton(FluidModel *model) :
 NonPressureForceBase(model)
@@ -23,6 +25,7 @@ NonPressureForceBase(model)
 	m_boundaryViscosity = 0.01f;
 	power_index = 0.5;
 	consistency_index = 1.0;
+	m_viscosity0 = 0.01f;
 
 	unsigned int numParticles = m_model->numActiveParticles();
 
@@ -30,12 +33,16 @@ NonPressureForceBase(model)
 	model->addField({ "strainRate", FieldType::Vector6, [&](const unsigned int i) -> Vector6r* { return &m_strainRate[i]; }, true });
 
 	m_viscosity.resize(numParticles, 0.0);
+	model->addField({ "viscosity", FieldType::Scalar, [&](const unsigned int i) -> Real* { return &m_viscosity[i]; }, true });
 }
 
 NonNewton::~NonNewton(void)
 {
 	m_model->removeFieldByName("strainRate");
 	m_strainRate.clear();
+
+	m_model->removeFieldByName("viscosity");
+	m_viscosity.clear();
 }
 
 void NonNewton::init()
@@ -59,19 +66,36 @@ void NonNewton::initParameters()
 
 	POWER_INDEX = createNumericParameter("power_index", "power_index", &power_index);
 	setGroup(POWER_INDEX, "Viscosity");
+	setDescription(POWER_INDEX, "Power index for power law.");
 	CONSISTENCY_INDEX = createNumericParameter("consistency_index", "consistency_index", &consistency_index);
 	setGroup(CONSISTENCY_INDEX, "Viscosity");
+	setDescription(CONSISTENCY_INDEX, "Consistency index for power law.");
+
+	VISCOSITY0 = createNumericParameter("viscosity0", "viscosity0", &m_viscosity0);
+	setGroup(VISCOSITY0, "Viscosity");
+	setDescription(VISCOSITY0, "Initial viscosity.");
 }
 
 void NonNewton::step()
 {
 	static int steps{0};
-	std::cout<<"\nstep: "<<steps<<"\n";
-	calcStrainRate();
-	computeViscosity();
-	std::cout<<"m_strainRate["<<100<<"]\n"<<m_strainRate[100]<<"\n";
-	std::cout<<"m_strainRate["<<100<<"].norm(): "<<m_strainRate[100].norm()<<"\n";
 	steps++;
+	std::cout<<"\nstep: "<<steps<<"\n";
+
+	echo(m_viscosity[31995]);
+	echo(m_strainRate[31995].norm());
+
+	if(m_nonNewtonMethod == ENUM_POWER_LAW)
+	{
+		std::cout<<"Power Law!\n";
+		calcStrainRate();
+		computeViscosityPowerLaw();
+	}
+	else
+	{
+		std::cout<<"Newtonian!\n";
+		computeViscosityNewtonian();
+	}
 
 	Simulation *sim = Simulation::getCurrent();
 	const unsigned int nFluids = sim->numberOfFluidModels();
@@ -120,7 +144,17 @@ void NonNewton::step()
 
 void NonNewton::reset()
 {
-	std::cout<<"reset\n";
+	std::cout<<"reset!\n";
+
+	m_boundaryViscosity = 0.01f;
+	power_index = 0.5;
+	consistency_index = 1.0;
+	m_viscosity0 = 0.01f;
+	m_nonNewtonMethod = 0;
+
+	unsigned int numParticles = m_model->numActiveParticles();
+	m_strainRate.resize(numParticles, Vector6r::Zero());
+	m_viscosity.resize(numParticles, 0.0);
 }
 
 void NonNewton::calcStrainRate()
@@ -159,17 +193,24 @@ void NonNewton::calcStrainRate()
 		strainRate = (static_cast<Real>(0.5) / density_i) * strainRate;
 
 		m_strainRate[i] = strainRate;
-		// std::cout<<"m_strainRate["<<i<<"]"<<m_strainRate[i];
 		// end shear strain rate calculation
 	}
 }
 
-void NonNewton::computeViscosity() 
+void NonNewton::computeViscosityPowerLaw() 
 {
 	unsigned int numParticles = m_model->numActiveParticles();
 	for (unsigned int i = 0; i < numParticles; ++i)
 	{
-		// NonNewton viscosity
-		m_viscosity[i] = consistency_index * pow(m_strainRate[i].norm(), power_index - 1);
+		m_viscosity[i] = m_viscosity0* consistency_index * pow(m_strainRate[i].norm(), power_index - 1);
+	}
+}
+
+void NonNewton::computeViscosityNewtonian() 
+{
+	unsigned int numParticles = m_model->numActiveParticles();
+	for (unsigned int i = 0; i < numParticles; ++i)
+	{
+		m_viscosity[i] = m_viscosity0;
 	}
 }

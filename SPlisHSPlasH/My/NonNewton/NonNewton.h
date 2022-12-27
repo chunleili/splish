@@ -8,6 +8,9 @@ namespace SPH
 {
 	/** \brief NonNewton
 	 * this class is based on XSPH
+	 * 这个类的作用是实现非牛顿粘性。根据m_nonNewtonMethod的值来选择不同的非牛顿粘性模型。
+	 * m_nonNewtonMethod = 0 时，使用牛顿粘性模型
+	 * m_nonNewtonMethod = 1 时，使用幂律粘性模型
 	*/
 	class NonNewton : public NonPressureForceBase
 	{
@@ -16,9 +19,11 @@ namespace SPH
 		std::vector<Vector6r> m_strainRate;
 		virtual void initParameters() override;
 		void calcStrainRate();
-		void computeViscosity();
+		void computeViscosityPowerLaw();
+		void computeViscosityNewtonian();
 	public:
 		float m_boundaryViscosity;
+		float m_viscosity0; //initial viscosity
 		std::vector<float> m_viscosity;
 		float power_index;
 		float consistency_index;
@@ -29,6 +34,7 @@ namespace SPH
 		static int ENUM_POWER_LAW;
 		static int POWER_INDEX;
 		static int CONSISTENCY_INDEX;
+		static int VISCOSITY0;
 		NonNewton(FluidModel *model);
         virtual void init() override;
 		virtual ~NonNewton(void);
