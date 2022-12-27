@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.21)
 
-project(test_mypartio)
-
 file(GLOB io_cpp "io/*.cpp")
 file(GLOB core_cpp "core/*.cpp")
 
