@@ -1,5 +1,5 @@
-target_sources(SPlisHSPlasH 
-PUBLIC
+target_sources(SPlisHSPlasH
+PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/SurfaceParticles/SurfaceParticles.cpp
     ${CMAKE_CURRENT_LIST_DIR}/SurfaceParticles/SurfaceParticles.h
 
