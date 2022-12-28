@@ -25,6 +25,9 @@ namespace SPH
 		Vector3r m_boxMax;
 
 		std::vector<Real> m_ccf;
+		Real m_surfaceTemp;
+		bool m_meltSurface;
+		int steps = 0;
 
 		virtual void deferredInit();
 
@@ -41,6 +44,8 @@ namespace SPH
 
 		static int BOX_MIN;
 		static int BOX_MAX;
+		static int SURFACE_TEMP;
+		static int MELT_SURFACE;
 
 		Coagulation();
 		Coagulation(FluidModel* model);

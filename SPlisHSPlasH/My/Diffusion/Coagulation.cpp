@@ -1,6 +1,7 @@
 #include "Coagulation.h"
 #include "SPlisHSPlasH/Simulation.h"
 #include "SPlisHSPlasH/TimeManager.h"
+#include "SurfaceParticles/SurfaceParticles.h"
 
 using namespace SPH;
 using namespace GenParam;
@@ -13,6 +14,8 @@ int Coagulation::BOX_MIN = -1;
 int Coagulation::BOX_MAX = -1;
 int Coagulation::POINT_SRC_VAL = -1;
 int Coagulation::POINT_SRC_POS = -1;
+int Coagulation::SURFACE_TEMP = -1;
+int Coagulation::MELT_SURFACE = -1;
 
 Coagulation::Coagulation(FluidModel* model) :
     NonPressureForceBase(model), 
@@ -30,6 +33,8 @@ Coagulation::Coagulation(FluidModel* model) :
 	m_boxMax = Vector3r(0.3, 0.3, 0.3);
 
     // m_ccf[1501] = 100.0;
+    m_meltSurface = false;
+    m_surfaceTemp = 0.0;
 }
 
 
@@ -94,10 +99,17 @@ void Coagulation::initParameters()
 	setDescription(POINT_SRC_POS, "give a particle ID(uint) of which the initial value is not zero to test the diffusion");
     setGroup(POINT_SRC_POS, "coagualtion");
 
+    MELT_SURFACE = createBoolParameter("MeltSurface", "MeltSurface", &m_meltSurface);
+    setGroup(MELT_SURFACE, "coagualtion");
+
+    SURFACE_TEMP = createNumericParameter("surfaceTemp", "surfaceTemp", &m_surfaceTemp);
+    setGroup(SURFACE_TEMP, "coagualtion");
 }
 
 void Coagulation::step()
 {
+    steps++;
+
     Simulation* sim = Simulation::getCurrent();
     const unsigned int numParticles = m_model->numActiveParticles();
     const Real radius = sim->getValue<Real>(Simulation::PARTICLE_RADIUS);
@@ -113,6 +125,19 @@ void Coagulation::step()
 
     if(m_pointSrcPos!=-1)
         m_ccf[m_pointSrcPos] = m_pointSrcVal;
+
+    if (m_meltSurface && steps==1)
+    {
+        std::vector<int> surf_id; 
+        findSurfaceParticles(m_model, surf_id);
+        printf("\nSurface particles:\n");
+        for (size_t i = 0; i < surf_id.size(); i++)
+        {
+            printf("%d\t", surf_id[i]);
+            m_ccf[surf_id[i]] = m_surfaceTemp;
+        }
+        printf("\nTotal surface particles number: %d\n", surf_id.size());
+    }
 
     // compute ccf
     #pragma omp parallel default(shared)
@@ -150,7 +175,7 @@ void Coagulation::step()
 
 void Coagulation::reset()
 {
-
+    steps=0;
 }
 
 

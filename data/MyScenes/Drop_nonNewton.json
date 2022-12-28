@@ -101,7 +101,8 @@
 			"id": "f",
 			"density0": 1000, 
 			"viscosity": 0.01,
-			"viscosityMethod": 9
+			"viscosityMethod": 9,
+			"nonNewtonMethod": 1
 		}
 	]
 }
