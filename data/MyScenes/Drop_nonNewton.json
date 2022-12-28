@@ -100,9 +100,11 @@
 		{
 			"id": "f",
 			"density0": 1000, 
-			"viscosity": 0.01,
+			"viscosity0": 100,
 			"viscosityMethod": 9,
-			"nonNewtonMethod": 1
+			"nonNewtonMethod": 1,
+			"power_index":0.5,
+			"consistency_index":1.0
 		}
 	]
 }

@@ -99,7 +99,7 @@ void Coagulation::initParameters()
 	setDescription(POINT_SRC_POS, "give a particle ID(uint) of which the initial value is not zero to test the diffusion");
     setGroup(POINT_SRC_POS, "coagualtion");
 
-    MELT_SURFACE = createBoolParameter("MeltSurface", "MeltSurface", &m_meltSurface);
+    MELT_SURFACE = createBoolParameter("meltSurface", "meltSurface", &m_meltSurface);
     setGroup(MELT_SURFACE, "coagualtion");
 
     SURFACE_TEMP = createNumericParameter("surfaceTemp", "surfaceTemp", &m_surfaceTemp);

@@ -22,7 +22,7 @@ NonNewton::NonNewton(FluidModel *model) :
 NonPressureForceBase(model)
 {
 	std::cout<<"constructor\n";
-	m_boundaryViscosity = 0.01f;
+	// m_boundaryViscosity = 0.01f;
 	power_index = 0.5;
 	consistency_index = 1.0;
 	m_viscosity0 = 0.01f;
@@ -34,6 +34,8 @@ NonPressureForceBase(model)
 
 	m_viscosity.resize(numParticles, 0.0);
 	model->addField({ "viscosity", FieldType::Scalar, [&](const unsigned int i) -> Real* { return &m_viscosity[i]; }, true });
+
+	m_boundaryViscosity.resize(numParticles, 0.0);
 }
 
 NonNewton::~NonNewton(void)
@@ -53,9 +55,9 @@ void NonNewton::init()
 
 void NonNewton::initParameters()
 {
-	VISCOSITY_COEFFICIENT_BOUNDARY = createNumericParameter("viscosityBoundary", "Viscosity coefficient (Boundary)", &m_boundaryViscosity);
-	setGroup(VISCOSITY_COEFFICIENT_BOUNDARY, "Viscosity");
-	setDescription(VISCOSITY_COEFFICIENT_BOUNDARY, "Coefficient for the viscosity force computation at the boundary.");
+	// VISCOSITY_COEFFICIENT_BOUNDARY = createNumericParameter("viscosityBoundary", "Viscosity coefficient (Boundary)", &m_boundaryViscosity[0]);
+	// setGroup(VISCOSITY_COEFFICIENT_BOUNDARY, "Viscosity");
+	// setDescription(VISCOSITY_COEFFICIENT_BOUNDARY, "Coefficient for the viscosity force computation at the boundary.");
 
 	NON_NEWTON_METHOD = createEnumParameter("nonNewtonMethod", "nonNewtonMethod", &m_nonNewtonMethod);
 	setGroup(NON_NEWTON_METHOD, "Viscosity");
@@ -127,15 +129,25 @@ void NonNewton::step()
 		//////////////////////////////////////////////////////////////////////////
 		// Boundary
 		//////////////////////////////////////////////////////////////////////////
-		if (m_boundaryViscosity != 0.0)
+		m_boundaryViscosity[i] = m_viscosity[i];
+
+		if (m_boundaryViscosity[i] != 0.0)
 		{
 			if (sim->getBoundaryHandlingMethod() == BoundaryHandlingMethods::Akinci2012)
 			{
-				forall_boundary_neighbors(
-					const Vector3r &vj = bm_neighbor->getVelocity(neighborIndex);
-					const Vector3r a = -invH * m_boundaryViscosity * (density0 * bm_neighbor->getVolume(neighborIndex) / density_i) * (vi - vj) * sim->W(xi - xj);
-					ai += a;
-					bm_neighbor->addForce(xj, -m_model->getMass(i) * a););
+				for (unsigned int pid = nFluids; pid < sim->numberOfPointSets(); pid++)
+				{
+					BoundaryModel_Akinci2012 *bm_neighbor = static_cast<BoundaryModel_Akinci2012 *>(sim->getBoundaryModelFromPointSet(pid));
+					for (unsigned int j = 0; j < sim->numberOfNeighbors(fluidModelIndex, pid, i); j++)
+					{
+						const unsigned int neighborIndex = sim->getNeighbor(fluidModelIndex, pid, i, j);
+						const Vector3r &xj = bm_neighbor->getPosition(neighborIndex);
+						const Vector3r &vj = bm_neighbor->getVelocity(neighborIndex);
+						const Vector3r a = -invH * m_boundaryViscosity[i] * (density0 * bm_neighbor->getVolume(neighborIndex) / density_i) * (vi - vj) * sim->W(xi - xj);
+						ai += a;
+						bm_neighbor->addForce(xj, -m_model->getMass(i) * a);
+					}
+				}
 			}
 		}
 	}
@@ -146,7 +158,7 @@ void NonNewton::reset()
 {
 	std::cout<<"reset!\n";
 
-	m_boundaryViscosity = 0.01f;
+	// m_boundaryViscosity = 0.01f;
 	power_index = 0.5;
 	consistency_index = 1.0;
 	m_viscosity0 = 0.01f;
@@ -155,6 +167,7 @@ void NonNewton::reset()
 	unsigned int numParticles = m_model->numActiveParticles();
 	m_strainRate.resize(numParticles, Vector6r::Zero());
 	m_viscosity.resize(numParticles, 0.0);
+	m_boundaryViscosity.resize(numParticles, 0.0);
 }
 
 void NonNewton::calcStrainRate()

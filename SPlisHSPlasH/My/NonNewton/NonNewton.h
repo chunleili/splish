@@ -22,7 +22,7 @@ namespace SPH
 		void computeViscosityPowerLaw();
 		void computeViscosityNewtonian();
 	public:
-		float m_boundaryViscosity;
+		std::vector<float> m_boundaryViscosity;
 		float m_viscosity0; //initial viscosity
 		std::vector<float> m_viscosity;
 		float power_index;
