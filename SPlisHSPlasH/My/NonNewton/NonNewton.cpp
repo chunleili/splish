@@ -14,18 +14,30 @@ int NonNewton::VISCOSITY_COEFFICIENT = -1;
 int NonNewton::NON_NEWTON_METHOD = -1;
 int NonNewton::ENUM_NEWTONIAN = -1;
 int NonNewton::ENUM_POWER_LAW = -1;
+int NonNewton::ENUM_CROSS_MODEL = -1;
+int NonNewton::ENUM_CASSON_MODEL = -1;
 int NonNewton::POWER_INDEX = -1;
 int NonNewton::CONSISTENCY_INDEX = -1;
 int NonNewton::VISCOSITY0 = -1;
+int NonNewton::VISCOSITY_INF = -1;
+int NonNewton::MU_C = -1;
+int NonNewton::TAU_C = -1;
+int NonNewton::LAMBDA = -1;
+int NonNewton::MAX_VISCOSITY = -1;
+
 
 NonNewton::NonNewton(FluidModel *model) :
 NonPressureForceBase(model)
 {
 	std::cout<<"constructor\n";
-	// m_boundaryViscosity = 0.01f;
+	m_nonNewtonMethod = 0;
 	power_index = 0.5;
 	consistency_index = 1.0;
 	m_viscosity0 = 0.01f;
+	m_viscosity_inf = 1000.0f;
+	m_muC = 0.00298;
+	m_tauC = 0.02876;
+	m_lambda = 4.020;
 
 	unsigned int numParticles = m_model->numActiveParticles();
 
@@ -55,9 +67,10 @@ void NonNewton::init()
 
 void NonNewton::initParameters()
 {
-	// VISCOSITY_COEFFICIENT_BOUNDARY = createNumericParameter("viscosityBoundary", "Viscosity coefficient (Boundary)", &m_boundaryViscosity[0]);
-	// setGroup(VISCOSITY_COEFFICIENT_BOUNDARY, "Viscosity");
-	// setDescription(VISCOSITY_COEFFICIENT_BOUNDARY, "Coefficient for the viscosity force computation at the boundary.");
+	MAX_VISCOSITY = createNumericParameter("max_viscosity", "max_viscosity", &m_maxViscosity);
+	setGroup(MAX_VISCOSITY, "Viscosity");
+	setDescription(MAX_VISCOSITY, "Max viscosity of all fluid particles.");
+	getParameter(MAX_VISCOSITY)->setReadOnly(true);
 
 	NON_NEWTON_METHOD = createEnumParameter("nonNewtonMethod", "nonNewtonMethod", &m_nonNewtonMethod);
 	setGroup(NON_NEWTON_METHOD, "Viscosity");
@@ -65,17 +78,29 @@ void NonNewton::initParameters()
 	EnumParameter *enumParam = static_cast<EnumParameter*>(getParameter(NON_NEWTON_METHOD));
 	enumParam->addEnumValue("Newtonian", ENUM_NEWTONIAN);
 	enumParam->addEnumValue("Power Law", ENUM_POWER_LAW);
+	enumParam->addEnumValue("Cross Model", ENUM_CROSS_MODEL);
+	enumParam->addEnumValue("Casson Model", ENUM_CASSON_MODEL);
 
 	POWER_INDEX = createNumericParameter("power_index", "power_index", &power_index);
-	setGroup(POWER_INDEX, "Viscosity");
-	setDescription(POWER_INDEX, "Power index for power law.");
 	CONSISTENCY_INDEX = createNumericParameter("consistency_index", "consistency_index", &consistency_index);
+	setGroup(POWER_INDEX, "Viscosity");
 	setGroup(CONSISTENCY_INDEX, "Viscosity");
+	setDescription(POWER_INDEX, "Power index for power law.");
 	setDescription(CONSISTENCY_INDEX, "Consistency index for power law.");
 
 	VISCOSITY0 = createNumericParameter("viscosity0", "viscosity0", &m_viscosity0);
+	VISCOSITY_INF = createNumericParameter("viscosity_inf", "viscosity_inf", &m_viscosity_inf);
 	setGroup(VISCOSITY0, "Viscosity");
+	setGroup(VISCOSITY_INF, "Viscosity");
 	setDescription(VISCOSITY0, "Initial viscosity.");
+	setDescription(VISCOSITY_INF, "Infinite viscosity for the cross model.");
+
+	MU_C = createNumericParameter("muC", "muC", &m_muC);
+	TAU_C = createNumericParameter("tauC", "tauC", &m_tauC);
+	LAMBDA = createNumericParameter("lambda", "lambda", &m_lambda);
+	setGroup(MU_C, "Viscosity");
+	setGroup(TAU_C, "Viscosity");
+	setGroup(LAMBDA, "Viscosity");
 }
 
 void NonNewton::step()
@@ -93,6 +118,18 @@ void NonNewton::step()
 		calcStrainRate();
 		computeViscosityPowerLaw();
 	}
+	else if(m_nonNewtonMethod == ENUM_CROSS_MODEL)
+	{
+		std::cout<<"Cross model!\n";
+		calcStrainRate();
+		computeViscosityCrossModel();
+	}
+	else if (m_nonNewtonMethod == ENUM_CASSON_MODEL)
+	{
+		std::cout<<"Casson model!\n";
+		calcStrainRate();
+		computeViscosityCassonModel();
+	}
 	else
 	{
 		std::cout<<"Newtonian!\n";
@@ -108,6 +145,8 @@ void NonNewton::step()
 
 	const Real h = TimeManager::getCurrent()->getTimeStepSize();
 	const Real invH = (static_cast<Real>(1.0) / h);
+
+	m_maxViscosity = 0.0;
 
 	for (int i = 0; i < (int)numParticles; i++)
 	{
@@ -150,7 +189,14 @@ void NonNewton::step()
 				}
 			}
 		}
+
+		//计算下最大的粘度，只是为了可视化
+		if (m_maxViscosity < m_viscosity[i])
+		{
+			m_maxViscosity = m_viscosity[i];
+		}
 	}
+
 }
 
 
@@ -158,11 +204,15 @@ void NonNewton::reset()
 {
 	std::cout<<"reset!\n";
 
-	// m_boundaryViscosity = 0.01f;
+	m_nonNewtonMethod = 0;
 	power_index = 0.5;
 	consistency_index = 1.0;
 	m_viscosity0 = 0.01f;
-	m_nonNewtonMethod = 0;
+	m_viscosity_inf = 1000.0f;
+	m_muC = 0.00298;
+	m_tauC = 0.02876;
+	m_lambda = 4.020;
+	m_maxViscosity = 0.0;
 
 	unsigned int numParticles = m_model->numActiveParticles();
 	m_strainRate.resize(numParticles, Vector6r::Zero());
@@ -209,21 +259,38 @@ void NonNewton::calcStrainRate()
 		// end shear strain rate calculation
 	}
 }
-
-void NonNewton::computeViscosityPowerLaw() 
-{
-	unsigned int numParticles = m_model->numActiveParticles();
-	for (unsigned int i = 0; i < numParticles; ++i)
-	{
-		m_viscosity[i] = m_viscosity0* consistency_index * pow(m_strainRate[i].norm(), power_index - 1);
-	}
-}
-
 void NonNewton::computeViscosityNewtonian() 
 {
 	unsigned int numParticles = m_model->numActiveParticles();
 	for (unsigned int i = 0; i < numParticles; ++i)
 	{
 		m_viscosity[i] = m_viscosity0;
+	}
+}
+
+void NonNewton::computeViscosityPowerLaw() 
+{
+	unsigned int numParticles = m_model->numActiveParticles();
+	for (unsigned int i = 0; i < numParticles; ++i)
+	{
+		m_viscosity[i] = consistency_index * pow(m_strainRate[i].norm(), power_index - 1);
+	}
+}
+
+void NonNewton::computeViscosityCrossModel() 
+{
+	unsigned int numParticles = m_model->numActiveParticles();
+	for (unsigned int i = 0; i < numParticles; ++i)
+	{
+		m_viscosity[i] = m_viscosity_inf +  (m_viscosity0 - m_viscosity_inf) * (1 + consistency_index * pow(m_strainRate[i].norm(), power_index)) ;
+	}
+}
+
+void NonNewton::computeViscosityCassonModel() 
+{
+	unsigned int numParticles = m_model->numActiveParticles();
+	for (unsigned int i = 0; i < numParticles; ++i)
+	{
+		m_viscosity[i] = sqrt(m_muC) + sqrt(m_tauC) / (sqrt(m_lambda) + sqrt(m_strainRate[i].norm()));
 	}
 }

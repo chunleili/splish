@@ -19,22 +19,37 @@ namespace SPH
 		std::vector<Vector6r> m_strainRate;
 		virtual void initParameters() override;
 		void calcStrainRate();
-		void computeViscosityPowerLaw();
 		void computeViscosityNewtonian();
+		void computeViscosityPowerLaw();
+		void computeViscosityCrossModel();
+		void computeViscosityCassonModel();
 	public:
 		std::vector<float> m_boundaryViscosity;
-		float m_viscosity0; //initial viscosity
 		std::vector<float> m_viscosity;
-		float power_index;
-		float consistency_index;
+		float power_index = 0.5f;
+		float consistency_index = 1.0;
+		float m_viscosity0 = 0.01f; //initial viscosity
+		float m_viscosity_inf = 1000.0f;
+		float m_muC = 0.00298;
+		float m_tauC = 0.02876;
+		float m_lambda = 4.020;
+		float m_maxViscosity = 0.0f;
+
 		static int NON_NEWTON_METHOD;
 		static int VISCOSITY_COEFFICIENT;
 		static int VISCOSITY_COEFFICIENT_BOUNDARY;
 		static int ENUM_NEWTONIAN;
 		static int ENUM_POWER_LAW;
+		static int ENUM_CROSS_MODEL;
+		static int ENUM_CASSON_MODEL;
 		static int POWER_INDEX;
 		static int CONSISTENCY_INDEX;
 		static int VISCOSITY0;
+		static int VISCOSITY_INF;
+		static int MU_C;
+		static int TAU_C;
+		static int LAMBDA;
+		static int MAX_VISCOSITY;
 		NonNewton(FluidModel *model);
         virtual void init() override;
 		virtual ~NonNewton(void);
