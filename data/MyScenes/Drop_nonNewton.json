@@ -70,7 +70,7 @@
 			"id": 1,
 			"geometryFile": "../models/sphere.obj",
 			"isDynamic": 1, 
-			"density": 900, 
+			"density": 500, 
 			"translation": [0.0,2.0,0],
 			"rotationAxis": [1, 0, 0],
 			"rotationAngle": 0.0,
@@ -100,11 +100,12 @@
 		{
 			"id": "f",
 			"density0": 1000, 
-			"viscosity0": 100,
+			"viscosity0": 10,
+			"viscosity_inf": 1,
 			"viscosityMethod": 9,
-			"nonNewtonMethod": 1,
-			"power_index":0.5,
-			"consistency_index":1.0
+			"nonNewtonMethod": 2,
+			"power_index":0.666,
+			"consistency_index":1
 		}
 	]
 }

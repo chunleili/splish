@@ -33,8 +33,8 @@ NonPressureForceBase(model)
 	m_nonNewtonMethod = 0;
 	power_index = 0.5;
 	consistency_index = 1.0;
-	m_viscosity0 = 0.01f;
-	m_viscosity_inf = 1000.0f;
+	m_viscosity0 = 10.0f;
+	m_viscosity_inf = 1.0f;
 	m_muC = 0.00298;
 	m_tauC = 0.02876;
 	m_lambda = 4.020;
@@ -94,6 +94,7 @@ void NonNewton::initParameters()
 	setGroup(VISCOSITY_INF, "Viscosity");
 	setDescription(VISCOSITY0, "Initial viscosity.");
 	setDescription(VISCOSITY_INF, "Infinite viscosity for the cross model.");
+
 
 	MU_C = createNumericParameter("muC", "muC", &m_muC);
 	TAU_C = createNumericParameter("tauC", "tauC", &m_tauC);
@@ -207,8 +208,8 @@ void NonNewton::reset()
 	m_nonNewtonMethod = 0;
 	power_index = 0.5;
 	consistency_index = 1.0;
-	m_viscosity0 = 0.01f;
-	m_viscosity_inf = 1000.0f;
+	m_viscosity0 = 10.0f;
+	m_viscosity_inf = 1.0f;
 	m_muC = 0.00298;
 	m_tauC = 0.02876;
 	m_lambda = 4.020;
@@ -280,9 +281,20 @@ void NonNewton::computeViscosityPowerLaw()
 void NonNewton::computeViscosityCrossModel() 
 {
 	unsigned int numParticles = m_model->numActiveParticles();
+	assert(m_viscosity0 - m_viscosity_inf >= 0.0);
+	if(m_viscosity0 - m_viscosity_inf < 0.0)
+	{
+		std::cout << "the viscosity0 must be larger than viscosity_inf" << std::endl;
+		throw std::runtime_error("the viscosity0 must be larger than viscosity_inf");
+	}
+
+	echo(m_strainRate[0].norm());
+	std::cout<<"pow(m_strainRate[0].norm(), power_index)"<<pow(m_strainRate[0].norm(), power_index)<<std::endl;
+
 	for (unsigned int i = 0; i < numParticles; ++i)
 	{
-		m_viscosity[i] = m_viscosity_inf +  (m_viscosity0 - m_viscosity_inf) * (1 + consistency_index * pow(m_strainRate[i].norm(), power_index)) ;
+
+		m_viscosity[i] = m_viscosity_inf +  (m_viscosity0 - m_viscosity_inf) / (1 + consistency_index * pow(m_strainRate[i].norm(), power_index)) ;
 	}
 }
 

@@ -28,8 +28,8 @@ namespace SPH
 		std::vector<float> m_viscosity;
 		float power_index = 0.5f;
 		float consistency_index = 1.0;
-		float m_viscosity0 = 0.01f; //initial viscosity
-		float m_viscosity_inf = 1000.0f;
+		float m_viscosity0 = 10.0f; //initial viscosity
+		float m_viscosity_inf = 1.0f; //infinite viscosity(must lower than initial viscosity)
 		float m_muC = 0.00298;
 		float m_tauC = 0.02876;
 		float m_lambda = 4.020;
