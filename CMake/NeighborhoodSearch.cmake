@@ -16,8 +16,9 @@ if(USE_GPU_NEIGHBORHOOD_SEARCH)
 	ExternalProject_Add(
 	   Ext_NeighborhoodSearch
 	   PREFIX "${CMAKE_SOURCE_DIR}/extern/cuNSearch"
-	   GIT_REPOSITORY https://github.com/InteractiveComputerGraphics/cuNSearch.git
-	   GIT_TAG "aba3da18cb4f45cd05d729465d1725891ffc33da"
+	#    GIT_REPOSITORY https://github.com/InteractiveComputerGraphics/cuNSearch.git
+	#    GIT_TAG "aba3da18cb4f45cd05d729465d1725891ffc33da"
+		SOURCE_DIR	${PROJECT_SOURCE_DIR}/extern/cuNSearch
 	   INSTALL_DIR ${ExternalInstallDir}/NeighborhoodSearch
 	   CMAKE_ARGS -DCMAKE_BUILD_TYPE=${EXT_CMAKE_BUILD_TYPE} -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS} -DCMAKE_CXX_FLAGS_RELEASE=${CMAKE_CXX_FLAGS_RELEASE} -DCMAKE_INSTALL_PREFIX:PATH=${ExternalInstallDir}/NeighborhoodSearch -DCUNSEARCH_USE_DOUBLE_PRECISION:BOOL=${USE_DOUBLE_PRECISION} -DBUILD_DEMO:BOOL=OFF
 	   )
@@ -32,8 +33,9 @@ else(USE_GPU_NEIGHBORHOOD_SEARCH)
 	ExternalProject_Add(
 	   Ext_NeighborhoodSearch
 	   PREFIX "${CMAKE_BINARY_DIR}/extern/CompactNSearch"
-	   GIT_REPOSITORY https://github.com/InteractiveComputerGraphics/CompactNSearch.git
-	   GIT_TAG "3f11ece16a419fc1cc5795d6aa87cb7fe6b86960"
+	#    GIT_REPOSITORY https://github.com/InteractiveComputerGraphics/CompactNSearch.git
+	#    GIT_TAG "3f11ece16a419fc1cc5795d6aa87cb7fe6b86960"
+		SOURCE_DIR ${PROJECT_SOURCE_DIR}/extern/CompactNSearch
 	   INSTALL_DIR ${ExternalInstallDir}/NeighborhoodSearch
 	   CMAKE_ARGS -DCMAKE_BUILD_TYPE=${EXT_CMAKE_BUILD_TYPE} -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS} -DCMAKE_CXX_FLAGS_RELEASE=${CMAKE_CXX_FLAGS_RELEASE} -DCMAKE_INSTALL_PREFIX:PATH=${ExternalInstallDir}/NeighborhoodSearch -DUSE_DOUBLE_PRECISION:BOOL=${USE_DOUBLE_PRECISION} -DBUILD_DEMO:BOOL=OFF
 	)

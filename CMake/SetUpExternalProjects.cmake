@@ -13,8 +13,9 @@ include(NeighborhoodSearch)
 ExternalProject_Add(
 	Ext_Discregrid
 	PREFIX "${CMAKE_BINARY_DIR}/extern/Discregrid"
-	GIT_REPOSITORY https://github.com/InteractiveComputerGraphics/Discregrid.git
-	GIT_TAG "0b69062ff9c56fbb6dcecd296652028bedbacf0e"
+	SOURCE_DIR ${PROJECT_SOURCE_DIR}/extern/Discregrid
+	# GIT_REPOSITORY https://github.com/InteractiveComputerGraphics/Discregrid.git
+	# GIT_TAG "0b69062ff9c56fbb6dcecd296652028bedbacf0e"
 	INSTALL_DIR ${ExternalInstallDir}/Discregrid
 	CMAKE_ARGS -DCMAKE_BUILD_TYPE:STRING=${EXT_CMAKE_BUILD_TYPE} -DCMAKE_INSTALL_PREFIX:PATH=${ExternalInstallDir}/Discregrid -DBUILD_CMD_EXECUTABLE:BOOL=0 -DEIGEN3_INCLUDE_DIR:PATH=${EIGEN3_INCLUDE_DIR} -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
 )
@@ -32,14 +33,22 @@ unset(INSTALL_DIR)
 ExternalProject_Add(
 	Ext_GenericParameters
 	PREFIX "${CMAKE_BINARY_DIR}/extern/GenericParameters"
-	GIT_REPOSITORY https://github.com/InteractiveComputerGraphics/GenericParameters.git
-	GIT_TAG "89ae733fb8b8b9df25d0e44a0e49e51136901e8c"
+	# GIT_REPOSITORY https://github.com/InteractiveComputerGraphics/GenericParameters.git
+	# GIT_TAG "89ae733fb8b8b9df25d0e44a0e49e51136901e8c"
+	SOURCE_DIR ${PROJECT_SOURCE_DIR}/extern/GenericParameters
 	INSTALL_DIR ${ExternalInstallDir}/GenericParameters
 	CMAKE_ARGS -DCMAKE_BUILD_TYPE=${EXT_CMAKE_BUILD_TYPE} -DCMAKE_INSTALL_PREFIX:PATH=${ExternalInstallDir}/GenericParameters -DGENERICPARAMETERS_NO_TESTS:BOOL=1 -DCMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}
 )
 ExternalProject_Get_Property(Ext_GenericParameters INSTALL_DIR)
 set(GENERICPARAMETERS_INCLUDE_DIR ${INSTALL_DIR}/include)
 unset(INSTALL_DIR)
+
+# add_subdirectory(${PROJECT_SOURCE_DIR}/extern/GenericParameters)
+# add_library(EXT_GenericParameters ALIAS GenericParameters)
+# if(TARGET EXT_GenericParameters)
+# 	message(STATUS "Found EXT_GenericParameters")
+# endif()
+
 
 ## PositionBasedDynamics
 include(ExternalProject)
