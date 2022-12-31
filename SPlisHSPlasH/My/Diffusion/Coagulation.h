@@ -23,10 +23,13 @@ namespace SPH
 
 		Vector3r m_boxMin;
 		Vector3r m_boxMax;
+		bool m_meltBox=true;
 
 		std::vector<Real> m_ccf;
 		Real m_surfaceTemp;
 		bool m_meltSurface;
+		Real m_surfaceSource0=0.0; //用户指定的表面源值
+		std::vector<Real> m_surfaceSource;
 		int steps = 0;
 
 		virtual void deferredInit();
@@ -38,14 +41,14 @@ namespace SPH
 		static int THRES_HIGH;
 		static int DIFFUSIVITY;
 		static int R_SOURCE;
-
 		static int POINT_SRC_VAL;
 		static int POINT_SRC_POS;
-
 		static int BOX_MIN;
 		static int BOX_MAX;
+		static int MELT_BOX;
 		static int SURFACE_TEMP;
 		static int MELT_SURFACE;
+		static int SURFACE_SOURCE0;
 
 		Coagulation();
 		Coagulation(FluidModel* model);

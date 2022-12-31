@@ -16,6 +16,8 @@ int Coagulation::POINT_SRC_VAL = -1;
 int Coagulation::POINT_SRC_POS = -1;
 int Coagulation::SURFACE_TEMP = -1;
 int Coagulation::MELT_SURFACE = -1;
+int Coagulation::SURFACE_SOURCE0 = -1;
+int Coagulation::MELT_BOX = -1;
 
 Coagulation::Coagulation(FluidModel* model) :
     NonPressureForceBase(model), 
@@ -35,6 +37,8 @@ Coagulation::Coagulation(FluidModel* model) :
     // m_ccf[1501] = 100.0;
     m_meltSurface = false;
     m_surfaceTemp = 0.0;
+    m_surfaceSource0 = 0.0;
+    m_surfaceSource.resize(model->numParticles(), 0.0);
 }
 
 
@@ -71,6 +75,10 @@ void Coagulation::initParameters()
     rparam = static_cast<GenParam::RealParameter*>(getParameter(R_SOURCE));
     rparam->setMinValue(0.0);
 
+    MELT_BOX = createBoolParameter("meltbox", "meltbox", &m_meltBox);
+	setDescription(MELT_BOX, "wheter or not add source term in the box region");
+    setGroup(MELT_BOX, "coagualtion");
+    
     ParameterBase::GetVecFunc<Real> getFct = [&]()-> Real* { return m_boxMin.data(); };
 	ParameterBase::SetVecFunc<Real> setFct = [&](Real* val)	
     {
@@ -89,6 +97,8 @@ void Coagulation::initParameters()
 	setGroup(BOX_MAX, "coagualtion");
 	setDescription(BOX_MAX, "Maximum point of box of which the rSource is not zero.");
 
+
+
     POINT_SRC_VAL = createNumericParameter("pointSrcVal", "pointSrcVal", &m_pointSrcVal);
 	setDescription(POINT_SRC_VAL, "give a particle initial non-zero value to test the diffusion");
     setGroup(POINT_SRC_VAL, "coagualtion");
@@ -101,9 +111,11 @@ void Coagulation::initParameters()
 
     MELT_SURFACE = createBoolParameter("meltSurface", "meltSurface", &m_meltSurface);
     setGroup(MELT_SURFACE, "coagualtion");
-
     SURFACE_TEMP = createNumericParameter("surfaceTemp", "surfaceTemp", &m_surfaceTemp);
     setGroup(SURFACE_TEMP, "coagualtion");
+    SURFACE_SOURCE0 = createNumericParameter("surfaceSource0", "surfaceSource0", &m_surfaceSource0);
+    setGroup(SURFACE_SOURCE0, "coagualtion");
+
 }
 
 void Coagulation::step()
@@ -133,11 +145,22 @@ void Coagulation::step()
         printf("\nSurface particles:\n");
         for (size_t i = 0; i < surf_id.size(); i++)
         {
-            printf("%d\t", surf_id[i]);
+            // printf("%d\t", surf_id[i]);
             m_ccf[surf_id[i]] = m_surfaceTemp;
         }
-        printf("\nTotal surface particles number: %d\n", surf_id.size());
+        printf("\nTotal surface particles number: %u\n", surf_id.size());
     }
+
+    if (m_meltSurface)
+    {
+        std::vector<int> surf_id; 
+        findSurfaceParticles(m_model, surf_id, 10);
+        for (size_t i = 0; i < surf_id.size(); i++)
+        {
+            m_surfaceSource[surf_id[i]] = m_surfaceSource0;
+        }
+    }
+
 
     // compute ccf
     #pragma omp parallel default(shared)
@@ -152,9 +175,11 @@ void Coagulation::step()
             Real ccf_sum = 0.0;
             Real ccf_old = ccf_i;
             
-            if ((xi[0] > m_boxMin[0]) && (xi[1] > m_boxMin[1]) && (xi[2] > m_boxMin[2]) &&
-				(xi[0] < m_boxMax[0]) && (xi[1] < m_boxMax[1]) && (xi[2] < m_boxMax[2]))
-                source = m_rSource;
+            if(m_meltBox)
+                if ((xi[0] > m_boxMin[0]) && (xi[1] > m_boxMin[1]) && (xi[2] > m_boxMin[2]) &&
+                    (xi[0] < m_boxMax[0]) && (xi[1] < m_boxMax[1]) && (xi[2] < m_boxMax[2]))
+                    source += m_rSource;
+            source += m_surfaceSource[i];
             for (unsigned int j = 0; j < sim->numberOfNeighbors(fluidModelIndex, fluidModelIndex, i); j++)
             {
                 const unsigned int neighborIndex = sim->getNeighbor(fluidModelIndex, fluidModelIndex, i, j);

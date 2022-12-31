@@ -69,7 +69,7 @@ void ParticleExporter_MyPartio::writeParticlesPartio(const std::string& fileName
     Partio::ParticleAttribute posAttr, densityAttr,uvAttr;
     posAttr = m_particleData->addAttribute("position", Partio::VECTOR, 3);
     densityAttr = m_particleData->addAttribute("density", Partio::FLOAT, 1);
-    uvAttr = m_particleData->addAttribute("uv", Partio::VECTOR, 3);
+    uvAttr = m_particleData->addAttribute("uv", Partio::VECTOR, 2);
 
     for (int i = 0; i < model->numActiveParticles(); i++)
     {

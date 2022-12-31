@@ -18,8 +18,10 @@
 		"exponent": 7,
 		"velocityUpdateMethod": 0,
 		"enableDivergenceSolver": true,
-		"particleAttributes": "density;velocity",
-		"boundaryHandlingMethod": 2
+		"particleAttributes": "temperature;velocity",
+		"boundaryHandlingMethod": 0,
+		"enableZSort": false,
+		"pauseAt": 5.0
 	},
 	"Materials": [
 		{
@@ -32,8 +34,9 @@
 			"viscosity0": 1000,
 			"viscosityMethod": 8,
 			"meltSurface": true,
-			"surfaceTemp": 100,
-			"diffusivity": 10
+			"surfaceTemp": 0.0,
+			"diffusivity": 30.0,
+			"surfaceSource0": 1.0
 		}
 	],
 	"RigidBodies": [
