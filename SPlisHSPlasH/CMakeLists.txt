@@ -144,15 +144,6 @@ set(ELASTICITY_SOURCE_FILES
 	Elasticity/Elasticity_Kugelstadt2021.cpp
 	)
 
-
-set(PLASTIC_HEADER_FILES	
-	My/Plastic/Plastic.h	#add plastic
-	)
-
-set(PLASTIC_SOURCE_FILES	
-	My/Plastic/Plastic.cpp	#add plastic
-	)
-
 set(UTILS_HEADER_FILES
 	Utilities/AVX_math.h
 	Utilities/CholeskyAVXSolver.h	
