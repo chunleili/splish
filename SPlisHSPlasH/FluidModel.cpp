@@ -280,6 +280,7 @@ void FluidModel::resizeFluidParticles(const unsigned int newSize)
     m_objectId0.resize(newSize);
     m_particleState.resize(newSize, ParticleState::Active);
     m_myParticleState.resize(newSize);
+    m_uv.resize(newSize);
 }
 
 void FluidModel::releaseFluidParticles()
@@ -297,9 +298,10 @@ void FluidModel::releaseFluidParticles()
     m_objectId0.clear();
     m_particleState.clear();
     m_myParticleState.clear();
+    m_uv.clear();
 }
 
-void FluidModel::initModel(const std::string &id, const unsigned int nFluidParticles, Vector3r* fluidParticles, Vector3r* fluidVelocities, unsigned int* fluidObjectIds, const unsigned int nMaxEmitterParticles)
+void FluidModel::initModel(const std::string &id, const unsigned int nFluidParticles, Vector3r* fluidParticles, Vector3r* fluidVelocities, unsigned int* fluidObjectIds, const unsigned int nMaxEmitterParticles, Vector3r* fluidUv)
 {
     m_id = id;
     init();
@@ -316,6 +318,7 @@ void FluidModel::initModel(const std::string &id, const unsigned int nFluidParti
             getPosition(i) = fluidParticles[i];
             getVelocity0(i) = fluidVelocities[i];
             getVelocity(i) = fluidVelocities[i];
+            getUv(i) = fluidUv[i];
             getAcceleration(i).setZero();
             m_density[i] = 0.0;
             m_temperature[i] = 0.0;
@@ -366,6 +369,7 @@ void FluidModel::performNeighborhoodSearchSort()
     d.sort_field(&m_objectId[0]);
     d.sort_field(&m_particleState[0]);
     d.sort_field(&m_myParticleState[0]);
+    d.sort_field(&m_uv[0]);
 
     if (m_viscosity)
         m_viscosity->performNeighborhoodSearchSort();

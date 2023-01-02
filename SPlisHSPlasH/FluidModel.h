@@ -124,6 +124,8 @@ namespace SPH
 			std::vector<unsigned int> m_objectId0;
 			std::vector<ParticleState> m_particleState;
 			Real m_V;
+			std::vector<Vector3r> m_uv;	//MYADD
+
 
 #ifdef USE_PERFORMANCE_OPTIMIZATION
 			std::vector<Vector3f8, Eigen::aligned_allocator<Vector3f8>> m_precomp_V_gradW;
@@ -190,7 +192,8 @@ namespace SPH
 
 			void performNeighborhoodSearchSort();
 
-			void initModel(const std::string &id, const unsigned int nFluidParticles, Vector3r* fluidParticles, Vector3r* fluidVelocities, unsigned int* fluidObjectIds, const unsigned int nMaxEmitterParticles);
+			// MYADD
+			void initModel(const std::string &id, const unsigned int nFluidParticles, Vector3r* fluidParticles, Vector3r* fluidVelocities, unsigned int* fluidObjectIds, const unsigned int nMaxEmitterParticles, Vector3r* fluidUv);
 			
 			const unsigned int numParticles() const { return static_cast<unsigned int>(m_masses.size()); }
 			unsigned int numActiveParticles() const;
@@ -406,6 +409,12 @@ namespace SPH
 			FORCE_INLINE Real& getVolume(const unsigned int i)
 			{
 				return m_V;
+			}
+
+			// MYADD
+			FORCE_INLINE Vector3r& getUv(const unsigned int i)
+			{
+				return m_uv[i];
 			}
 	};
 }

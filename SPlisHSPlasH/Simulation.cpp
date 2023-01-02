@@ -680,10 +680,11 @@ void Simulation::addBoundaryModel(BoundaryModel *bm)
     m_boundaryModels.push_back(bm);
 }
 
-void Simulation::addFluidModel(const std::string &id, const unsigned int nFluidParticles, Vector3r* fluidParticles, Vector3r* fluidVelocities, unsigned int* fluidObjectIds, const unsigned int nMaxEmitterParticles)
+// MYADD
+void Simulation::addFluidModel(const std::string &id, const unsigned int nFluidParticles, Vector3r* fluidParticles, Vector3r* fluidVelocities, unsigned int* fluidObjectIds, const unsigned int nMaxEmitterParticles, Vector3r* fluidUv)
 {
     FluidModel *fm = new FluidModel();
-    fm->initModel(id, nFluidParticles, fluidParticles, fluidVelocities, fluidObjectIds, nMaxEmitterParticles);
+    fm->initModel(id, nFluidParticles, fluidParticles, fluidVelocities, fluidObjectIds, nMaxEmitterParticles, fluidUv);
     m_fluidModels.push_back(fm);
 }
 

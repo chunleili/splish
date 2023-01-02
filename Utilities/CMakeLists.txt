@@ -25,8 +25,11 @@ add_library(Utilities
 	SystemInfo.h
 	Timing.h
 	Version.h
+
+	MyPartioReader/MyPartioReader.cpp
+	MyPartioReader/MyPartioReader.h
 )
 
-add_dependencies(Utilities partio zlib)
+add_dependencies(Utilities mypartio  zlib)
 target_include_directories(Utilities PUBLIC ${TOPLEVEL_INCLUDE_DIR} ${EIGEN3_INCLUDE_DIR})
-target_link_libraries(Utilities INTERFACE partio zlib MD5)
+target_link_libraries(Utilities INTERFACE mypartio zlib MD5)
