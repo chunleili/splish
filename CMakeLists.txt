@@ -31,6 +31,8 @@ option(USE_IMGUI "Use imgui instead of AntTweakBar"	ON)
 ################################################################################
 # foreign external libraries
 ################################################################################
+set(EXTERN_DIR "${PROJECT_SOURCE_DIR}/extern")
+
 # MYADD： 防止target发生冲突
 include(CMake/target_clash_guard.cmake)
 add_subdirectory(extern/zlib)
