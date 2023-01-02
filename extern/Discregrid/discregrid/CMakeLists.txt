@@ -87,16 +87,7 @@ if(OPENMP_FOUND)
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 endif()
 
-# Eigen library.
-find_package(Eigen3 REQUIRED)
 
-# Set include directories.
-include_directories(
-	include
-	include/Discregrid
-	${EIGEN3_INCLUDE_DIR}
-	../extern
-)
 
 # Disable stupid MSVC compiler warnings.
 if(WIN32)
@@ -124,6 +115,20 @@ if(BUILD_AS_SHARED_LIBS)
 else()
 	add_library(Discregrid ${DISCREGRID_SOURCE_FILES})
 endif()
+
+# Eigen library.
+# find_package(Eigen3 REQUIRED)
+message(STATUS "Before EIGEN3_INCLUDE_DIR: ${EIGEN3_INCLUDE_DIR}")
+set(EIGEN3_INCLUDE_DIR ${EXTERN_DIR}/extern/eigen)
+message(STATUS "After EIGEN3_INCLUDE_DIR: ${EIGEN3_INCLUDE_DIR}")
+# Set include directories.
+target_include_directories(
+	Discregrid PUBLIC
+	${CMAKE_CURRENT_LIST_DIR}/include
+	${CMAKE_CURRENT_LIST_DIR}/include/Discregrid
+	${EIGEN3_INCLUDE_DIR}
+	${CMAKE_PROJET_SOURCE_DIR}/extern
+)
 
 # Discregrid has the following dependencies.
 #add_dependencies(Discregrid
