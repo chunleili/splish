@@ -6,7 +6,9 @@ using namespace Utilities;
 
 
 bool MyPartioReader::readParticles(const std::string &fileName, const Vector3r &translation, const Matrix3r &rotation, const Real scale,
-	std::vector<Vector3r> &positions, std::vector<Vector3r> &velocities, std::vector<Vector3r> &uv)
+	std::vector<Vector3r> &positions, std::vector<Vector3r> &velocities, std::vector<Vector3r> &uv,
+	std::vector<Vector3r> &normal
+	)
 {
 	if (!FileSystem::fileExists(fileName))
 		return false;
@@ -23,6 +25,7 @@ bool MyPartioReader::readParticles(const std::string &fileName, const Vector3r &
 	unsigned int posIndex = 0xffffffff;
 	unsigned int velIndex = 0xffffffff;
 	unsigned int uvIndex = 0xffffffff;
+	unsigned int normalIndex = 0xffffffff;
 
 	for (int i = 0; i < data->numAttributes(); i++)
 	{
@@ -34,12 +37,15 @@ bool MyPartioReader::readParticles(const std::string &fileName, const Vector3r &
 			velIndex = i;
         else if (attr.name == "uv")
 			uvIndex = i;
+		else if (attr.name == "N")
+			normalIndex = i;
 	}
 
 	Partio::ParticleAttribute attr;
 
-    std::cout<<"Reading uv: "<<uvIndex<<"\n!!!!!!!!!!!\n";
-    std::cout<<"Reading position: "<<posIndex<<"\n!!!!!!!!!!!\n";
+    std::cout<<"Reading position: "<<posIndex<<"!!!!!!!!!!!\n";
+    std::cout<<"Reading uv: "<<uvIndex<<"!!!!!!!!!!!\n";
+    std::cout<<"Reading normal: "<<normalIndex<<"!!!!!!!!!!!\n";
 
 
 	if (posIndex != 0xffffffff)
@@ -78,7 +84,6 @@ bool MyPartioReader::readParticles(const std::string &fileName, const Vector3r &
 	}
 
 	if (uvIndex != 0xffffffff)
-
 	{
         std::cout<<"I am Reading uv: ";
         std::cout<<uvIndex<<"\n";
@@ -94,7 +99,24 @@ bool MyPartioReader::readParticles(const std::string &fileName, const Vector3r &
 
 		}
 	}
-    
+
+	if (normalIndex != 0xffffffff)
+	{
+        std::cout<<"I am Reading normal: ";
+        std::cout<<normalIndex<<"\n";
+
+		unsigned int fSize = (unsigned int) normal.size();
+		normal.resize(fSize + data->numParticles());
+		data->attributeInfo(normalIndex, attr);
+		for (int i = 0; i < data->numParticles(); i++)
+		{
+			const float *normal_ = data->data<float>(attr, i);
+			Vector3r normal__(normal_[0], normal_[1], normal_[2]);
+			normal[i + fSize] = normal__;
+		}
+	}
+
+	std::cout << "normal[0]" <<":  "<< normal[0] << std::endl;
 
 	data->release();
 	return true;

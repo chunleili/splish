@@ -66,17 +66,19 @@ void ParticleExporter_MyPartio::setActive(const bool active)
 void ParticleExporter_MyPartio::writeParticlesPartio(const std::string& fileName, FluidModel* model, const unsigned int objId)
 {
     m_particleData = Partio::create();
-    Partio::ParticleAttribute posAttr, densityAttr,uvAttr;
+    Partio::ParticleAttribute posAttr, densityAttr,uvAttr,normalAttr;
     posAttr = m_particleData->addAttribute("position", Partio::VECTOR, 3);
     densityAttr = m_particleData->addAttribute("density", Partio::FLOAT, 1);
-    uvAttr = m_particleData->addAttribute("uv", Partio::VECTOR, 2);
+    uvAttr = m_particleData->addAttribute("uv", Partio::VECTOR, 3);
+    normalAttr = m_particleData->addAttribute("N", Partio::VECTOR, 3);
 
-    for (int i = 0; i < model->numActiveParticles(); i++)
+    for (unsigned int i = 0; i < model->numActiveParticles(); i++)
     {
-        int idx = m_particleData->addParticle();
+        Partio::ParticleIndex idx = m_particleData->addParticle();
         float* p = m_particleData->dataWrite<float>(posAttr, idx);
         float* den = m_particleData->dataWrite<float>(densityAttr, idx);
-        float* uv = m_particleData->dataWrite<float>(uvAttr, idx);
+        float* uv_d = m_particleData->dataWrite<float>(uvAttr, idx);
+        float* normal_d = m_particleData->dataWrite<float>(normalAttr, idx);
 
 		const Vector3r& x = model->getPosition(i);
         p[0] = x[0];
@@ -84,6 +86,16 @@ void ParticleExporter_MyPartio::writeParticlesPartio(const std::string& fileName
         p[2] = x[2];
 
 		den[0] = model->getDensity(i);
+
+		const Vector3r& uv = model->getUv(i);
+		uv_d[0] = uv[0];
+		uv_d[1] = uv[1];
+		uv_d[2] = uv[2];
+
+		const Vector3r& normal = model->getNormal(i);
+		normal_d[0] = normal[0];
+		normal_d[1] = normal[1];
+		normal_d[2] = normal[2];
     }
 
     Partio::write(fileName.c_str(), *m_particleData);
