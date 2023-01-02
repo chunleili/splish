@@ -119,8 +119,9 @@ endif()
 # Eigen library.
 # find_package(Eigen3 REQUIRED)
 message(STATUS "Before EIGEN3_INCLUDE_DIR: ${EIGEN3_INCLUDE_DIR}")
-set(EIGEN3_INCLUDE_DIR ${EXTERN_DIR}/extern/eigen)
-message(STATUS "After EIGEN3_INCLUDE_DIR: ${EIGEN3_INCLUDE_DIR}")
+# set(EIGEN3_INCLUDE_DIR ${EXTERN_DIR}/extern/eigen)
+# message(STATUS "After EIGEN3_INCLUDE_DIR: ${EIGEN3_INCLUDE_DIR}")
+
 # Set include directories.
 target_include_directories(
 	Discregrid PUBLIC
