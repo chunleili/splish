@@ -7,8 +7,10 @@ add_library(mypartio  ${io_cpp} ${core_cpp})
 set_target_properties(mypartio PROPERTIES
     OUTPUT_NAME mypartio
     POSITION_INDEPENDENT_CODE ON
+    CXX_STANDARD 17
 )
 
+target_compile_features(mypartio PUBLIC cxx_std_17)
 
 IF(MSVC)
   target_compile_definitions(mypartio 

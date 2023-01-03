@@ -4,6 +4,7 @@
 #include "SPlisHSPlasH/Simulation.h"
 // #include "extern/partio/src/lib/Partio.h"
 #include "extern/my_partio/Partio.h"
+#include "extern/my_partio/PartioSingleton.h"
 
 using namespace SPH;
 using namespace Utilities;
@@ -36,7 +37,7 @@ void ParticleExporter_MyPartio::step(const unsigned int frame)
 		{
 			fileName = fileName + "_" + model->getId() + "_" + std::to_string(frame);
 			std::string exportFileName = FileSystem::normalizePath(m_exportPath + "/" + fileName);
-			writeParticlesPartio(exportFileName + ".bgeo", model);
+			writeParticlesPartio(exportFileName + ".bgeo.gz", model);
 		}
 		else
 		{
@@ -64,40 +65,29 @@ void ParticleExporter_MyPartio::setActive(const bool active)
 
 
 void ParticleExporter_MyPartio::writeParticlesPartio(const std::string& fileName, FluidModel* model, const unsigned int objId)
-{
-    m_particleData = Partio::create();
-    Partio::ParticleAttribute posAttr, densityAttr,uvAttr,normalAttr;
-    posAttr = m_particleData->addAttribute("position", Partio::VECTOR, 3);
-    densityAttr = m_particleData->addAttribute("density", Partio::FLOAT, 1);
-    uvAttr = m_particleData->addAttribute("uv", Partio::VECTOR, 3);
-    normalAttr = m_particleData->addAttribute("N", Partio::VECTOR, 3);
+{	
+	auto* d = Partio::PartioSingleton::getCurrent();
+	m_particleData = d->getParticlesData();
 
+    Partio::ParticleAttribute posAttr;
+    m_particleData->attributeInfo("position", posAttr);
+
+	// std::cout << "Before------------ " << std::endl;
+	// print(m_particleData);
+	//根据计算结果（存储在model中），更新粒子位置
+	//其余的不需要更新了，想更新什么，就从model中取出来，然后更新到单例中
     for (unsigned int i = 0; i < model->numActiveParticles(); i++)
     {
-        Partio::ParticleIndex idx = m_particleData->addParticle();
+        int idx = i;
         float* p = m_particleData->dataWrite<float>(posAttr, idx);
-        float* den = m_particleData->dataWrite<float>(densityAttr, idx);
-        float* uv_d = m_particleData->dataWrite<float>(uvAttr, idx);
-        float* normal_d = m_particleData->dataWrite<float>(normalAttr, idx);
 
 		const Vector3r& x = model->getPosition(i);
         p[0] = x[0];
         p[1] = x[1];
         p[2] = x[2];
-
-		den[0] = model->getDensity(i);
-
-		const Vector3r& uv = model->getUv(i);
-		uv_d[0] = uv[0];
-		uv_d[1] = uv[1];
-		uv_d[2] = uv[2];
-
-		const Vector3r& normal = model->getNormal(i);
-		normal_d[0] = normal[0];
-		normal_d[1] = normal[1];
-		normal_d[2] = normal[2];
     }
-
     Partio::write(fileName.c_str(), *m_particleData);
-    m_particleData->release();
+	// std::cout << "After---------------- " << std::endl;
+	// print(m_particleData);
+
 }

@@ -349,7 +349,7 @@ namespace SPH
         static void setCurrent (Simulation* tm);
         static bool hasCurrent();
 
-        void addFluidModel(const std::string &id, const unsigned int nFluidParticles, Vector3r* fluidParticles, Vector3r* fluidVelocities, unsigned int* fluidObjectIds, const unsigned int nMaxEmitterParticles, Vector3r* fluidUv, Vector3r* fluidNormal);
+        void addFluidModel(const std::string &id, const unsigned int nFluidParticles, Vector3r* fluidParticles, Vector3r* fluidVelocities, unsigned int* fluidObjectIds, const unsigned int nMaxEmitterParticles);
         FluidModel *getFluidModel(const unsigned int index) { return m_fluidModels[index]; }
         FluidModel *getFluidModelFromPointSet(const unsigned int pointSetIndex) { return static_cast<FluidModel*>(m_neighborhoodSearch->point_set(pointSetIndex).get_user_data()); }
         const unsigned int numberOfFluidModels() const { return static_cast<unsigned int>(m_fluidModels.size()); }

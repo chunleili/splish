@@ -1,31 +1,34 @@
 #include "MyPartioReader.h"
 #include "extern/my_partio/Partio.h"
 #include "../FileSystem.h"
+#include "extern/my_partio/PartioSingleton.h"
 
 using namespace Utilities;
-
+using namespace Partio;
 
 bool MyPartioReader::readParticles(const std::string &fileName, const Vector3r &translation, const Matrix3r &rotation, const Real scale,
-	std::vector<Vector3r> &positions, std::vector<Vector3r> &velocities, std::vector<Vector3r> &uv,
-	std::vector<Vector3r> &normal
-	)
+	std::vector<Vector3r> &positions, std::vector<Vector3r> &velocities)
 {
+	//大部分拷贝自PartioReaderWriter.cpp
 	if (!FileSystem::fileExists(fileName))
 		return false;
 
-	Partio::ParticlesDataMutable* data = Partio::read(fileName.c_str());
+	// Partio::ParticlesDataMutable* data = Partio::read(fileName.c_str());
 
-    std::cout<<"Reading Partio using MyPartioReader\n";
-    print(data);
-    std::cout<<"End reading Partio using MyPartioReader\n";
+	//MYADD
+	// std::cout<<"Reading Partio and save in the singleton\n";
+	auto *d = PartioSingleton::getCurrent();
+	d->read(fileName.c_str());
+	auto* data = d->getParticlesData();
+	// print(data)	;
+	// std::cout<<"End reading Partio and save in the singleton\n";
+
 
 	if (!data)
 		return false;
 
 	unsigned int posIndex = 0xffffffff;
 	unsigned int velIndex = 0xffffffff;
-	unsigned int uvIndex = 0xffffffff;
-	unsigned int normalIndex = 0xffffffff;
 
 	for (int i = 0; i < data->numAttributes(); i++)
 	{
@@ -35,18 +38,10 @@ bool MyPartioReader::readParticles(const std::string &fileName, const Vector3r &
 			posIndex = i;
 		else if (attr.name == "velocity")
 			velIndex = i;
-        else if (attr.name == "uv")
-			uvIndex = i;
-		else if (attr.name == "N")
-			normalIndex = i;
 	}
+	
 
 	Partio::ParticleAttribute attr;
-
-    std::cout<<"Reading position: "<<posIndex<<"!!!!!!!!!!!\n";
-    std::cout<<"Reading uv: "<<uvIndex<<"!!!!!!!!!!!\n";
-    std::cout<<"Reading normal: "<<normalIndex<<"!!!!!!!!!!!\n";
-
 
 	if (posIndex != 0xffffffff)
 	{
@@ -74,7 +69,6 @@ bool MyPartioReader::readParticles(const std::string &fileName, const Vector3r &
 			velocities[i + fSize] = v;
 		}
 	}
-
 	else
 	{
 		unsigned int fSize = (unsigned int) velocities.size();
@@ -83,41 +77,7 @@ bool MyPartioReader::readParticles(const std::string &fileName, const Vector3r &
 			velocities[i + fSize].setZero();
 	}
 
-	if (uvIndex != 0xffffffff)
-	{
-        std::cout<<"I am Reading uv: ";
-        std::cout<<uvIndex<<"\n";
+	// data->release();
 
-		unsigned int fSize = (unsigned int) uv.size();
-		uv.resize(fSize + data->numParticles());
-		data->attributeInfo(uvIndex, attr);
-		for (int i = 0; i < data->numParticles(); i++)
-		{
-			const float *uv_ = data->data<float>(attr, i);
-			Vector3r uv__(uv_[0], uv_[1], uv_[2]);
-			uv[i + fSize] = uv__;
-
-		}
-	}
-
-	if (normalIndex != 0xffffffff)
-	{
-        std::cout<<"I am Reading normal: ";
-        std::cout<<normalIndex<<"\n";
-
-		unsigned int fSize = (unsigned int) normal.size();
-		normal.resize(fSize + data->numParticles());
-		data->attributeInfo(normalIndex, attr);
-		for (int i = 0; i < data->numParticles(); i++)
-		{
-			const float *normal_ = data->data<float>(attr, i);
-			Vector3r normal__(normal_[0], normal_[1], normal_[2]);
-			normal[i + fSize] = normal__;
-		}
-	}
-
-	std::cout << "normal[0]" <<":  "<< normal[0] << std::endl;
-
-	data->release();
 	return true;
 }

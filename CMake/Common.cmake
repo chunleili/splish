@@ -102,5 +102,3 @@ endif()
 if (MSVC)
 add_definitions(-D_CRT_SECURE_NO_DEPRECATE)
 endif(MSVC)
-
-set(CMAKE_CXX_STANDARD 11)

@@ -1104,12 +1104,6 @@ void SimulatorBase::initFluidData()
     fluidVelocities.resize(numberOfFluidModels);
     fluidObjectIds.resize(numberOfFluidModels);
 
-    std::vector<std::vector<Vector3r>> fluidUv;
-    fluidUv.resize(numberOfFluidModels);
-
-    std::vector<std::vector<Vector3r>> fluidNormal;
-    fluidNormal.resize(numberOfFluidModels);
-
     createFluidBlocks(fluidIDs, fluidParticles, fluidVelocities, fluidObjectIds);
 
     std::string base_path = FileSystem::getFilePath(sceneFile);
@@ -1207,16 +1201,7 @@ void SimulatorBase::initFluidData()
         }
         else if(ext =="BHCLASSIC")
         {
-            if (
-                !MyPartioReader::readParticles(fileName,
-                                               scene.fluidModels[i]->translation,
-                                               scene.fluidModels[i]->rotation,
-                                               scene.fluidModels[i]->scale[0],
-                                               fluidParticles[fluidIndex],
-                                               fluidVelocities[fluidIndex],
-                                               fluidUv[fluidIndex], 
-                                               fluidNormal[fluidIndex])
-                    )
+            if (!MyPartioReader::readParticles(fileName, scene.fluidModels[i]->translation, scene.fluidModels[i]->rotation, scene.fluidModels[i]->scale[0], fluidParticles[fluidIndex], fluidVelocities[fluidIndex]))
                 LOG_ERR << "File not found: " << fileName;
         }
         else
@@ -1263,7 +1248,7 @@ void SimulatorBase::initFluidData()
             if (material->id == it->first)
                 maxEmitterParticles = material->maxEmitterParticles;
         }
-        sim->addFluidModel(it->first, (unsigned int)fluidParticles[index].size(), fluidParticles[index].data(), fluidVelocities[index].data(), fluidObjectIds[index].data(), maxEmitterParticles, fluidUv[index].data(), fluidNormal[index].data());
+        sim->addFluidModel(it->first, (unsigned int)fluidParticles[index].size(), fluidParticles[index].data(), fluidVelocities[index].data(), fluidObjectIds[index].data(), maxEmitterParticles);
         nParticles += (unsigned int)fluidParticles[index].size();
     }
 
