@@ -22,3 +22,6 @@ This is a forked repo from https://github.com/InteractiveComputerGraphics/SPlisH
 10.  Exporter_xyz: 导出粒子信息为xyz格式（就是每行输出ascii）。目前位于Simulator/exporter中
 11.  Exporter_MyPartio: 导出的bgeo格式可以直接被Houdini读取。修复了原有partio导出器的BUG。目前位于Simulator/exporter中。
 12. (未完成)MyTimeStep: 留空，以后将DFSPH搬到这里修改。
+
+## 非牛顿
+非牛顿目前实现方式是通过NonNewton类，根据不同的子模型计算出粘度，然后将粘度付给不同的粘性子模型。这就需要对原有的粘性子模型进行非常轻微但侵入式的改动。基本上是将原本的粘度（一个标量）改为向量，让每个粒子的粘度都不相同。

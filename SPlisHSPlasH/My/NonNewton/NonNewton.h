@@ -2,7 +2,8 @@
 
 #include "SPlisHSPlasH/Common.h"
 #include "SPlisHSPlasH/FluidModel.h"
-#include "SPlisHSPlasH/NonPressureForceBase.h"
+// #include "SPlisHSPlasH/NonPressureForceBase.h"
+#include "SPlisHSPlasH/SurfaceTension/SurfaceTensionBase.h"
 
 namespace SPH
 {
@@ -10,9 +11,11 @@ namespace SPH
 	 * this class is based on XSPH
 	 * 这个类的作用是实现非牛顿粘性。根据m_nonNewtonMethod的值来选择不同的非牛顿粘性模型。
 	 * m_nonNewtonMethod = 0 时，使用牛顿粘性模型
-	 * m_nonNewtonMethod = 1 时，使用幂律粘性模型
+	 * m_nonNewtonMethod = 1 时，使用Power law粘性模型
+	 * m_nonNewtonMethod = 2 时，使用Cross模型
+	 * m_nonNewtonMethod = 3 时，使用Casson模型
 	*/
-	class NonNewton : public NonPressureForceBase
+	class NonNewton : public SurfaceTensionBase
 	{
 	private:
 		int m_nonNewtonMethod = 0;
@@ -23,6 +26,7 @@ namespace SPH
 		void computeViscosityPowerLaw();
 		void computeViscosityCrossModel();
 		void computeViscosityCassonModel();
+		void computeNonNewtonViscosity();
 	public:
 		std::vector<float> m_boundaryViscosity;
 		std::vector<float> m_viscosity;
@@ -34,6 +38,7 @@ namespace SPH
 		float m_tauC = 0.02876;
 		float m_lambda = 4.020;
 		float m_maxViscosity = 0.0f;
+		float m_avgViscosity = 0.0f;
 
 		static int NON_NEWTON_METHOD;
 		static int VISCOSITY_COEFFICIENT;
@@ -50,11 +55,15 @@ namespace SPH
 		static int TAU_C;
 		static int LAMBDA;
 		static int MAX_VISCOSITY;
+		static int AVG_VISCOSITY;
+
 		NonNewton(FluidModel *model);
         virtual void init() override;
 		virtual ~NonNewton(void);
         virtual void step() override final;
         virtual void reset() override final;
         static NonPressureForceBase* creator(FluidModel* model) {return new NonNewton(model);}
+
+		std::vector<float>& getViscosity() { return m_viscosity; }
 	};
 }

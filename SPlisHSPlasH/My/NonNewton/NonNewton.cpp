@@ -5,6 +5,7 @@
 #include "SPlisHSPlasH/BoundaryModel_Bender2019.h"
 #include "NonNewton.h"
 #include "Utils/myPrint.h"
+#include "Utils/mathUtils.h"
 
 using namespace SPH;
 using namespace GenParam;
@@ -24,10 +25,11 @@ int NonNewton::MU_C = -1;
 int NonNewton::TAU_C = -1;
 int NonNewton::LAMBDA = -1;
 int NonNewton::MAX_VISCOSITY = -1;
+int NonNewton::AVG_VISCOSITY = -1;
 
 
 NonNewton::NonNewton(FluidModel *model) :
-NonPressureForceBase(model)
+SurfaceTensionBase(model)
 {
 	std::cout<<"constructor\n";
 	m_nonNewtonMethod = 0;
@@ -72,6 +74,11 @@ void NonNewton::initParameters()
 	setDescription(MAX_VISCOSITY, "Max viscosity of all fluid particles.");
 	getParameter(MAX_VISCOSITY)->setReadOnly(true);
 
+	AVG_VISCOSITY = createNumericParameter("average_viscosity", "average_viscosity", &m_avgViscosity);
+	setGroup(AVG_VISCOSITY, "Viscosity");
+	setDescription(AVG_VISCOSITY, "Average viscosity of all fluid particles.");
+	getParameter(AVG_VISCOSITY)->setReadOnly(true);
+
 	NON_NEWTON_METHOD = createEnumParameter("nonNewtonMethod", "nonNewtonMethod", &m_nonNewtonMethod);
 	setGroup(NON_NEWTON_METHOD, "Viscosity");
 	setDescription(NON_NEWTON_METHOD, "Method for nonNewton.");
@@ -95,7 +102,6 @@ void NonNewton::initParameters()
 	setDescription(VISCOSITY0, "Initial viscosity.");
 	setDescription(VISCOSITY_INF, "Infinite viscosity for the cross model.");
 
-
 	MU_C = createNumericParameter("muC", "muC", &m_muC);
 	TAU_C = createNumericParameter("tauC", "tauC", &m_tauC);
 	LAMBDA = createNumericParameter("lambda", "lambda", &m_lambda);
@@ -104,101 +110,108 @@ void NonNewton::initParameters()
 	setGroup(LAMBDA, "Viscosity");
 }
 
+void NonNewton::computeNonNewtonViscosity()
+{
+	// echo(m_viscosity[31995]);
+	// echo(m_strainRate[31995].norm());
+
+	if(m_nonNewtonMethod == ENUM_POWER_LAW)
+	{
+		// std::cout<<"Power Law!\n";
+		calcStrainRate();
+		computeViscosityPowerLaw();
+	}
+	else if(m_nonNewtonMethod == ENUM_CROSS_MODEL)
+	{
+		// std::cout<<"Cross model!\n";
+		calcStrainRate();
+		computeViscosityCrossModel();
+	}
+	else if (m_nonNewtonMethod == ENUM_CASSON_MODEL)
+	{
+		// std::cout<<"Casson model!\n";
+		calcStrainRate();
+		computeViscosityCassonModel();
+	}
+	else
+	{
+		// std::cout<<"Newtonian!\n";
+		computeViscosityNewtonian();
+	}
+
+	m_maxViscosity = 0.0;
+	m_maxViscosity = maxField(m_viscosity, m_model->numActiveParticles());
+	echo(m_maxViscosity);
+
+	m_avgViscosity = averageField(m_viscosity, m_model->numActiveParticles());
+	echo(m_avgViscosity);
+}
+
+
+
 void NonNewton::step()
 {
 	static int steps{0};
 	steps++;
 	std::cout<<"\nstep: "<<steps<<"\n";
 
-	echo(m_viscosity[31995]);
-	echo(m_strainRate[31995].norm());
+	computeNonNewtonViscosity();
 
-	if(m_nonNewtonMethod == ENUM_POWER_LAW)
-	{
-		std::cout<<"Power Law!\n";
-		calcStrainRate();
-		computeViscosityPowerLaw();
-	}
-	else if(m_nonNewtonMethod == ENUM_CROSS_MODEL)
-	{
-		std::cout<<"Cross model!\n";
-		calcStrainRate();
-		computeViscosityCrossModel();
-	}
-	else if (m_nonNewtonMethod == ENUM_CASSON_MODEL)
-	{
-		std::cout<<"Casson model!\n";
-		calcStrainRate();
-		computeViscosityCassonModel();
-	}
-	else
-	{
-		std::cout<<"Newtonian!\n";
-		computeViscosityNewtonian();
-	}
+	// Simulation *sim = Simulation::getCurrent();
+	// const unsigned int nFluids = sim->numberOfFluidModels();
+	// const unsigned int nBoundaries = sim->numberOfBoundaryModels();
+	// const unsigned int fluidModelIndex = m_model->getPointSetIndex();
+	// const unsigned int numParticles = m_model->numActiveParticles();
+	// const Real density0 = m_model->getValue<Real>(FluidModel::DENSITY0);
 
-	Simulation *sim = Simulation::getCurrent();
-	const unsigned int nFluids = sim->numberOfFluidModels();
-	const unsigned int nBoundaries = sim->numberOfBoundaryModels();
-	const unsigned int fluidModelIndex = m_model->getPointSetIndex();
-	const unsigned int numParticles = m_model->numActiveParticles();
-	const Real density0 = m_model->getValue<Real>(FluidModel::DENSITY0);
+	// const Real h = TimeManager::getCurrent()->getTimeStepSize();
+	// const Real invH = (static_cast<Real>(1.0) / h);
 
-	const Real h = TimeManager::getCurrent()->getTimeStepSize();
-	const Real invH = (static_cast<Real>(1.0) / h);
+	// for (int i = 0; i < (int)numParticles; i++)
+	// {
+	// 	const Vector3r &xi = m_model->getPosition(i);
+	// 	const Vector3r &vi = m_model->getVelocity(i);
+	// 	Vector3r &ai = m_model->getAcceleration(i);
+	// 	const Real density_i = m_model->getDensity(i);
 
-	m_maxViscosity = 0.0;
+	// 	//////////////////////////////////////////////////////////////////////////
+	// 	// Fluid
+	// 	//////////////////////////////////////////////////////////////////////////
+	// 	forall_fluid_neighbors(
+	// 		const Vector3r &vj = fm_neighbor->getVelocity(neighborIndex);
 
-	for (int i = 0; i < (int)numParticles; i++)
-	{
-		const Vector3r &xi = m_model->getPosition(i);
-		const Vector3r &vi = m_model->getVelocity(i);
-		Vector3r &ai = m_model->getAcceleration(i);
-		const Real density_i = m_model->getDensity(i);
+	// 		// Viscosity
+	// 		const Real density_j = fm_neighbor->getDensity(neighborIndex);
+	// 		ai -= invH * m_viscosity[i] * (fm_neighbor->getMass(neighborIndex) / density_j) * (vi - vj) * sim->W(xi - xj););
 
-		//////////////////////////////////////////////////////////////////////////
-		// Fluid
-		//////////////////////////////////////////////////////////////////////////
-		forall_fluid_neighbors(
-			const Vector3r &vj = fm_neighbor->getVelocity(neighborIndex);
+	// 	//////////////////////////////////////////////////////////////////////////
+	// 	// Boundary
+	// 	//////////////////////////////////////////////////////////////////////////
+	// 	m_boundaryViscosity[i] = m_viscosity[i];
 
-			// Viscosity
-			const Real density_j = fm_neighbor->getDensity(neighborIndex);
-			ai -= invH * m_viscosity[i] * (fm_neighbor->getMass(neighborIndex) / density_j) * (vi - vj) * sim->W(xi - xj););
-
-		//////////////////////////////////////////////////////////////////////////
-		// Boundary
-		//////////////////////////////////////////////////////////////////////////
-		m_boundaryViscosity[i] = m_viscosity[i];
-
-		if (m_boundaryViscosity[i] != 0.0)
-		{
-			if (sim->getBoundaryHandlingMethod() == BoundaryHandlingMethods::Akinci2012)
-			{
-				for (unsigned int pid = nFluids; pid < sim->numberOfPointSets(); pid++)
-				{
-					BoundaryModel_Akinci2012 *bm_neighbor = static_cast<BoundaryModel_Akinci2012 *>(sim->getBoundaryModelFromPointSet(pid));
-					for (unsigned int j = 0; j < sim->numberOfNeighbors(fluidModelIndex, pid, i); j++)
-					{
-						const unsigned int neighborIndex = sim->getNeighbor(fluidModelIndex, pid, i, j);
-						const Vector3r &xj = bm_neighbor->getPosition(neighborIndex);
-						const Vector3r &vj = bm_neighbor->getVelocity(neighborIndex);
-						const Vector3r a = -invH * m_boundaryViscosity[i] * (density0 * bm_neighbor->getVolume(neighborIndex) / density_i) * (vi - vj) * sim->W(xi - xj);
-						ai += a;
-						bm_neighbor->addForce(xj, -m_model->getMass(i) * a);
-					}
-				}
-			}
-		}
-
-		//计算下最大的粘度，只是为了可视化
-		if (m_maxViscosity < m_viscosity[i])
-		{
-			m_maxViscosity = m_viscosity[i];
-		}
-	}
-
+	// 	if (m_boundaryViscosity[i] != 0.0)
+	// 	{
+	// 		if (sim->getBoundaryHandlingMethod() == BoundaryHandlingMethods::Akinci2012)
+	// 		{
+	// 			for (unsigned int pid = nFluids; pid < sim->numberOfPointSets(); pid++)
+	// 			{
+	// 				BoundaryModel_Akinci2012 *bm_neighbor = static_cast<BoundaryModel_Akinci2012 *>(sim->getBoundaryModelFromPointSet(pid));
+	// 				for (unsigned int j = 0; j < sim->numberOfNeighbors(fluidModelIndex, pid, i); j++)
+	// 				{
+	// 					const unsigned int neighborIndex = sim->getNeighbor(fluidModelIndex, pid, i, j);
+	// 					const Vector3r &xj = bm_neighbor->getPosition(neighborIndex);
+	// 					const Vector3r &vj = bm_neighbor->getVelocity(neighborIndex);
+	// 					const Vector3r a = -invH * m_boundaryViscosity[i] * (density0 * bm_neighbor->getVolume(neighborIndex) / density_i) * (vi - vj) * sim->W(xi - xj);
+	// 					ai += a;
+	// 					bm_neighbor->addForce(xj, -m_model->getMass(i) * a);
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// }
 }
+
+
 
 
 void NonNewton::reset()
@@ -288,13 +301,13 @@ void NonNewton::computeViscosityCrossModel()
 		throw std::runtime_error("the viscosity0 must be larger than viscosity_inf");
 	}
 
-	echo(m_strainRate[0].norm());
-	std::cout<<"pow(m_strainRate[0].norm(), power_index)"<<pow(m_strainRate[0].norm(), power_index)<<std::endl;
+	// echo(m_strainRate[0].norm());
+	// std::cout<<"pow(m_strainRate[0].norm(), power_index)"<<pow(m_strainRate[0].norm(), power_index)<<std::endl;
 
 	for (unsigned int i = 0; i < numParticles; ++i)
 	{
 
-		m_viscosity[i] = m_viscosity_inf +  (m_viscosity0 - m_viscosity_inf) / (1 + consistency_index * pow(m_strainRate[i].norm(), power_index)) ;
+		m_viscosity[i] = m_viscosity_inf +  (m_viscosity0 - m_viscosity_inf) / (1 +  pow(consistency_index * m_strainRate[i].norm(), power_index)) ;
 	}
 }
 

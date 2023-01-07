@@ -72,7 +72,7 @@ void Simulation::registerNonpressureForces()
 	addViscosityMethod("Viscosity_Casson", Viscosity_Casson::creator);
 	addSurfaceTensionMethod("Coagulation method", Coagulation::creator);
 	addSurfaceTensionMethod("TemperatureDiffusion", TemperatureDiffusion::creator);
-	addViscosityMethod("NonNewton", NonNewton::creator);
+	addSurfaceTensionMethod("NonNewton", NonNewton::creator);
 	addVorticityMethod("ShapeMatching", ShapeMatching::creator);
 	addElasticityMethod("Plastic", Plastic::creator);
 }

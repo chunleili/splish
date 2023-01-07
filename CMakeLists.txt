@@ -10,7 +10,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 project(SPlisHSPlasH)
 
 # MYADD 关闭警告C4819: 该文件包含不能在当前代码页(936)中表示的字符。请将该文件保存为 Unicode 格式以防止数据丢失
-# MYADD 关闭警告C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
+#  关闭警告C4267: “参数”: 从“size_t”转换到“int”，可能丢失数据
 if(MSVC)
 	add_compile_options(/wd4819 /wd4267)
 endif()
@@ -31,6 +31,16 @@ endif()
 set(TOPLEVEL_INCLUDE_DIR ${PROJECT_SOURCE_DIR})
 
 option(USE_IMGUI "Use imgui instead of AntTweakBar"	ON)
+
+
+# MYADD： 增加Just My Code 方便调试
+if(MSVC)
+	# if($<CONFIG:Debug>)
+		message(STATUS "Just My Code")
+		set(VS_JUST_MY_CODE_DEBUGGING ON)
+	# 	add_compile_options( /JMC )
+	# endif()
+endif()
 
 ################################################################################
 # foreign external libraries
