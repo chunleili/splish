@@ -12,9 +12,6 @@ PRIVATE
 	${CMAKE_CURRENT_LIST_DIR}/Diffusion/TemperatureDiffusion.h
     ${CMAKE_CURRENT_LIST_DIR}/Diffusion/TemperatureDiffusion.cpp
 
-    ${CMAKE_CURRENT_LIST_DIR}/NonNewton/NonNewton.h
-    ${CMAKE_CURRENT_LIST_DIR}/NonNewton/NonNewton.cpp
-
     # ${CMAKE_CURRENT_LIST_DIR}/MyPartioReader/MyPartioReader.cpp 
 	# ${CMAKE_CURRENT_LIST_DIR}/MyPartioReader/MyPartioReader.h
 
@@ -26,6 +23,12 @@ PRIVATE
 
     ${CMAKE_CURRENT_LIST_DIR}/MyTimeStep/MyTimeStep.h
 	${CMAKE_CURRENT_LIST_DIR}/MyTimeStep/MyTimeStep.cpp
+
+    ${CMAKE_CURRENT_LIST_DIR}/NonNewton/NonNewton.h
+    ${CMAKE_CURRENT_LIST_DIR}/NonNewton/NonNewton.cpp
+
+    ${CMAKE_CURRENT_LIST_DIR}/NonNewton/NonNewton_XSPH.h
+    ${CMAKE_CURRENT_LIST_DIR}/NonNewton/NonNewton_XSPH.cpp
 )
 
 target_include_directories(SPlisHSPlasH PRIVATE ${CMAKE_CURRENT_LIST_DIR})

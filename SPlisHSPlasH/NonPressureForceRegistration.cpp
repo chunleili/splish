@@ -27,11 +27,13 @@
 
 //MYADD
 #include "My/Viscosity_Casson/Viscosity_Casson.h"
-#include "My/NonNewton/NonNewton.h"
 #include "My/Diffusion/Coagulation.h"
 #include "My/Diffusion/TemperatureDiffusion.h"
 #include "My/ShapeMatching/ShapeMatching.h"
 #include "My/Plastic/Plastic.h"
+
+#include "My/NonNewton/NonNewton.h"
+#include "My/NonNewton/NonNewton_XSPH.h"
 
 using namespace SPH;
 
@@ -72,7 +74,9 @@ void Simulation::registerNonpressureForces()
 	addViscosityMethod("Viscosity_Casson", Viscosity_Casson::creator);
 	addSurfaceTensionMethod("Coagulation method", Coagulation::creator);
 	addSurfaceTensionMethod("TemperatureDiffusion", TemperatureDiffusion::creator);
-	addSurfaceTensionMethod("NonNewton", NonNewton::creator);
 	addVorticityMethod("ShapeMatching", ShapeMatching::creator);
 	addElasticityMethod("Plastic", Plastic::creator);
+
+	addSurfaceTensionMethod("NonNewton", NonNewton::creator);
+	addViscosityMethod("NonNewton_XSPH", NonNewton_XSPH::creator);
 }

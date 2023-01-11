@@ -1,4 +1,4 @@
-#include "Viscosity_XSPH.h"
+#include "NonNewton_XSPH.h"
 #include "SPlisHSPlasH/TimeManager.h"
 #include "../Simulation.h"
 #include "SPlisHSPlasH/BoundaryModel_Akinci2012.h"
@@ -8,34 +8,34 @@
 using namespace SPH;
 using namespace GenParam;
 
-int Viscosity_XSPH::VISCOSITY_COEFFICIENT_BOUNDARY = -1;
+int NonNewton_XSPH::VISCOSITY_COEFFICIENT_BOUNDARY = -1;
 
 
-Viscosity_XSPH::Viscosity_XSPH(FluidModel *model) :
+NonNewton_XSPH::NonNewton_XSPH(FluidModel *model) :
 	ViscosityBase(model)
 {
     unsigned int numParticles = m_model->numActiveParticles();
 
-	m_viscosity.resize(numParticles, 0.0);
-    m_boundaryViscosity.resize(numParticles, 0.0);
+	m_viscosity_nonNewton.resize(numParticles, 0.0);
+    m_boundaryViscosity_nonNewton.resize(numParticles, 0.0);
 }
 
-Viscosity_XSPH::~Viscosity_XSPH(void)
+NonNewton_XSPH::~NonNewton_XSPH(void)
 {
 }
 
-void Viscosity_XSPH::initParameters()
+void NonNewton_XSPH::initParameters()
 {
 	ViscosityBase::initParameters();
 
-	// VISCOSITY_COEFFICIENT_BOUNDARY = createNumericParameter("viscosityBoundary", "Viscosity coefficient (Boundary)", &m_boundaryViscosity);
+	// VISCOSITY_COEFFICIENT_BOUNDARY = createNumericParameter("viscosityBoundary", "Viscosity coefficient (Boundary)", &m_boundaryViscosity_nonNewton);
 	// setGroup(VISCOSITY_COEFFICIENT_BOUNDARY, "Viscosity");
 	// setDescription(VISCOSITY_COEFFICIENT_BOUNDARY, "Coefficient for the viscosity force computation at the boundary.");
 	// RealParameter* rparam = static_cast<RealParameter*>(getParameter(VISCOSITY_COEFFICIENT_BOUNDARY));
 	// rparam->setMinValue(0.0);
 }
 
-void Viscosity_XSPH::step()
+void NonNewton_XSPH::step()
 {
 	Simulation *sim = Simulation::getCurrent();
 	const unsigned int nFluids = sim->numberOfFluidModels();
@@ -53,6 +53,10 @@ void Viscosity_XSPH::step()
 		#pragma omp for schedule(static)  
 		for (int i = 0; i < (int)numParticles; i++)
 		{
+			//从FluidModel中获取粘度
+			m_viscosity_nonNewton[i] = m_model->getNonNewtonViscosity(i);
+			m_boundaryViscosity_nonNewton[i] = m_viscosity_nonNewton[i];
+
 			const Vector3r &xi = m_model->getPosition(i);
 			const Vector3r &vi = m_model->getVelocity(i);
 			Vector3r &ai = m_model->getAcceleration(i);
@@ -66,19 +70,19 @@ void Viscosity_XSPH::step()
 
 				// Viscosity
 				const Real density_j = fm_neighbor->getDensity(neighborIndex);
-				ai -= invH * m_viscosity[i] * (fm_neighbor->getMass(neighborIndex) / density_j) * (vi - vj) * sim->W(xi - xj);
+				ai -= invH * m_viscosity_nonNewton[i] * (fm_neighbor->getMass(neighborIndex) / density_j) * (vi - vj) * sim->W(xi - xj);
 			);
 
 			//////////////////////////////////////////////////////////////////////////
 			// Boundary
 			//////////////////////////////////////////////////////////////////////////
-			if (m_boundaryViscosity[i] != 0.0)
+			if (m_boundaryViscosity_nonNewton[i] != 0.0)
 			{
 				if (sim->getBoundaryHandlingMethod() == BoundaryHandlingMethods::Akinci2012)
 				{
 					forall_boundary_neighbors(
 						const Vector3r &vj = bm_neighbor->getVelocity(neighborIndex);
-						const Vector3r a = -invH * m_boundaryViscosity[i] * (density0 * bm_neighbor->getVolume(neighborIndex) / density_i) * (vi-vj)* sim->W(xi - xj);
+						const Vector3r a = -invH * m_boundaryViscosity_nonNewton[i] * (density0 * bm_neighbor->getVolume(neighborIndex) / density_i) * (vi-vj)* sim->W(xi - xj);
 						ai += a;
 						bm_neighbor->addForce(xj, -m_model->getMass(i) * a);
 					);
@@ -88,7 +92,7 @@ void Viscosity_XSPH::step()
 					forall_density_maps(
 						Vector3r vj;
 						bm_neighbor->getPointVelocity(xi, vj);
-						const Vector3r a = -invH * m_boundaryViscosity[i] * (density0 / density_i) * (vi-vj)* rho;
+						const Vector3r a = -invH * m_boundaryViscosity_nonNewton[i] * (density0 / density_i) * (vi-vj)* rho;
 						ai += a;
 						bm_neighbor->addForce(xj, -m_model->getMass(i) * a);
 					);
@@ -98,7 +102,7 @@ void Viscosity_XSPH::step()
 					forall_volume_maps(
 						Vector3r vj;
 						bm_neighbor->getPointVelocity(xj, vj);
-						const Vector3r a = -invH * m_boundaryViscosity[i] * (density0 * Vj / density_i) * (vi-vj)* sim->W(xi - xj);
+						const Vector3r a = -invH * m_boundaryViscosity_nonNewton[i] * (density0 * Vj / density_i) * (vi-vj)* sim->W(xi - xj);
 						ai += a;
 						bm_neighbor->addForce(xj, -m_model->getMass(i) * a);
 					);
@@ -109,7 +113,7 @@ void Viscosity_XSPH::step()
 }
 
 
-void Viscosity_XSPH::reset()
+void NonNewton_XSPH::reset()
 {
 }
 

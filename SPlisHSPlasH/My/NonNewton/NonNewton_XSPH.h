@@ -2,18 +2,19 @@
 
 #include "SPlisHSPlasH/Common.h"
 #include "SPlisHSPlasH/FluidModel.h"
-#include "NonPressureForceBase.h"
+#include "SPlisHSPlasH/NonPressureForceBase.h"
+#include "SPlisHSPlasH/Viscosity/ViscosityBase.h"
 
 namespace SPH
 {
 	/** \brief 这是修改自XSPH的粘性算法。与原有算法的区别在于它的粘性受到非牛顿的控制，并且是个vector。
      * 
 	*/
-	class NonNewton_XSPH : public NonPressureForceBase
+	class NonNewton_XSPH : public ViscosityBase
 	{
 	protected:
-        std::vector<Real> m_viscosity;
-		std::vector<Real> m_boundaryViscosity;
+        std::vector<Real> m_viscosity_nonNewton;
+		std::vector<Real> m_boundaryViscosity_nonNewton;
 
 		virtual void initParameters();
 
