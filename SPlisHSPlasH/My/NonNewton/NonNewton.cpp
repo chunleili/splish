@@ -41,7 +41,9 @@ SurfaceTensionBase(model)
 	// m_tauC = 0.02876;
 	// m_lambda = 4.020;
 
-	
+	numParticles = model->numActiveParticles();
+
+	m_strainRateFNorm.resize(numParticles, 0.0);
 
 	m_strainRate.resize(numParticles, Vector6r::Zero());
 	model->addField({ "strainRate", FieldType::Vector6, [&](const unsigned int i) -> Vector6r* { return &m_strainRate[i]; }, true });

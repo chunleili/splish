@@ -102,6 +102,7 @@
 			"density0": 1000, 
 			"viscosity0": 10,
 			"viscosity_inf": 1,
+			"surfaceTensionMethod": 7,
 			"viscosityMethod": 9,
 			"nonNewtonMethod": 2,
 			"power_index":0.666,
