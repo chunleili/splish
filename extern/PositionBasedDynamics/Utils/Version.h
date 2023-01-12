@@ -5,12 +5,12 @@
 #define STRINGIZE(x) STRINGIZE_HELPER(x)
 #define WARNING(desc) message(__FILE__ "(" STRINGIZE(__LINE__) ") : Warning: " #desc)
 
-#define GIT_SHA1 "a102b34fe7054920f510b2980b8df13a37f2d012"
+#define GIT_SHA1 "34fc5aa2f654db23fe5bad8bbe311b12118003ef"
 #define GIT_REFSPEC "refs/heads/nonNewton-decouple"
-#define GIT_LOCAL_STATUS "DIRTY"
+#define GIT_LOCAL_STATUS "CLEAN"
 
 #ifdef DL_OUTPUT
-#pragma WARNING(Local changes not committed.)
+
 #endif
 
 #endif
