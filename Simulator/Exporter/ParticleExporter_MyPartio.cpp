@@ -72,10 +72,10 @@ void ParticleExporter_MyPartio::writeParticlesPartio(const std::string& fileName
     Partio::ParticleAttribute posAttr;
     m_particleData->attributeInfo("position", posAttr);
 
-	// std::cout << "Before------------ " << std::endl;
 	// print(m_particleData);
 	//根据计算结果（存储在model中），更新粒子位置
 	//其余的不需要更新了，想更新什么，就从model中取出来，然后更新到单例中
+	std::cout << "model->numActiveParticles(): "<<model->numActiveParticles() << std::endl;
     for (unsigned int i = 0; i < model->numActiveParticles(); i++)
     {
         int idx = i;
@@ -87,7 +87,7 @@ void ParticleExporter_MyPartio::writeParticlesPartio(const std::string& fileName
         p[2] = x[2];
     }
     Partio::write(fileName.c_str(), *m_particleData);
-	// std::cout << "After---------------- " << std::endl;
-	// print(m_particleData);
-
+	std::cout << "Write the file: "<<fileName<< std::endl;
+	print(m_particleData);
+	std::cout << "---------------------\n\n";
 }

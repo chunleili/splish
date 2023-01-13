@@ -21,13 +21,17 @@
 		"particleAttributes": "temperature;velocity",
 		"boundaryHandlingMethod": 0,
 		"enableZSort": false,
-		"pauseAt": 5.0
+		"pauseAt": 5.0,
+		"stopAt": 5.0,
+		"noGUI": true,
+		"enableMyPartioExport": true
 	},
 	"Materials": [
 		{
-			"id": "Fluid",
+			"id": "ices",
 			"surfaceTensionMethod": 5,
 			"colorField": "temperature",
+			"colorMapType": 1,
 			"renderMaxValue": 1.0,
 			"boxMax": [1,0.0,1],
 			"boxMin": [-1,0.0,-1],
@@ -55,7 +59,7 @@
 		},
 		{
 			"id": "glass",
-			"geometryFile": "../models/glass_dense.obj",
+			"geometryFile": "../models/glass.obj",
 			"translation": [0,0,0],
 			"rotationAxis": [1, 0, 0],
 			"rotationAngle": 0,
@@ -66,28 +70,14 @@
 			"mapInvert": false, 
 			"mapThickness":  0.0 ,
 			"mapResolution": [100,100,100]
-		},
-		{
-			"id": "sphere",
-			"geometryFile": "../models/sphere.obj",
-			"translation": [0,9.5,0],
-			"rotationAxis": [1, 0, 0],
-			"rotationAngle": 0,
-			"scale": [5.3,5.3,5.3],
-			"color": [0.1, 0.4, 0.6, 1.0], 
-			"isDynamic": false,
-			"isWall": true,
-			"mapInvert": true, 
-			"mapThickness": 0.0,
-			"mapResolution": [40,40,40]
 		}
 	],
 	"FluidModels": [
 		{
+			"id": "ices",
 			"particleFile": "../models/ice-cream-dense.bhclassic"
 		}
 	]
-
 }
 
 

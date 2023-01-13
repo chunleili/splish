@@ -174,6 +174,10 @@ void TimeStepDFSPH::step()
 
 	// Compute new time	
 	tm->setTime (tm->getTime () + h);
+
+	static int step = 0;
+	printf("\nstep = %d\n", step++);
+	printf("t=%f, dt=%f, iterationsV=%u\n------\n\n", tm->getTime(), h, m_iterationsV);
 }
 
 
