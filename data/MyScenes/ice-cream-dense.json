@@ -45,21 +45,8 @@
 	],
 	"RigidBodies": [
 		{
-			"geometryFile": "../models/UnitBox.obj",
-			"translation": [0,8,0],
-			"rotationAxis": [1, 0, 0],
-			"rotationAngle": 0,
-			"scale": [10, 16, 10],
-			"color": [0.1, 0.4, 0.6, 1.0], 
-			"isDynamic": false,
-			"isWall": true,
-			"mapInvert": true, 
-			"mapThickness": 0.0,
-			"mapResolution": [40,40,40]
-		},
-		{
 			"id": "glass",
-			"geometryFile": "../models/glass.obj",
+			"geometryFile": "../models/glass_remesh.obj",
 			"translation": [0,0,0],
 			"rotationAxis": [1, 0, 0],
 			"rotationAngle": 0,
@@ -69,7 +56,7 @@
 			"isWall": false,
 			"mapInvert": false, 
 			"mapThickness":  0.0 ,
-			"mapResolution": [100,100,100]
+			"mapResolution": [10,10,10]
 		}
 	],
 	"FluidModels": [
