@@ -10,48 +10,21 @@
 using namespace SPH;
 using namespace GenParam;
 
-int NonNewton::VISCOSITY_COEFFICIENT_BOUNDARY = -1;
-int NonNewton::VISCOSITY_COEFFICIENT = -1;
-int NonNewton::NON_NEWTON_METHOD = -1;
-int NonNewton::NEWTONIAN_ = -1;
-int NonNewton::POWER_LAW_ = -1;
-int NonNewton::CROSS_MODEL_ = -1;
-int NonNewton::CASSON_MODEL_ = -1;
-int NonNewton::POWER_INDEX = -1;
-int NonNewton::CONSISTENCY_INDEX = -1;
-int NonNewton::VISCOSITY0 = -1;
-int NonNewton::VISCOSITY_INF = -1;
-int NonNewton::MU_C = -1;
-int NonNewton::TAU_C = -1;
-int NonNewton::LAMBDA = -1;
-int NonNewton::MAX_VISCOSITY = -1;
-int NonNewton::AVG_VISCOSITY = -1;
-
-
 NonNewton::NonNewton(FluidModel *model) :
 SurfaceTensionBase(model)
 {
 	std::cout<<"constructor\n";
-	// m_nonNewtonMethod = 0;
-	// power_index = 0.5;
-	// consistency_index = 1.0;
-	// m_viscosity0 = 10.0f;
-	// m_viscosity_inf = 1.0f;
-	// m_muC = 0.00298;
-	// m_tauC = 0.02876;
-	// m_lambda = 4.020;
 
 	numParticles = model->numActiveParticles();
 
-	m_strainRateFNorm.resize(numParticles, 0.0);
-
-	m_strainRate.resize(numParticles, Vector6r::Zero());
-	model->addField({ "strainRate", FieldType::Vector6, [&](const unsigned int i) -> Vector6r* { return &m_strainRate[i]; }, true });
-
+	m_strainRateNorm.resize(numParticles, 0.0);
 	m_nonNewtonViscosity.resize(numParticles, 0.0);
+	m_strainRate.resize(numParticles, Vector6r::Zero());
+	m_boundaryViscosity.resize(numParticles, 0.0);
+
+	model->addField({ "strainRate", FieldType::Vector6, [&](const unsigned int i) -> Vector6r* { return &m_strainRate[i]; }, true });
 	model->addField({ "viscosity", FieldType::Scalar, [&](const unsigned int i) -> Real* { return &m_nonNewtonViscosity[i]; }, true });
 
-	m_boundaryViscosity.resize(numParticles, 0.0);
 }
 
 NonNewton::~NonNewton(void)
@@ -87,111 +60,36 @@ void NonNewton::initParameters()
 	EnumParameter *enumParam = static_cast<EnumParameter*>(getParameter(NON_NEWTON_METHOD));
 	enumParam->addEnumValue("Newtonian", NEWTONIAN_);
 	enumParam->addEnumValue("Power Law", POWER_LAW_);
-	enumParam->addEnumValue("Cross Model", CROSS_MODEL_);
-	enumParam->addEnumValue("Casson Model", CASSON_MODEL_);
+	enumParam->addEnumValue("Cross Model", CROSS_);
+	enumParam->addEnumValue("Casson Model", CASSON_);
+	enumParam->addEnumValue("Carreau Model", CARREAU_);
+	enumParam->addEnumValue("Bingham Model", BINGHAM_);
+	enumParam->addEnumValue("Herschel-Bulkley Model", HERSCHEL_BULKLEY_);
+
 
 	POWER_INDEX = createNumericParameter("power_index", "power_index", &power_index);
 	CONSISTENCY_INDEX = createNumericParameter("consistency_index", "consistency_index", &consistency_index);
-	setGroup(POWER_INDEX, "Viscosity");
-	setGroup(CONSISTENCY_INDEX, "Viscosity");
-	setDescription(POWER_INDEX, "Power index for power law.");
-	setDescription(CONSISTENCY_INDEX, "Consistency index for power law.");
-
 	VISCOSITY0 = createNumericParameter("viscosity0", "viscosity0", &m_viscosity0);
 	VISCOSITY_INF = createNumericParameter("viscosity_inf", "viscosity_inf", &m_viscosity_inf);
+	MU_C = createNumericParameter("muC", "muC", &m_muC);
+
+	setGroup(POWER_INDEX, "Viscosity");
+	setGroup(CONSISTENCY_INDEX, "Viscosity");
 	setGroup(VISCOSITY0, "Viscosity");
 	setGroup(VISCOSITY_INF, "Viscosity");
+	setGroup(MU_C, "Viscosity");
+
+	setDescription(POWER_INDEX, "Power index for power law.");
+	setDescription(CONSISTENCY_INDEX, "Consistency index for power law.");
 	setDescription(VISCOSITY0, "Initial viscosity.");
 	setDescription(VISCOSITY_INF, "Infinite viscosity for the cross model.");
-
-	MU_C = createNumericParameter("muC", "muC", &m_muC);
-	TAU_C = createNumericParameter("tauC", "tauC", &m_tauC);
-	LAMBDA = createNumericParameter("lambda", "lambda", &m_lambda);
-	setGroup(MU_C, "Viscosity");
-	setGroup(TAU_C, "Viscosity");
-	setGroup(LAMBDA, "Viscosity");
 }
-
-void NonNewton::computeNonNewtonViscosity()
-{
-	if(m_nonNewtonMethod == NonNewtonMethod::ENUM_POWER_LAW)
-	{
-		calcStrainRate();
-		computeViscosityPowerLaw();
-	}
-	else if(m_nonNewtonMethod == NonNewtonMethod::ENUM_CROSS_MODEL)
-	{
-		calcStrainRate();
-		computeViscosityCrossModel();
-	}
-	else if (m_nonNewtonMethod == NonNewtonMethod::ENUM_CASSON_MODEL)
-	{
-		calcStrainRate();
-		computeViscosityCassonModel();
-	}
-	else if (m_nonNewtonMethod == NonNewtonMethod::ENUM_CARREAU)
-	{
-		calcStrainRate();
-		computeViscosityCarreau();
-	}
-	else if (m_nonNewtonMethod == NonNewtonMethod::ENUM_BINGHAM)
-	{
-		calcStrainRate();
-		computeViscosityBingham();
-	}
-	else if (m_nonNewtonMethod == NonNewtonMethod::ENUM_HERSCHEL_BULKLEY)
-	{
-		calcStrainRate();
-		computeViscosityHerschelBulkley();
-	}
-	else
-	{
-		// std::cout<<"Newtonian!\n";
-		computeViscosityNewtonian();
-	}
-
-	m_maxViscosity = 0.0;
-	m_maxViscosity = maxField(m_nonNewtonViscosity, m_model->numActiveParticles());
-	echo(m_maxViscosity);
-
-	m_avgViscosity = averageField(m_nonNewtonViscosity, m_model->numActiveParticles());
-	echo(m_avgViscosity);
-}
-
-
-
-void NonNewton::step()
-{
-	static int steps{0};
-	steps++;
-	std::cout<<"\nstep: "<<steps<<"\n";
-	numParticles = m_model->numActiveParticles();
-
-	computeNonNewtonViscosity();
-
-	//通过set函数将计算得到的粘度传递给fluidmodel
-	for (unsigned int i = 0; i < numParticles; ++i)
-	{
-		m_model->setNonNewtonViscosity(i,m_nonNewtonViscosity[i]);
-	}
-}
-
 
 
 
 void NonNewton::reset()
 {
 	std::cout<<"reset!\n";
-
-	// m_nonNewtonMethod = 0;
-	// power_index = 0.5;
-	// consistency_index = 1.0;
-	// m_viscosity0 = 10.0f;
-	// m_viscosity_inf = 1.0f;
-	// m_muC = 0.00298;
-	// m_tauC = 0.02876;
-	// m_lambda = 4.020;
-	// m_maxViscosity = 0.0;
 
 	numParticles = m_model->numActiveParticles();
 	
@@ -235,7 +133,7 @@ void NonNewton::calcStrainRate()
 
 		m_strainRate[i] = strainRate;
 
-		m_strainRateFNorm[i] = FNorm(m_strainRate[i]);
+		m_strainRateNorm[i] = FNorm(m_strainRate[i]);
 		// end shear strain rate calculation
 	}
 }
@@ -252,6 +150,66 @@ Real NonNewton::FNorm(const Vector6r & vec) const
 	return res;
 }
 
+
+
+
+
+void NonNewton::step()
+{
+	static int steps{0};
+	steps++;
+	std::cout<<"\nstep: "<<steps<<"\n";
+	numParticles = m_model->numActiveParticles();
+
+	computeNonNewtonViscosity();
+
+	//通过set函数将计算得到的粘度传递给fluidmodel
+	for (unsigned int i = 0; i < numParticles; ++i)
+	{
+		m_model->setNonNewtonViscosity(i,m_nonNewtonViscosity[i]);
+	}
+}
+
+void NonNewton::computeNonNewtonViscosity()
+{
+	calcStrainRate();
+
+	if(m_nonNewtonMethod == NonNewtonMethod::ENUM_POWER_LAW)
+	{
+		computeViscosityPowerLaw();
+	}
+	else if(m_nonNewtonMethod == NonNewtonMethod::ENUM_CROSS_MODEL)
+	{
+		computeViscosityCrossModel();
+	}
+	else if (m_nonNewtonMethod == NonNewtonMethod::ENUM_CASSON_MODEL)
+	{
+		computeViscosityCassonModel();
+	}
+	else if (m_nonNewtonMethod == NonNewtonMethod::ENUM_CARREAU)
+	{
+		computeViscosityCarreau();
+	}
+	else if (m_nonNewtonMethod == NonNewtonMethod::ENUM_BINGHAM)
+	{
+		computeViscosityBingham();
+	}
+	else if (m_nonNewtonMethod == NonNewtonMethod::ENUM_HERSCHEL_BULKLEY)
+	{
+		computeViscosityHerschelBulkley();
+	}
+	else
+	{
+		computeViscosityNewtonian();
+	}
+
+	m_maxViscosity = 0.0;
+	m_maxViscosity = maxField(m_nonNewtonViscosity, numParticles);
+	m_avgViscosity = averageField(m_nonNewtonViscosity, numParticles);
+}
+
+
+
 void NonNewton::computeViscosityNewtonian() 
 {
 	for (unsigned int i = 0; i < numParticles; ++i)
@@ -265,75 +223,69 @@ void NonNewton::computeViscosityPowerLaw()
 	
 	for (unsigned int i = 0; i < numParticles; ++i)
 	{
-		m_nonNewtonViscosity[i] = consistency_index * pow(m_strainRateFNorm[i], power_index - 1);
+		m_nonNewtonViscosity[i] = consistency_index * pow(m_strainRateNorm[i], power_index - 1);
 	}
 }
 
 void NonNewton::computeViscosityCrossModel() 
 {
-	
-	assert(m_viscosity0 - m_viscosity_inf >= 0.0);
+	assert((m_viscosity0 - m_viscosity_inf >= 0.0) && "the viscosity0 must be larger than viscosity_inf");
 	if(m_viscosity0 - m_viscosity_inf < 0.0)
 	{
 		std::cout << "the viscosity0 must be larger than viscosity_inf" << std::endl;
 		throw std::runtime_error("the viscosity0 must be larger than viscosity_inf");
 	}
-
-	// echo(m_strainRate[0].norm());
-	// std::cout<<"pow(m_strainRate[0].norm(), power_index)"<<pow(m_strainRate[0].norm(), power_index)<<std::endl;
-
 	for (unsigned int i = 0; i < numParticles; ++i)
 	{
 
-		m_nonNewtonViscosity[i] = m_viscosity_inf +  (m_viscosity0 - m_viscosity_inf) / (1 +  pow(consistency_index * m_strainRateFNorm[i], power_index)) ;
+		m_nonNewtonViscosity[i] = m_viscosity_inf +  (m_viscosity0 - m_viscosity_inf) / (1 +  pow(consistency_index * m_strainRateNorm[i], power_index)) ;
 	}
 }
 
 void NonNewton::computeViscosityCassonModel() 
 {
-	
 	for (unsigned int i = 0; i < numParticles; ++i)
 	{
-		m_nonNewtonViscosity[i] = sqrt(m_muC) + sqrt(m_tauC) / (sqrt(m_lambda) + sqrt(m_strainRateFNorm[i]));
+		float res = sqrt(m_muC) +  sqrt(m_yieldStress / m_strainRateNorm[i]);
+		m_nonNewtonViscosity[i] = res * res;
 	}
 }
 
 
 void NonNewton::computeViscosityCarreau() 
 {
-	
 	for (unsigned int i = 0; i < numParticles; ++i)
 	{
-		m_nonNewtonViscosity[i] = m_viscosity_inf +  (m_viscosity0 - m_viscosity_inf) / (1.0f +  pow(consistency_index * FNorm(m_strainRate[i])*FNorm(m_strainRate[i]), (1.0f - power_index)/2.0)) ;
+		m_nonNewtonViscosity[i] = m_viscosity_inf +  (m_viscosity0 - m_viscosity_inf) / (1.0f +  pow(consistency_index * m_strainRateNorm[i]*m_strainRateNorm[i], (1.0f - power_index)/2.0f)) ;
 	}
 }
 
+
+
 void NonNewton::computeViscosityBingham() 
 {
-	
 	for (unsigned int i = 0; i < numParticles; ++i)
 	{
-		if(FNorm(m_strainRate[i]) < critical_strainRate)
+		if(m_strainRateNorm[i] < m_criticalStrainRate)
 			m_nonNewtonViscosity[i] = m_viscosity0;
 		else
 		{
-			float tau0 = critical_strainRate * (m_viscosity0 - m_viscosity_inf);
-			m_nonNewtonViscosity[i] = tau0 / FNorm(m_strainRate[i]) + m_viscosity_inf;
+			float tau0 = m_criticalStrainRate * (m_viscosity0 - m_viscosity_inf);
+			m_nonNewtonViscosity[i] = tau0 / m_strainRateNorm[i] + m_viscosity_inf;
 		}
 	}
 }
 
 void NonNewton::computeViscosityHerschelBulkley() 
 {
-	
 	for (unsigned int i = 0; i < numParticles; ++i)
 	{
-		if(FNorm(m_strainRate[i]) < critical_strainRate)
+		if(m_strainRateNorm[i] < m_criticalStrainRate)
 			m_nonNewtonViscosity[i] = m_viscosity0;
 		else
 		{
-			float tau0 = critical_strainRate * (m_viscosity0 - m_viscosity_inf);
-			m_nonNewtonViscosity[i] = tau0 / FNorm(m_strainRate[i]) + consistency_index * pow(FNorm(m_strainRate[i]), power_index - 1);
+			float tau0 = m_criticalStrainRate * (m_viscosity0 - m_viscosity_inf);
+			m_nonNewtonViscosity[i] = tau0 / m_strainRateNorm[i] + consistency_index * pow(m_strainRateNorm[i], power_index - 1);
 		}
 	}
 }

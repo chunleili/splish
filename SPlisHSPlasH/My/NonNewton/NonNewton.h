@@ -14,6 +14,7 @@ namespace SPH
 	 * m_nonNewtonMethod = 1 时，使用Power law粘性模型
 	 * m_nonNewtonMethod = 2 时，使用Cross模型
 	 * m_nonNewtonMethod = 3 时，使用Casson模型
+	 * 
 	*/
 	class NonNewton : public SurfaceTensionBase
 	{
@@ -35,37 +36,42 @@ namespace SPH
 		NonNewtonMethod m_nonNewtonMethod = ENUM_NEWTONIAN;
 
 		std::vector<Vector6r> m_strainRate;
-		std::vector<float> m_strainRateFNorm;
+		std::vector<float> m_strainRateNorm;
 		std::vector<float> m_boundaryViscosity;
 		std::vector<float> m_nonNewtonViscosity;
 
-		float power_index = 0.3f;
-		float consistency_index = 0.5;
-		float m_viscosity0 = 10.0f; //initial viscosity
+		float power_index = 0.667f;
+		float consistency_index = 100.0f;
+		float m_viscosity0 = 2000.0f; //initial viscosity
 		float m_viscosity_inf = 1.0f; //infinite viscosity(must lower than initial viscosity)
-		float m_muC = 0.00298f;
-		float m_tauC = 0.02876f;
-		float m_lambda = 4.020f;
+		float m_criticalStrainRate = 20.0f;
+		float m_muC = 10.0f;
+		// float m_yieldStress = (m_viscosity0 - m_viscosity_inf) * m_criticalStrainRate;
+		float m_yieldStress = 200.0f;
+		// float m_lambda = 0.5;
 		float m_maxViscosity = 0.0f;
 		float m_avgViscosity = 0.0f;
-		float critical_strainRate = 1e-2f;
 
-		static int NON_NEWTON_METHOD;
-		static int VISCOSITY_COEFFICIENT;
-		static int VISCOSITY_COEFFICIENT_BOUNDARY;
-		static int NEWTONIAN_;
-		static int POWER_LAW_;
-		static int CROSS_MODEL_;
-		static int CASSON_MODEL_;
-		static int POWER_INDEX;
-		static int CONSISTENCY_INDEX;
-		static int VISCOSITY0;
-		static int VISCOSITY_INF;
-		static int MU_C;
-		static int TAU_C;
-		static int LAMBDA;
-		static int MAX_VISCOSITY;
-		static int AVG_VISCOSITY;
+		inline static int VISCOSITY_COEFFICIENT;
+		inline static int VISCOSITY_COEFFICIENT_BOUNDARY;
+
+		inline static int POWER_INDEX = -1;
+		inline static int CONSISTENCY_INDEX = -1;
+		inline static int VISCOSITY0 = -1;
+		inline static int VISCOSITY_INF = -1;
+		inline static int MU_C = -1;
+		inline static int MAX_VISCOSITY = -1;
+		inline static int AVG_VISCOSITY = -1;
+
+		inline static int NON_NEWTON_METHOD;
+		inline static int NEWTONIAN_ = -1;
+		inline static int POWER_LAW_ = -1;
+		inline static int CROSS_ = -1;
+		inline static int CASSON_	= -1;
+		inline static int CARREAU_ = -1;
+		inline static int BINGHAM_ = -1;
+		inline static int HERSCHEL_BULKLEY_ = -1;
+
 
 		NonNewton(FluidModel *model);
         virtual void init() override;
