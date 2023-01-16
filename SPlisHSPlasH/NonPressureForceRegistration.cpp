@@ -34,6 +34,10 @@
 
 #include "My/NonNewton/NonNewton.h"
 #include "My/NonNewton/NonNewton_XSPH.h"
+#include "My/NonNewton/NonNewton_standard.h"
+#include "My/NonNewton/NonNewton_Peer2015.h"
+#include "My/NonNewton/NonNewton_Peer2016.h"
+#include "My/NonNewton/NonNewton_Bender2017.h"
 
 using namespace SPH;
 
@@ -79,4 +83,7 @@ void Simulation::registerNonpressureForces()
 
 	addSurfaceTensionMethod("NonNewton", NonNewton::creator);
 	addViscosityMethod("NonNewton_XSPH", NonNewton_XSPH::creator);
+	addViscosityMethod("NonNewton_Bender2017", NonNewton_Bender2017::creator);
+	addViscosityMethod("NonNewton_Peer2015", NonNewton_Peer2015::creator);
+	addViscosityMethod("NonNewton_Peer2016", NonNewton_Peer2016::creator);
 }
