@@ -36,6 +36,7 @@
 			"boxMax": [1,0.0,1],
 			"boxMin": [-1,0.0,-1],
 			"viscosity0": 1000,
+			"viscosity": 1.0,
 			"viscosityMethod": 8,
 			"meltSurface": true,
 			"surfaceTemp": 0.0,

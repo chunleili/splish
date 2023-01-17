@@ -29,7 +29,7 @@ Viscosity_Casson::Viscosity_Casson(FluidModel *model) :
 	m_tangentialDistanceFactor = static_cast<Real>(0.5);
 
 	m_vDiff.resize(model->numParticles(), Vector3r::Zero());
-	m_viscosity_nonNewton.resize(model->numParticles(), 100.0);
+	m_viscosity_nonNewton.resize(model->numParticles(), m_viscosity0);
 
 	model->addField({ "casson Viscosity", FieldType::Scalar, [&](const unsigned int i) -> Real* { return &m_viscosity_nonNewton[i]; }, true });
 }
@@ -81,7 +81,10 @@ void Viscosity_Casson::initParameters()
 	THRESHOLD = createNumericParameter("threshold", "threshold", &m_threshold);
 	setGroup(THRESHOLD, "Viscosity");
 	setDescription(THRESHOLD, "Threshold for the melting(for old viscosity_casson only).");
-	
+
+	VISCOSITY0 = createNumericParameter("viscosity0", "viscosity0", &m_viscosity0);
+	setGroup(VISCOSITY0, "Viscosity");
+	setDescription(VISCOSITY0, "viscosity0 (for old viscosity_casson only).");
 }
 
 
@@ -214,7 +217,11 @@ void Viscosity_Casson::step()
 	const Real density0 = m_model->getDensity0();
 	const Real h = TimeManager::getCurrent()->getTimeStepSize();
 
-	// computeCassonViscosity();
+	//TODO: do the viscosity change here
+	for(unsigned int i = 0; i < m_model->numParticles(); i++)
+	{
+		m_viscosity_nonNewton[i] = m_viscosity0;
+	}
 	//////////////////////////////////////////////////////////////////////////
 	// Init linear system solver and preconditioner
 	//////////////////////////////////////////////////////////////////////////

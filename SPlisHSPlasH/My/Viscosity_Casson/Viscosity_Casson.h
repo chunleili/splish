@@ -48,11 +48,13 @@ namespace SPH
 		inline static int MAX_VISCOSITY_CASSON = -1;
 		inline static int AVG_VISCOSITY_CASSON = -1;
 		inline static int THRESHOLD = -1;
+		inline static int VISCOSITY0 = -1;
 
 		std::vector<Real> m_viscosity_nonNewton;
 		Real m_maxViscosity_casson = 0.0f;
 		Real m_avgViscosity_casson = 0.0f;
 		Real m_threshold = 1.0f;
+		Real m_viscosity0 = 1000.0f;
 
 		Viscosity_Casson(FluidModel *model);
 		virtual ~Viscosity_Casson(void);
