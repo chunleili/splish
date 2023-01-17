@@ -38,6 +38,7 @@
 #include "My/NonNewton/NonNewton_Peer2015.h"
 #include "My/NonNewton/NonNewton_Peer2016.h"
 #include "My/NonNewton/NonNewton_Bender2017.h"
+#include "My/NonNewton/NonNewton_Weiler2018.h"
 
 using namespace SPH;
 
@@ -86,4 +87,5 @@ void Simulation::registerNonpressureForces()
 	addViscosityMethod("NonNewton_Bender2017", NonNewton_Bender2017::creator);
 	addViscosityMethod("NonNewton_Peer2015", NonNewton_Peer2015::creator);
 	addViscosityMethod("NonNewton_Peer2016", NonNewton_Peer2016::creator);
+	addViscosityMethod("NonNewton_Weiler2018", NonNewton_Weiler2018::creator);
 }

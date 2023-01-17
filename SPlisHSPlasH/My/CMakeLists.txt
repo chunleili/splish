@@ -37,7 +37,11 @@ PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/NonNewton/NonNewton_Peer2015.cpp
     ${CMAKE_CURRENT_LIST_DIR}/NonNewton/NonNewton_Peer2016.h
     ${CMAKE_CURRENT_LIST_DIR}/NonNewton/NonNewton_Peer2016.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/NonNewton/NonNewton_Weiler2018.h
+    ${CMAKE_CURRENT_LIST_DIR}/NonNewton/NonNewton_Weiler2018.cpp
 
+    ${CMAKE_CURRENT_LIST_DIR}/Utils/mathUtils.h
+    ${CMAKE_CURRENT_LIST_DIR}/Utils/mathUtils.cpp
 )
 
 target_include_directories(SPlisHSPlasH PRIVATE ${CMAKE_CURRENT_LIST_DIR})

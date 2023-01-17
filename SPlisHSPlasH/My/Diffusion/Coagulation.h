@@ -31,6 +31,12 @@ namespace SPH
 		Real m_surfaceSource0=0.0; //用户指定的表面源值
 		std::vector<Real> m_surfaceSource;
 		int steps = 0;
+		Real m_viscosity0 = 1000.0f;
+		Real m_decay = 0.0;
+		std::vector<Real> m_viscosity;
+		float m_maxViscosity = 0.0f;
+		float m_avgViscosity = 0.0f;
+		float m_avgTemp = 0.0f;
 
 		virtual void deferredInit();
 
@@ -49,6 +55,11 @@ namespace SPH
 		static int SURFACE_TEMP;
 		static int MELT_SURFACE;
 		static int SURFACE_SOURCE0;
+		static int MAX_VISCOSITY;
+		static int AVG_VISCOSITY;
+		static int AVG_TEMP;
+		inline static int DECAY = -1;
+		inline static int VISCOSITY0 = -1;
 
 		Coagulation();
 		Coagulation(FluidModel* model);
@@ -58,7 +69,6 @@ namespace SPH
 
 		virtual void step();
 		virtual void reset();
-
 
 		virtual void performNeighborhoodSearchSort();
 

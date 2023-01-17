@@ -32,6 +32,7 @@
 			"boxMax": [1,0.0,1],
 			"boxMin": [-1,0.0,-1],
 			"viscosity0": 1000,
+			"viscosity": 1.0,
 			"viscosityMethod": 8,
 			"meltSurface": true,
 			"surfaceTemp": 0.0,
@@ -40,19 +41,6 @@
 		}
 	],
 	"RigidBodies": [
-		{
-			"geometryFile": "../models/UnitBox.obj",
-			"translation": [0,1.5,0],
-			"rotationAxis": [1, 0, 0],
-			"rotationAngle": 0,
-			"scale": [8, 8, 8],
-			"color": [0.1, 0.4, 0.6, 1.0], 
-			"isDynamic": false,
-			"isWall": true,
-			"mapInvert": true, 
-			"mapThickness": 0.0,
-			"mapResolution": [40,30,15]
-		},
 		{
 			"id": "glass",
 			"geometryFile": "../models/glass.obj",
@@ -65,7 +53,10 @@
 			"isWall": false,
 			"mapInvert": false, 
 			"mapThickness":  0.0 ,
-			"mapResolution": [30,30,30]
+			"mapResolution": [30,30,30],
+			"friction" : 0.1,
+			"restitution" : 0.1,
+			"collisionObjectType": 5
 		}
 	],
 	"FluidModels": [

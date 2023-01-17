@@ -1,5 +1,4 @@
-#ifndef __Viscosity_Casson_h__
-#define __Viscosity_Casson_h__
+#pragma once
 
 #include "SPlisHSPlasH/Common.h"
 #include "SPlisHSPlasH/FluidModel.h"
@@ -10,23 +9,22 @@
 
 namespace SPH
 {
-	/** \brief viscosity_casson的屎山代码是如何运行的
-		mu=0.01 
-		mub=0 所以我把boundary相关的全删除了
-		cassonViscosity=10000
-		threshold=1(也就是温度大于1认为就是融化了)
+	/** \brief This class implements the implicit Laplace viscosity method introduced 
+	* by Weiler et al. 2018 [WKBB18].
+	*
+	* References:
+	* - [WKBB18] Marcel Weiler, Dan Koschier, Magnus Brand, and Jan Bender. A physically consistent implicit viscosity solver for SPH fluids. Computer Graphics Forum (Eurographics), 2018. URL: https://doi.org/10.1111/cgf.13349
 	*/
-	class Viscosity_Casson : public ViscosityBase
+	class NonNewton_Weiler2018 : public ViscosityBase
 	{
 	protected:
 		Real m_boundaryViscosity;
+
 		unsigned int m_maxIter;
 		Real m_maxError;
 		unsigned int m_iterations;
 		std::vector<Vector3r> m_vDiff;
 		Real m_tangentialDistanceFactor;
-		static  Vector3r m_boxMin;
-		static  Vector3r m_boxMax;
 
 #ifdef USE_BLOCKDIAGONAL_PRECONDITIONER
 		typedef Eigen::ConjugateGradient<MatrixReplacement, Eigen::Lower | Eigen::Upper, BlockJacobiPreconditioner3D> Solver;
@@ -41,23 +39,18 @@ namespace SPH
 		virtual void initParameters();
 		
 	public:
+		std::vector<Real> m_viscosity_nonNewton;
+		std::vector<Real> m_boundaryViscosity_nonNewton;
+
 		static int ITERATIONS;
 		static int MAX_ITERATIONS;
 		static int MAX_ERROR;
 		static int VISCOSITY_COEFFICIENT_BOUNDARY;
-		inline static int MAX_VISCOSITY_CASSON = -1;
-		inline static int AVG_VISCOSITY_CASSON = -1;
-		inline static int THRESHOLD = -1;
 
-		std::vector<Real> m_viscosity_nonNewton;
-		Real m_maxViscosity_casson = 0.0f;
-		Real m_avgViscosity_casson = 0.0f;
-		Real m_threshold = 1.0f;
+		NonNewton_Weiler2018(FluidModel *model);
+		virtual ~NonNewton_Weiler2018(void);
 
-		Viscosity_Casson(FluidModel *model);
-		virtual ~Viscosity_Casson(void);
-
-		static NonPressureForceBase* creator(FluidModel* model) { return new Viscosity_Casson(model); }
+		static NonPressureForceBase* creator(FluidModel* model) { return new NonNewton_Weiler2018(model); }
 
 		virtual void step();
 		virtual void reset();
@@ -86,5 +79,3 @@ namespace SPH
         void applyForces(const VectorXr &x);
     };
 }
-
-#endif

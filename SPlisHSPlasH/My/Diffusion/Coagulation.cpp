@@ -2,6 +2,7 @@
 #include "SPlisHSPlasH/Simulation.h"
 #include "SPlisHSPlasH/TimeManager.h"
 #include "SurfaceParticles/SurfaceParticles.h"
+#include "../Utils/mathUtils.h"
 
 using namespace SPH;
 using namespace GenParam;
@@ -18,6 +19,10 @@ int Coagulation::SURFACE_TEMP = -1;
 int Coagulation::MELT_SURFACE = -1;
 int Coagulation::SURFACE_SOURCE0 = -1;
 int Coagulation::MELT_BOX = -1;
+int Coagulation::MAX_VISCOSITY = -1;
+int Coagulation::AVG_VISCOSITY = -1;
+int Coagulation::AVG_TEMP = -1;
+
 
 Coagulation::Coagulation(FluidModel* model) :
     NonPressureForceBase(model), 
@@ -28,6 +33,7 @@ Coagulation::Coagulation(FluidModel* model) :
     m_rSource(static_cast<Real>(0.1))
 {
     m_ccf.resize(model->numParticles(), 0.0);
+    m_viscosity.resize(model->numParticles(), 0.0);
 
     model->addField({ "ccf field", FieldType::Scalar, [&](const unsigned int i) -> Real* { return &m_ccf[i]; } });
 
@@ -116,6 +122,28 @@ void Coagulation::initParameters()
     SURFACE_SOURCE0 = createNumericParameter("surfaceSource0", "surfaceSource0", &m_surfaceSource0);
     setGroup(SURFACE_SOURCE0, "coagualtion");
 
+
+    MAX_VISCOSITY = createNumericParameter("max_viscosity", "max_viscosity", &m_maxViscosity);
+	setGroup(MAX_VISCOSITY, "Viscosity");
+	setDescription(MAX_VISCOSITY, "Max viscosity of all fluid particles.");
+	getParameter(MAX_VISCOSITY)->setReadOnly(true);
+
+	AVG_VISCOSITY = createNumericParameter("average_viscosity", "average_viscosity", &m_avgViscosity);
+	setGroup(AVG_VISCOSITY, "Viscosity");
+	setDescription(AVG_VISCOSITY, "Average viscosity of all fluid particles.");
+	getParameter(AVG_VISCOSITY)->setReadOnly(true);
+
+	AVG_TEMP = createNumericParameter("average_temperature", "average_temperature", &m_avgTemp);
+	setGroup(AVG_TEMP, "Viscosity");
+	setDescription(AVG_TEMP, "Average temperature of all fluid particles.");
+	getParameter(AVG_TEMP)->setReadOnly(true);
+
+    DECAY = createNumericParameter("decay", "decay", &m_decay);
+    VISCOSITY0 = createNumericParameter("viscosity0", "viscosity0", &m_viscosity0);
+	setGroup(DECAY, "coagualtion");
+	setGroup(VISCOSITY0, "coagualtion");
+	setDescription(DECAY, "decay index");
+	setDescription(VISCOSITY0, "initial viscosity");
 }
 
 void Coagulation::step()
@@ -193,9 +221,16 @@ void Coagulation::step()
             }
             ccf_i = ccf_sum + ccf_old;
             model->setTemperature(i, ccf_i);
+
+            // 增加直接控制粘度并传给Weiler
+            m_viscosity[i] = m_viscosity0 * exp(-m_decay * ccf_i);
+            model->setNonNewtonViscosity(i, m_viscosity[i]);
         }
     }
 
+    m_maxViscosity = maxField(m_viscosity, numParticles);
+	m_avgViscosity = averageField(m_viscosity, numParticles);
+    m_avgTemp = averageField(m_ccf, numParticles);
 }
 
 void Coagulation::reset()
