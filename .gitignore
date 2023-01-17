@@ -19,3 +19,4 @@ imgui.ini
 CMakeFiles
 .idea
 Version.h
+extern/PositionBasedDynamics/Utils/Version.h

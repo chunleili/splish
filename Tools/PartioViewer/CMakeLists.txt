@@ -3,7 +3,8 @@ include(${PROJECT_SOURCE_DIR}/GUI/OpenGL/CMakeLists.txt)
 if (USE_IMGUI)
 	include(${PROJECT_SOURCE_DIR}/GUI/imgui/CMakeLists.txt)
 	set(VIEWER_LINK_LIBRARIES imgui SPlisHSPlasH)
-	set(VIEWER_DEPENDENCIES imgui SPlisHSPlasH CopySPlisHSPlasHShaders CopyImguiFonts)
+	# set(VIEWER_DEPENDENCIES imgui SPlisHSPlasH CopySPlisHSPlasHShaders CopyImguiFonts)
+	set(VIEWER_DEPENDENCIES imgui SPlisHSPlasH copy_all_SPlisHSPlasH)
 
 	set(GUI_SOURCE_FILES 
 		GUI/imgui/PartioViewer_GUI_imgui.cpp

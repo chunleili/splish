@@ -3,7 +3,8 @@ include(${PROJECT_SOURCE_DIR}/GUI/OpenGL/CMakeLists.txt)
 if (USE_IMGUI)
 	include(${PROJECT_SOURCE_DIR}/GUI/imgui/CMakeLists.txt)
 	set(SIMULATION_LINK_LIBRARIES imgui SPlisHSPlasH ${PBD_LIBRARIES} PBD_includes)
-	set(SIMULATION_DEPENDENCIES imgui SPlisHSPlasH Ext_PBD CopySPlisHSPlasHShaders CopyPBDShaders CopyEmitterModels CopyImguiFonts)
+	# set(SIMULATION_DEPENDENCIES imgui SPlisHSPlasH Ext_PBD CopySPlisHSPlasHShaders CopyPBDShaders CopyEmitterModels CopyImguiFonts)
+	set(SIMULATION_DEPENDENCIES imgui SPlisHSPlasH Ext_PBD copy_all_SPlisHSPlasH)
 	
 	set(GUI_SOURCE_FILES 
 		${PROJECT_SOURCE_DIR}/Simulator/GUI/imgui/Simulator_GUI_imgui.cpp
@@ -19,7 +20,8 @@ if (USE_IMGUI)
 else()
 	include(${PROJECT_SOURCE_DIR}/GUI/TweakBar/CMakeLists.txt)
 	set(SIMULATION_LINK_LIBRARIES AntTweakBar glfw SPlisHSPlasH ${PBD_LIBRARIES} PBD_includes)
-	set(SIMULATION_DEPENDENCIES AntTweakBar glfw SPlisHSPlasH Ext_PBD CopySPlisHSPlasHShaders CopyPBDShaders CopyEmitterModels)
+	# set(SIMULATION_DEPENDENCIES AntTweakBar glfw SPlisHSPlasH Ext_PBD CopySPlisHSPlasHShaders CopyPBDShaders CopyEmitterModels)
+	set(SIMULATION_DEPENDENCIES AntTweakBar glfw SPlisHSPlasH Ext_PBD copy_all_SPlisHSPlasH)
 	
 	set(GUI_SOURCE_FILES 
 		${PROJECT_SOURCE_DIR}/Simulator/GUI/TweakBar/Simulator_GUI_TweakBar.cpp
