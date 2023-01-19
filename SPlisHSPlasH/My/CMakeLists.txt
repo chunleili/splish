@@ -5,10 +5,8 @@ PRIVATE
 
     ${CMAKE_CURRENT_LIST_DIR}/Viscosity_Casson/Viscosity_Casson.cpp
     ${CMAKE_CURRENT_LIST_DIR}/Viscosity_Casson/Viscosity_Casson.h
-
     ${CMAKE_CURRENT_LIST_DIR}/Diffusion/Coagulation.h	
     ${CMAKE_CURRENT_LIST_DIR}/Diffusion/Coagulation.cpp
-
 	${CMAKE_CURRENT_LIST_DIR}/Diffusion/TemperatureDiffusion.h
     ${CMAKE_CURRENT_LIST_DIR}/Diffusion/TemperatureDiffusion.cpp
 
@@ -23,6 +21,8 @@ PRIVATE
 
     ${CMAKE_CURRENT_LIST_DIR}/MyTimeStep/MyTimeStep.h
 	${CMAKE_CURRENT_LIST_DIR}/MyTimeStep/MyTimeStep.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/MyTimeStep/SimulationDataMyTimeStep.h
+    ${CMAKE_CURRENT_LIST_DIR}/MyTimeStep/SimulationDataMyTimeStep.cpp
 
     ${CMAKE_CURRENT_LIST_DIR}/NonNewton/NonNewton.h
     ${CMAKE_CURRENT_LIST_DIR}/NonNewton/NonNewton.cpp
