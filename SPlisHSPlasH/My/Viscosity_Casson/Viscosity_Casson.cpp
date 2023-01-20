@@ -225,6 +225,8 @@ void Viscosity_Casson::step()
 	//////////////////////////////////////////////////////////////////////////
 	// Init linear system solver and preconditioner
 	//////////////////////////////////////////////////////////////////////////
+	auto start = std::chrono::steady_clock::now();
+
 	MatrixReplacement A(3*m_model->numActiveParticles(), matrixVecProd, (void*) this);
 	m_solver.preconditioner().init(m_model->numActiveParticles(), diagonalMatrixElement, (void*)this);
 
@@ -249,11 +251,12 @@ void Viscosity_Casson::step()
 
     applyForces(x);
 
+	auto end = std::chrono::steady_clock::now();
+	std::chrono::duration<double> elapsed_seconds = end - start;
+	printf("visco elapsed: %f s, iterations: %d, error= %f\n", elapsed_seconds.count(), m_iterations, m_solver.error());
+	
 	m_maxViscosity_casson = maxField(m_viscosity_nonNewton, numParticles);
 	m_avgViscosity_casson = averageField(m_viscosity_nonNewton, numParticles);
-	// std::cout<<"avg viscosity casson: "<<m_avgViscosity_casson<<std::endl;
-	// std::cout<<"m_viscosity "<<m_viscosity<<std::endl;
-	// std::cout<<"m_boundaryViscosity "<<m_boundaryViscosity<<std::endl;
 }
 
 void Viscosity_Casson::applyForces(const VectorXr &x) 
