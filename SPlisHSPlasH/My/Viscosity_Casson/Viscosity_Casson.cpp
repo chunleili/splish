@@ -78,13 +78,13 @@ void Viscosity_Casson::initParameters()
 	setDescription(AVG_VISCOSITY_CASSON, "Average viscosity of all fluid particles.");
 	getParameter(AVG_VISCOSITY_CASSON)->setReadOnly(true);
 
-	THRESHOLD = createNumericParameter("threshold", "threshold", &m_threshold);
-	setGroup(THRESHOLD, "Viscosity");
-	setDescription(THRESHOLD, "Threshold for the melting(for old viscosity_casson only).");
+	// THRESHOLD = createNumericParameter("threshold", "threshold", &m_threshold);
+	// setGroup(THRESHOLD, "Viscosity");
+	// setDescription(THRESHOLD, "Threshold for the melting(for old viscosity_casson only).");
 
-	VISCOSITY0 = createNumericParameter("viscosity0", "viscosity0", &m_viscosity0);
-	setGroup(VISCOSITY0, "Viscosity");
-	setDescription(VISCOSITY0, "viscosity0 (for old viscosity_casson only).");
+	// VISCOSITY0 = createNumericParameter("viscosity0", "viscosity0", &m_viscosity0);
+	// setGroup(VISCOSITY0, "Viscosity");
+	// setDescription(VISCOSITY0, "viscosity0 (for old viscosity_casson only).");
 }
 
 
@@ -135,14 +135,14 @@ void Viscosity_Casson::matrixVecProd(const Real* vec, Real *result, void *userDa
 				const Vector3r &vj = Eigen::Map<const Vector3r>(&vec[3 * neighborIndex]);
 				const Vector3r xixj = xi - xj;
 
-				if (model->getTemperature(neighborIndex) < visco->m_threshold)
+				// if (model->getTemperature(neighborIndex) < visco->m_threshold)
 				{
 					ai += d * mu * visco->m_viscosity_nonNewton[neighborIndex] * (model->getMass(neighborIndex) / density_j) * (vi - vj).dot(xixj) / (xixj.squaredNorm() + 0.01 * h2) * gradW;
 				}
-				else
-				{
-					ai += d * mu  * (model->getMass(neighborIndex) / density_j) * (vi - vj).dot(xixj) / (xixj.squaredNorm() + 0.01 * h2) * gradW;
-				}
+				// else
+				// {
+				// 	ai += d * mu  * (model->getMass(neighborIndex) / density_j) * (vi - vj).dot(xixj) / (xixj.squaredNorm() + 0.01 * h2) * gradW;
+				// }
 			};
 			
 			// MYADD: 删掉boundary部分
@@ -220,7 +220,7 @@ void Viscosity_Casson::step()
 	//TODO: do the viscosity change here
 	for(unsigned int i = 0; i < m_model->numParticles(); i++)
 	{
-		m_viscosity_nonNewton[i] = m_viscosity0;
+		m_viscosity_nonNewton[i] = m_model->getNonNewtonViscosity(i);
 	}
 	//////////////////////////////////////////////////////////////////////////
 	// Init linear system solver and preconditioner

@@ -32,7 +32,7 @@ namespace SPH
 		std::vector<Real> m_surfaceSource;
 		int steps = 0;
 		Real m_viscosity0 = 1000.0f;
-		Real m_decay = 0.0;
+		Real m_decay = 0.1;
 		std::vector<Real> m_viscosity;
 		float m_maxViscosity = 0.0f;
 		float m_avgViscosity = 0.0f;
