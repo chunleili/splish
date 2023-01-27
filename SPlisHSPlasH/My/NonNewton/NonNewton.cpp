@@ -164,7 +164,7 @@ void NonNewton::step()
 {
 	static int steps{0};
 	steps++;
-	std::cout<<"\nstep: "<<steps<<"\n";
+	// std::cout<<"\nstep: "<<steps<<"\n";
 	numParticles = m_model->numActiveParticles();
 
 	computeNonNewtonViscosity();
