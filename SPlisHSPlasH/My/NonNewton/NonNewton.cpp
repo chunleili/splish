@@ -45,14 +45,20 @@ void NonNewton::init()
 void NonNewton::initParameters()
 {
 	MAX_VISCOSITY = createNumericParameter("max_viscosity", "max_viscosity", &m_maxViscosity);
-	setGroup(MAX_VISCOSITY, "Viscosity");
-	setDescription(MAX_VISCOSITY, "Max viscosity of all fluid particles.");
-	getParameter(MAX_VISCOSITY)->setReadOnly(true);
-
 	AVG_VISCOSITY = createNumericParameter("average_viscosity", "average_viscosity", &m_avgViscosity);
+	MIN_VISCOSITY = createNumericParameter("min_viscosity", "min_viscosity", &m_minViscosity);
+
+	setGroup(MAX_VISCOSITY, "Viscosity");
 	setGroup(AVG_VISCOSITY, "Viscosity");
+	setGroup(MIN_VISCOSITY, "Viscosity");
+
+	setDescription(MAX_VISCOSITY, "Max viscosity of all fluid particles.");
 	setDescription(AVG_VISCOSITY, "Average viscosity of all fluid particles.");
+	setDescription(MIN_VISCOSITY, "Min viscosity of all fluid particles.");
+
+	getParameter(MAX_VISCOSITY)->setReadOnly(true);
 	getParameter(AVG_VISCOSITY)->setReadOnly(true);
+	getParameter(MIN_VISCOSITY)->setReadOnly(true);
 
 	NON_NEWTON_METHOD = createEnumParameter("nonNewtonMethod", "nonNewtonMethod", &(int)m_nonNewtonMethod);
 	setGroup(NON_NEWTON_METHOD, "Viscosity");
@@ -168,6 +174,10 @@ void NonNewton::step()
 	{
 		m_model->setNonNewtonViscosity(i,m_nonNewtonViscosity[i]);
 	}
+
+	m_maxViscosity = maxField(m_nonNewtonViscosity, numParticles);
+	m_maxViscosity = maxField(m_nonNewtonViscosity, numParticles);
+	m_avgViscosity = averageField(m_nonNewtonViscosity, numParticles);
 }
 
 void NonNewton::computeNonNewtonViscosity()
@@ -203,9 +213,6 @@ void NonNewton::computeNonNewtonViscosity()
 		computeViscosityNewtonian();
 	}
 
-	m_maxViscosity = 0.0;
-	m_maxViscosity = maxField(m_nonNewtonViscosity, numParticles);
-	m_avgViscosity = averageField(m_nonNewtonViscosity, numParticles);
 }
 
 

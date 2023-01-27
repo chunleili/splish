@@ -51,6 +51,7 @@ namespace SPH
 		// float m_lambda = 0.5;
 		float m_maxViscosity = 0.0f;
 		float m_avgViscosity = 0.0f;
+		float m_minViscosity = 0.0f;
 
 		inline static int VISCOSITY_COEFFICIENT;
 		inline static int VISCOSITY_COEFFICIENT_BOUNDARY;
@@ -60,8 +61,10 @@ namespace SPH
 		inline static int VISCOSITY0 = -1;
 		inline static int VISCOSITY_INF = -1;
 		inline static int MU_C = -1;
+
 		inline static int MAX_VISCOSITY = -1;
 		inline static int AVG_VISCOSITY = -1;
+		inline static int MIN_VISCOSITY = -1;
 
 		inline static int NON_NEWTON_METHOD;
 		inline static int NEWTONIAN_ = -1;

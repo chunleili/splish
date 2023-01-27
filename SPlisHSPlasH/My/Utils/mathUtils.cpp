@@ -1,4 +1,5 @@
 #include <vector>
+#include <algorithm>
 #include "mathUtils.h"
 
 namespace SPH
@@ -40,6 +41,12 @@ namespace SPH
                 min = field[i];
         }
         return min;
+    }
+
+    auto minMaxField(std::vector<float>& field, unsigned int numParticles)
+    {
+        auto [min, max] = std::minmax_element(field.begin(), field.end());
+        return std::make_tuple(*min, *max); 
     }
     
 } // namespace SPH
