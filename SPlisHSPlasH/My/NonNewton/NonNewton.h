@@ -14,6 +14,9 @@ namespace SPH
 	 * m_nonNewtonMethod = 1 时，使用Power law粘性模型
 	 * m_nonNewtonMethod = 2 时，使用Cross模型
 	 * m_nonNewtonMethod = 3 时，使用Casson模型
+	 * m_nonNewtonMethod = 4 时，使用Carreau模型
+	 * m_nonNewtonMethod = 5 时，使用Bingham模型
+	 * m_nonNewtonMethod = 6 时，使用Herschel-Bulkley模型
 	 * 
 	*/
 	class NonNewton : public SurfaceTensionBase

@@ -46,6 +46,7 @@ namespace SPH
 		static int MAX_ITERATIONS;
 		static int MAX_ERROR;
 		static int VISCOSITY_COEFFICIENT_BOUNDARY;
+		// static int VISCO_ERROR = -1;
 
 		NonNewton_Weiler2018(FluidModel *model);
 		virtual ~NonNewton_Weiler2018(void);

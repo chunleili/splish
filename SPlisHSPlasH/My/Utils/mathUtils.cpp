@@ -1,7 +1,7 @@
 #include <vector>
 #include <algorithm>
 #include "mathUtils.h"
-
+#include <tuple>
 namespace SPH
 {
 
@@ -16,7 +16,7 @@ namespace SPH
         return sum;
     }
 
-    float averageField(std::vector<float>& field, unsigned int numParticles)
+    float avgField(std::vector<float>& field, unsigned int numParticles)
     {
         return sumField(field, numParticles) / numParticles;
     }
@@ -45,8 +45,37 @@ namespace SPH
 
     auto minMaxField(std::vector<float>& field, unsigned int numParticles)
     {
-        auto [min, max] = std::minmax_element(field.begin(), field.end());
-        return std::make_tuple(*min, *max); 
+        // auto [min, max] = std::minmax_element(field.begin(), field.end());
+        // return std::make_tuple(*min, *max);
+        float min = field[0];
+        float max = field[0];
+        for (unsigned int i = 1; i < numParticles; i++)
+        {
+            if (field[i] < min)
+                min = field[i];
+            if (field[i] > max)
+                max = field[i];
+        }
+        return std::make_tuple(min, max);
+    }
+
+    auto minMaxAvgField(std::vector<float>& field, unsigned int numParticles)
+    {
+        // auto [min, max] = std::minmax_element(field.begin(), field.end());
+        // return std::make_tuple(*min, *max);
+        float min = field[0];
+        float max = field[0];
+        float sum = field[0];
+        for (unsigned int i = 1; i < numParticles; i++)
+        {
+            if (field[i] < min)
+                min = field[i];
+            if (field[i] > max)
+                max = field[i];
+            sum += field[i];
+        }
+        auto avg = sum / numParticles;
+        return std::make_tuple(min, max, avg);
     }
     
 } // namespace SPH

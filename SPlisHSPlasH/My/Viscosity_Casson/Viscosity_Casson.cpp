@@ -256,7 +256,7 @@ void Viscosity_Casson::step()
 	printf("visco elapsed: %f s, iterations: %d, error= %f\n", elapsed_seconds.count(), m_iterations, m_solver.error());
 	
 	m_maxViscosity_casson = maxField(m_viscosity_nonNewton, numParticles);
-	m_avgViscosity_casson = averageField(m_viscosity_nonNewton, numParticles);
+	m_avgViscosity_casson = avgField(m_viscosity_nonNewton, numParticles);
 }
 
 void Viscosity_Casson::applyForces(const VectorXr &x) 

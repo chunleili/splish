@@ -175,9 +175,12 @@ void NonNewton::step()
 		m_model->setNonNewtonViscosity(i,m_nonNewtonViscosity[i]);
 	}
 
+	// [m_minViscosity, m_maxViscosity] = minMaxField(m_nonNewtonViscosity, numParticles);
 	m_maxViscosity = maxField(m_nonNewtonViscosity, numParticles);
-	m_maxViscosity = maxField(m_nonNewtonViscosity, numParticles);
-	m_avgViscosity = averageField(m_nonNewtonViscosity, numParticles);
+	m_minViscosity = minField(m_nonNewtonViscosity, numParticles);
+	m_avgViscosity = avgField(m_nonNewtonViscosity, numParticles);
+	// [m_minViscosity, m_maxViscosity, m_avgViscosity] = minMaxAvgField(m_boundaryViscosity, numParticles);
+
 }
 
 void NonNewton::computeNonNewtonViscosity()
@@ -227,7 +230,6 @@ void NonNewton::computeViscosityNewtonian()
 
 void NonNewton::computeViscosityPowerLaw() 
 {
-	
 	for (unsigned int i = 0; i < numParticles; ++i)
 	{
 		m_nonNewtonViscosity[i] = consistency_index * pow(m_strainRateNorm[i], power_index - 1);
@@ -291,7 +293,7 @@ void NonNewton::computeViscosityHerschelBulkley()
 			m_nonNewtonViscosity[i] = m_viscosity0;
 		else
 		{
-			float tau0 = m_criticalStrainRate * (m_viscosity0 - m_viscosity_inf);
+			float tau0 = m_viscosity0 * m_criticalStrainRate - consistency_index * pow(m_criticalStrainRate, power_index);
 			m_nonNewtonViscosity[i] = tau0 / m_strainRateNorm[i] + consistency_index * pow(m_strainRateNorm[i], power_index - 1);
 		}
 	}

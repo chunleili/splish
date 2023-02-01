@@ -58,6 +58,11 @@ void NonNewton_Weiler2018::initParameters()
 	setDescription(ITERATIONS, "Iterations required by the viscosity solver.");
 	getParameter(ITERATIONS)->setReadOnly(true);
 
+	// VISCO_ERROR = createNumericParameter("viscoError", "Error", &m_viscoError);
+	// setGroup(VISCO_ERROR, "Viscosity");
+	// setDescription(VISCO_ERROR, "Error of the viscosity solver.");
+	// getParameter(VISCO_ERROR)->setReadOnly(true);
+
 	MAX_ITERATIONS = createNumericParameter("viscoMaxIter", "Max. iterations (visco)", &m_maxIter);
 	setGroup(MAX_ITERATIONS, "Viscosity");
 	setDescription(MAX_ITERATIONS, "Max. iterations of the viscosity solver.");
@@ -932,6 +937,9 @@ void NonNewton_Weiler2018::step()
 	m_iterations = (int)m_solver.iterations();
 	STOP_TIMING_AVG;
 	INCREASE_COUNTER("Visco iterations", static_cast<Real>(m_iterations));
+
+	std::cout<<"Visco iterations: "<<m_iterations<<'\t';
+	std::cout<<"error: "<<m_solver.error()<<std::endl;
 
     applyForces(x);
 }

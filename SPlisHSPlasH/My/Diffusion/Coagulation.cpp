@@ -229,8 +229,8 @@ void Coagulation::step()
     }
 
     m_maxViscosity = maxField(m_viscosity, numParticles);
-	m_avgViscosity = averageField(m_viscosity, numParticles);
-    m_avgTemp = averageField(m_ccf, numParticles);
+	m_avgViscosity = avgField(m_viscosity, numParticles);
+    m_avgTemp = avgField(m_ccf, numParticles);
 }
 
 void Coagulation::reset()

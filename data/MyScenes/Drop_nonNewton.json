@@ -100,13 +100,15 @@
 		{
 			"id": "f",
 			"density0": 1000, 
-			"viscosity0": 10,
-			"viscosity_inf": 1,
+			"viscosity0": 100,
+			"viscosity_inf": 0.1,
 			"surfaceTensionMethod": 7,
-			"viscosityMethod": 9,
-			"nonNewtonMethod": 2,
-			"power_index":0.666,
-			"consistency_index":1
+			"viscosityMethod": 13,
+			"nonNewtonMethod": 1,
+			"power_index":1.1,
+			"consistency_index":1,
+			"viscoMaxError": 0.001,
+			"viscoMaxIter": 1000
 		}
 	]
 }
