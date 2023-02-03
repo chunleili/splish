@@ -7,7 +7,7 @@
 		"simulationMethod": 4,
 		"gravitation": [0,-9.81,0], 
 		"cflMethod": 1, 
-		"cflFactor": 0.5,
+		"cflFactor": 0.9,
 		"cflMaxTimeStepSize": 0.005,
 		"maxIterations": 100,
 		"maxError": 0.05,
@@ -18,7 +18,8 @@
 		"velocityUpdateMethod": 0,
 		"enableDivergenceSolver": true,
 		"boundaryHandlingMethod": 0,
-		"particleAttributes": "velocity;density;temperature"
+		"particleAttributes": "velocity;density;temperature",
+		"cflMinTimeStepSize": 0.00001
 	},
 	"Simulation": 
 	{
@@ -108,7 +109,8 @@
 			"power_index":1.1,
 			"consistency_index":1,
 			"viscoMaxError": 0.001,
-			"viscoMaxIter": 1000
+			"viscoMaxIter": 1000,
+			"viscosityBoundary": 3
 		}
 	]
 }

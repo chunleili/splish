@@ -23,7 +23,8 @@ SurfaceTensionBase(model)
 	m_boundaryViscosity.resize(numParticles, 0.0);
 
 	model->addField({ "strainRate", FieldType::Vector6, [&](const unsigned int i) -> Vector6r* { return &m_strainRate[i]; }, true });
-	model->addField({ "viscosity", FieldType::Scalar, [&](const unsigned int i) -> Real* { return &m_nonNewtonViscosity[i]; }, true });
+	//nonNewtonViscosity already exists in FluidModel
+	model->addField({ "strainRateNorm", FieldType::Scalar, [&](const unsigned int i) -> Real* { return &m_strainRateNorm[i]; }, true });
 
 }
 
@@ -32,8 +33,8 @@ NonNewton::~NonNewton(void)
 	m_model->removeFieldByName("strainRate");
 	m_strainRate.clear();
 
-	m_model->removeFieldByName("viscosity");
-	m_nonNewtonViscosity.clear();
+	m_model->removeFieldByName("strainRateNorm");
+	m_strainRateNorm.clear();
 }
 
 void NonNewton::init()
