@@ -45,6 +45,8 @@ Coagulation::Coagulation(FluidModel* model) :
     m_surfaceTemp = 0.0;
     m_surfaceSource0 = 0.0;
     m_surfaceSource.resize(model->numParticles(), 0.0);
+
+    m_isHotwater.resize(model->numParticles(), false);
 }
 
 
@@ -222,9 +224,27 @@ void Coagulation::step()
             ccf_i = ccf_sum + ccf_old;
             model->setTemperature(i, ccf_i);
 
+            // 如果是热水（也就是被emitter发射的粒子），则直接设置温度为100
+            if(m_model->getParticleState(i) == ParticleState::AnimatedByEmitter)
+            {
+                m_isHotwater[i] = 1;
+                model->setTemperature(i, 100.0);
+                m_viscosity[i] = 0.0;
+                model->setNonNewtonViscosity(i, 0.0);
+            }
+            else if(m_isHotwater[i]==1)
+            {   
+                // std::cout<<i<<" is hot water"<<std::endl;
+                model->setTemperature(i, 100.0);
+                m_viscosity[i] = 0.0;
+                model->setNonNewtonViscosity(i, 0.0);
+            }
+            else
+            {
             // 增加直接控制粘度并传给Weiler
             m_viscosity[i] = m_viscosity0 * exp(-m_decay * ccf_i);
             model->setNonNewtonViscosity(i, m_viscosity[i]);
+            }
         }
     }
 

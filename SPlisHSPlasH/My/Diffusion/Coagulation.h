@@ -37,6 +37,7 @@ namespace SPH
 		float m_maxViscosity = 0.0f;
 		float m_avgViscosity = 0.0f;
 		float m_avgTemp = 0.0f;
+		std::vector<int> m_isHotwater;
 
 		virtual void deferredInit();
 
