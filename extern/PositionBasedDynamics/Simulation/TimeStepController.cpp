@@ -37,10 +37,10 @@ void TimeStepController::initParameters()
 {
 	TimeStep::initParameters();
 
-	SOLVER_ITERATIONS = createNumericParameter("iterations", "Iterations", &m_iterations);
-	setGroup(SOLVER_ITERATIONS, "PBD");
-	setDescription(SOLVER_ITERATIONS, "Iterations required by the solver.");
-	getParameter(SOLVER_ITERATIONS)->setReadOnly(true);
+	// SOLVER_ITERATIONS = createNumericParameter("iterations", "Iterations", &m_iterations);
+	// setGroup(SOLVER_ITERATIONS, "PBD");
+	// setDescription(SOLVER_ITERATIONS, "Iterations required by the solver.");
+	// getParameter(SOLVER_ITERATIONS)->setReadOnly(true);
 
 	MAX_ITERATIONS = createNumericParameter("maxIterations", "Max. iterations", &m_maxIterations);
 	setGroup(MAX_ITERATIONS, "PBD");

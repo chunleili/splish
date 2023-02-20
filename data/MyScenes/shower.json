@@ -40,7 +40,8 @@
 			"maxEmitterParticles": 8000,
 			"emitterReuseParticles": false,
 			"emitterBoxMin": [-2.0,-2.5,-2.0],
-			"emitterBoxMax": [1.0,4,2.0]
+			"emitterBoxMax": [1.0,4,2.0],
+			"hotWaterTemp": 100.0
 		}
 	],
 	"RigidBodies": [
