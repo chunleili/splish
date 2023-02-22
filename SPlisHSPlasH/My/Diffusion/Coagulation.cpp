@@ -45,6 +45,9 @@ Coagulation::Coagulation(FluidModel* model) :
     m_surfaceTemp = 0.0;
     m_surfaceSource0 = 0.0;
     m_surfaceSource.resize(model->numParticles(), 0.0);
+
+    m_isHotwater.resize(model->numParticles(), false);
+    model->addField({ "isHotwater", FieldType::UInt, [&](const unsigned int i) -> int* { return &m_isHotwater[i]; } });
 }
 
 
@@ -53,6 +56,8 @@ Coagulation::~Coagulation(void)
 {
     m_model->removeFieldByName("ccf field");
     m_ccf.clear();
+    m_model->removeFieldByName("isHotwater");
+    m_isHotwater.clear();
 }
 
 void Coagulation::initParameters()
@@ -144,6 +149,10 @@ void Coagulation::initParameters()
 	setGroup(VISCOSITY0, "coagualtion");
 	setDescription(DECAY, "decay index");
 	setDescription(VISCOSITY0, "initial viscosity");
+
+    HOT_WATER_TEMP = createNumericParameter("hotWaterTemp", "hotWaterTemp", &m_hotWaterTemp);
+	setGroup(HOT_WATER_TEMP, "coagualtion");
+	setDescription(HOT_WATER_TEMP, "hot water temp");
 }
 
 void Coagulation::step()
@@ -176,7 +185,7 @@ void Coagulation::step()
             // printf("%d\t", surf_id[i]);
             m_ccf[surf_id[i]] = m_surfaceTemp;
         }
-        printf("\nTotal surface particles number: %u\n", surf_id.size());
+        std::cout<<"Total surface particles number: "<<surf_id.size()<<std::endl;
     }
 
     if (m_meltSurface)
@@ -197,7 +206,8 @@ void Coagulation::step()
         for (int i = 0; i < (int)numParticles; i++)
         {
             const Vector3r &xi = m_model->getPosition(i);
-            Real &ccf_i = getCcf(i);
+            // Real &ccf_i = getCcf(i);
+            Real &ccf_i = model->getTemperature(i);
             Real density_i = m_model->getDensity(i);
             Real source = 0.0;
             Real ccf_sum = 0.0;
@@ -215,16 +225,54 @@ void Coagulation::step()
                 const Real grawWNorm = sim->gradW(xi - xj).norm();
 
                 Real density_j = m_model->getDensity(neighborIndex);
-                Real ccf_j = getCcf(neighborIndex);
+                // Real ccf_j = getCcf(neighborIndex);
+                Real ccf_j = model->getTemperature(neighborIndex);
                 ccf_sum += (m_diffusivity * m_model->getMass(neighborIndex) 
                 / (density_j * density_i) * (ccf_j - ccf_i) * grawWNorm + source) * dt;
             }
             ccf_i = ccf_sum + ccf_old;
             model->setTemperature(i, ccf_i);
 
-            // 增加直接控制粘度并传给Weiler
-            m_viscosity[i] = m_viscosity0 * exp(-m_decay * ccf_i);
-            model->setNonNewtonViscosity(i, m_viscosity[i]);
+            // 如果是热水（也就是被emitter发射的粒子），则直接设置温度为100
+            if(m_model->getParticleState(i) == ParticleState::AnimatedByEmitter)
+            {
+                m_isHotwater[i] = 1;
+                model->setTemperature(i, m_hotWaterTemp);
+                m_viscosity[i] = 0.0;
+                model->setNonNewtonViscosity(i, 0.0);
+            }
+            if(m_isHotwater[i]==1)
+            {   
+                // std::cout<<i<<" is hot water"<<std::endl;
+                model->setTemperature(i, m_hotWaterTemp);
+                m_viscosity[i] = 0.0;
+                model->setNonNewtonViscosity(i, 0.0);
+            }
+            if(m_isHotwater[i]!=1)
+            {
+                // 增加直接控制粘度并传给Weiler
+                // m_viscosity[i] = m_viscosity0 * exp(-m_decay * ccf_i); //冰激凌融化用的模型
+
+                //热水用的模型 直接0或很大年度
+                if(model->getTemperature(i) > 1.0)
+                    m_viscosity[i] = 0.0;
+                else
+                    m_viscosity[i] = m_viscosity0;
+                model->setNonNewtonViscosity(i, m_viscosity[i]);
+            }
+
+            Vector3r &veli = m_model->getVelocity(i);
+            // 地板摩擦
+            // if(xi[1] < 0.05)
+            // {
+            //     veli[0] *= 0.01;
+            //     veli[2] *= 0.01;
+            // }
+            
+            //clamping
+            if(veli.norm()>4)
+                veli = veli.normalized()*4;
+            
         }
     }
 

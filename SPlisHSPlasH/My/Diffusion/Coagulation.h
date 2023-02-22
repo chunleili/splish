@@ -37,6 +37,9 @@ namespace SPH
 		float m_maxViscosity = 0.0f;
 		float m_avgViscosity = 0.0f;
 		float m_avgTemp = 0.0f;
+		std::vector<int> m_isHotwater; //1代表是热水，其他代表不是
+		// std::vector<std::vector<int>> m_neighbors;
+		Real m_hotWaterTemp = 0.0;
 
 		virtual void deferredInit();
 
@@ -60,6 +63,7 @@ namespace SPH
 		static int AVG_TEMP;
 		inline static int DECAY = -1;
 		inline static int VISCOSITY0 = -1;
+		inline static int HOT_WATER_TEMP = -1;
 
 		Coagulation();
 		Coagulation(FluidModel* model);
