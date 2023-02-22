@@ -1,7 +1,7 @@
 {
 	"Configuration": 
 	{
-		"imteStepSize": 0.001,
+		"timeStepSize": 0.001,
 		"particleRadius": 0.025,
 		"numberOfStepsPerRenderUpdate": 2,
 		"density0": 1000, 
@@ -23,24 +23,21 @@
 		"stopAt": 10.0,
 		"noGUI": true,
 		"enableMyPartioExport": true,
-		"enableObjectSplitting": false
+		"enableObjectSplitting": false,
+		"dataExportFPS ":10
 	},
 	"Materials": [
 		{
 			"id": "plastic",
 			"elasticityMethod": 4,
-			"viscosity": 0.01,
-			"viscosityMethod": 1,
-			"surfaceTension": 0.02,
-			"surfaceTensionMethod": 0,
-			"youngsModulus": 10e6,
+			"youngsModulus": 5e6,
 			"poissonsRatio": 0.33, 
 			"alpha": 0.1
 		},
 		{
 			"id": "elastic",
 			"elasticityMethod": 1,
-			"youngsModulus": 10e6,
+			"youngsModulus": 5e6,
 			"poissonsRatio": 0.33, 
 			"alpha": 0.1
 		}
@@ -64,12 +61,12 @@
 		{
 			"id": "plastic",
 			"particleFile": "../models/tomato-dense.bhclassic",
-			"translation": [-3,3,0]
+			"translation": [-3,5,0]
 		},
 		{
 			"id": "elastic",
 			"particleFile": "../models/tomato-dense.bhclassic",
-			"translation": [3,3,0],
+			"translation": [3,5,0],
 			"color": [0.1, 0.4, 0.6, 1.0]
 		}
 	]
