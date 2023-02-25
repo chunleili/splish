@@ -21,7 +21,9 @@
 		"particleAttributes": "temperature;velocity",
 		"boundaryHandlingMethod": 0,
 		"enableZSort": false,
-		"stopAt": 5.0
+		"stopAt": 5.0,
+		"enableMyPartioExport":true,
+		"enableObjectSplitting": true
 	},
 	"Materials": [
 		{
@@ -38,7 +40,8 @@
 			"meltbox": false,
 			"diffusivity": 100.0,
 			"emitterReuseParticles": false,
-			"hotWaterTemp": 100.0
+			"hotWaterTemp": 100.0,
+			"viscoMaxIter":1000
 		}
 	],
 	"RigidBodies": [

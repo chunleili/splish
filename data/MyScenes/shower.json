@@ -20,8 +20,9 @@
 		"enableDivergenceSolver": true,
 		"particleAttributes": "temperature;velocity",
 		"boundaryHandlingMethod": 0,
-		"enableZSort": false,
-		"pauseAt": 5.0
+		"enableZSort": true,
+		"pauseAt": 5.0,
+		"enableObjectSplitting": false
 	},
 	"Materials": [
 		{
@@ -41,7 +42,8 @@
 			"emitterReuseParticles": false,
 			"emitterBoxMin": [-2.0,-2.5,-2.0],
 			"emitterBoxMax": [1.0,4,2.0],
-			"hotWaterTemp": 100.0
+			"hotWaterTemp": 100.0,
+			"viscoMaxIter":100
 		}
 	],
 	"RigidBodies": [
