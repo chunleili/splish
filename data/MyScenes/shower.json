@@ -21,7 +21,9 @@
 		"particleAttributes": "temperature;velocity",
 		"boundaryHandlingMethod": 0,
 		"enableZSort": false,
-		"pauseAt": 5.0
+		"pauseAt": 5.0,
+		"stopAt": 5.0,
+		"enableMyPartioExport": true
 	},
 	"Materials": [
 		{
@@ -37,10 +39,7 @@
 			"meltSurface": false,
 			"meltbox": false,
 			"diffusivity": 100.0,
-			"maxEmitterParticles": 8000,
 			"emitterReuseParticles": false,
-			"emitterBoxMin": [-2.0,-2.5,-2.0],
-			"emitterBoxMax": [1.0,4,2.0],
 			"hotWaterTemp": 100.0
 		}
 	],
@@ -75,7 +74,7 @@
 	"FluidModels": [
 		{
 			"id" : "Fluid",
-			"particleFile": "../models/bunny.bgeo",
+			"particleFile": "../models/bunny.bhclassic",
 			"translation": [0,0.1,0]
 		}
 	]
