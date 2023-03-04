@@ -66,67 +66,23 @@ void ParticleExporter_MyPartio::setActive(const bool active)
 
 void ParticleExporter_MyPartio::writeParticlesPartio(const std::string& fileName, FluidModel* model, const unsigned int objId)
 {	
-	auto* d = Partio::PartioSingleton::getCurrent();
-	m_particleData = d->getParticlesData();
+	const bool async = m_base->getValue<bool>(SimulatorBase::ASYNC_EXPORT);
+	if (async)
+	{
+		if (m_handle.valid())
+			m_handle.wait();
+	}
 
-    Partio::ParticleAttribute posAttr;
-    m_particleData->attributeInfo("position", posAttr);
+	m_particleData = Partio::create();
+	Partio::ParticlesDataMutable& particleData = *m_particleData;
 
-	// print(m_particleData);
-	//根据计算结果（存储在model中），更新粒子位置
-	//其余的不需要更新了，想更新什么，就从model中取出来，然后更新到单例中
-	std::cout << "model->numActiveParticles(): "<<model->numActiveParticles() << std::endl;
-	
-	// BUG FIX: 由于partio中的粒子是从bhclassic读入的，数量是固定的。当model中额外注入了粒子的时候(比如fluid block或者emitter或其他来源)，就会导致partio中的粒子数量不够用，从而导致程序崩溃。
-	unsigned int numParInPartio = m_particleData->numParticles();
-	unsigned int numParInModel = model->numActiveParticles();
+	Partio::ParticleAttribute posAttr = particleData.addAttribute("position", Partio::VECTOR, 3);
+	Partio::ParticleAttribute idAttr = particleData.addAttribute("id", Partio::INT, 1);
 
-    for (unsigned int i = 0; i < model->numActiveParticles(); i++)
-    // for (unsigned int i = 0; i < m_particleData->numParticles(); i++)
-    {
-		int idx = i;
-
-		//当粒子都是partio读入的时候，不需要额外添加粒子
-		//当model中的粒子数量大于partio中的粒子数量时，需要额外添加粒子
-		if(i >= numParInPartio)
-		{
-			int idx2 = m_particleData->addParticle();
-			if(idx2 != idx)
-				throw std::runtime_error("addParticle failed! Index mismatch!");
-		}
-
-        float* p = m_particleData->dataWrite<float>(posAttr, idx);
-
-		const Vector3r& x = model->getPosition(i);
-        p[0] = x[0];
-        p[1] = x[1];
-        p[2] = x[2];
-    }
-
-
-	/* -------------------------------------------------------------------------- */
-	/*                               导出splish新增自定义场                        */
-	/* -------------------------------------------------------------------------- */
-	// ADD FEATURE 2023.3.1 : 增加导出splish内部有，但bhclassic中本身没有的量
 	// add attributes
 	std::vector<std::string> attributes;
 	StringTools::tokenize(m_base->getValue<std::string>(SimulatorBase::PARTICLE_EXPORT_ATTRIBUTES), attributes, ";");
 
-	std::cout<<"There are "<<attributes.size()<<" user defined attributes to be exported.\n They are: \n";
-	for(auto attr : attributes)
-	{
-		std::cout<<attr<<"\n";
-	}
-
-	std::cout<<"There are "<<model->numberOfFields()<<" fields in fluid model.\n They are: \n";
-	for (unsigned int j = 0; j < model->numberOfFields(); j++)
-	{	
-		const FieldDescription& field = model->getField(j);
-		std::cout<<field.name<<"\n";
-	}
-
-	std::cout<<"Begin to search and match for user defined attributes in fluid model.\n";
-	// 搜索所有场的名字，看是否和attributes中的名字相同，相同的话，就把场的名字和场的index存入map中，然后为partio中的粒子添加属性
 	std::map<unsigned int, int> attrMap;
 	std::map<unsigned int, Partio::ParticleAttribute> partioAttrMap;
 	for (unsigned int i = 0; i < attributes.size(); i++)
@@ -137,36 +93,28 @@ void ParticleExporter_MyPartio::writeParticlesPartio(const std::string& fileName
 			attrMap[i] = -1;
 			continue;
 		}
+
 		bool found = false;
 		for (unsigned int j = 0; j < model->numberOfFields(); j++)
-		{	
+		{
 			const FieldDescription& field = model->getField(j);
-
 			if (field.name == attributes[i])
 			{
 				found = true;
-				std::cout<<"We found attribute "<<attributes[i]<<" in fluid model.\n It's type is: ";
-
 				if (field.type == Scalar)
 				{
-					std::cout<<"Scalar\n";
-					std::cout<<"Adding new attribute "<<attributes[i]<<" to partio.\n";
 					attrMap[i] = j;
-					partioAttrMap[i] = m_particleData->addAttribute(attributes[i].c_str(), Partio::FLOAT, 1);
+					partioAttrMap[i] = particleData.addAttribute(attributes[i].c_str(), Partio::FLOAT, 1);
 				}
 				else if (field.type == UInt)
 				{
-					std::cout<<"UInt\n";
 					attrMap[i] = j;
-					std::cout<<"Adding new attribute "<<attributes[i]<<" to partio.\n";
-					partioAttrMap[i] = m_particleData->addAttribute(attributes[i].c_str(), Partio::INT, 1);
+					partioAttrMap[i] = particleData.addAttribute(attributes[i].c_str(), Partio::INT, 1);
 				}
 				else if (field.type == Vector3)
 				{
-					std::cout<<"Vector3\n";
-					std::cout<<"Adding new attribute "<<attributes[i]<<" to partio.\n";
 					attrMap[i] = j;
-					partioAttrMap[i] = m_particleData->addAttribute(attributes[i].c_str(), Partio::VECTOR, 3);
+					partioAttrMap[i] = particleData.addAttribute(attributes[i].c_str(), Partio::VECTOR, 3);
 				}
 				else
 				{
@@ -183,9 +131,24 @@ void ParticleExporter_MyPartio::writeParticlesPartio(const std::string& fileName
 		}
 	}
 
-	//然后根据搜索到的属性，写出场
-	for (unsigned int i = 0; i < numParInModel; i++)
+	const unsigned int numParticles = model->numActiveParticles();
+
+	for (unsigned int i = 0; i < numParticles; i++)
 	{
+		if ((objId != 0xffffffff) && (model->getObjectId(i) != objId))
+			continue;
+			
+		Partio::ParticleIndex index = particleData.addParticle();
+		float* pos = particleData.dataWrite<float>(posAttr, index);
+		int* id = particleData.dataWrite<int>(idAttr, index);
+
+		const Vector3r& x = model->getPosition(i);
+		pos[0] = (float)x[0];
+		pos[1] = (float)x[1];
+		pos[2] = (float)x[2];
+
+		id[0] = model->getParticleId(i);
+
 		for (unsigned int j = 0; j < attributes.size(); j++)
 		{
 			const int fieldIndex = attrMap[j];
@@ -194,17 +157,17 @@ void ParticleExporter_MyPartio::writeParticlesPartio(const std::string& fileName
 				const FieldDescription& field = model->getField(fieldIndex);
 				if (field.type == FieldType::Scalar)
 				{
-					float* val = m_particleData->dataWrite<float>(partioAttrMap[j], i);
+					float* val = particleData.dataWrite<float>(partioAttrMap[j], index);
 					*val = (float)*((Real*)field.getFct(i));
 				}
 				else if (field.type == FieldType::UInt)
 				{
-					int* val = m_particleData->dataWrite<int>(partioAttrMap[j], i);
+					int* val = particleData.dataWrite<int>(partioAttrMap[j], index);
 					*val = (int)*((unsigned int*)field.getFct(i));
 				}
 				else if (field.type == FieldType::Vector3)
 				{
-					float* val = m_particleData->dataWrite<float>(partioAttrMap[j], i);
+					float* val = particleData.dataWrite<float>(partioAttrMap[j], index);
 					Eigen::Map<Vector3r> vec((Real*)field.getFct(i));
 					val[0] = (float)vec[0];
 					val[1] = (float)vec[1];
@@ -213,14 +176,13 @@ void ParticleExporter_MyPartio::writeParticlesPartio(const std::string& fileName
 			}
 		}
 	}
-	/* -------------------------------------------------------------------------- */
-	/*                          End of  导出splish新增自定义场                      */
-	/* -------------------------------------------------------------------------- */
 
-
-
-    Partio::write(fileName.c_str(), *m_particleData);
-	std::cout << "Write partio data to the file: "<<fileName<< std::endl;
-	print(m_particleData);
-	std::cout << "---------------------\n\n";
+	m_particleFile = fileName;
+	if (async)
+		m_handle = std::async(std::launch::async, [&] { Partio::write(m_particleFile.c_str(), particleData, true); particleData.release(); });
+	else
+	{
+		Partio::write(m_particleFile.c_str(), particleData, true);
+		particleData.release();
+	}
 }
