@@ -63,7 +63,7 @@
 			"material": "Fluid",
 			"width": 8, 
 			"height": 3, 
-			"translation": [-1.2,1.2,0.0],
+			"translation": [-2,1.2,0.0],
 			"rotationAxis": [1, 0, 0],
 			"rotationAngle": 0,
 			"velocity": 2, 
@@ -75,7 +75,7 @@
 		{
 			"id" : "Fluid",
 			"particleFile": "../models/bunny.bhclassic",
-			"translation": [0,0.1,0]
+			"translation": [0,0.3,0]
 		}
 	]
 
