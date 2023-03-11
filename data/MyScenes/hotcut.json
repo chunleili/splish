@@ -31,13 +31,13 @@
 			"surfaceTensionMethod": 5,
 			"colorField": "temperature",
 			"renderMaxValue": 1.0,
-			"boxMax": [1,0.0,1],
+			"boxMax": [1,0.05,1],
 			"boxMin": [-1,0.0,-1],
-			"viscosity0": 1000,
-			"viscosity": 1.0,
+			"viscosity0": 20.0,
+			"viscosity": 20.0,
 			"viscosityMethod": 8,
 			"meltSurface": false,
-			"meltbox": false,
+			"meltbox": true,
 			"diffusivity": 100.0,
 			"hotWaterTemp": 100.0,
 			"viscoMaxIter":1000
@@ -45,13 +45,24 @@
 	],
 	"RigidBodies": [
 		{
-			"geometryFile": "../models/BBox-bunny-dense.obj",
+			"geometryFile": "../models/hot_cut_bbox.obj",
 			"color": [0.1, 0.4, 0.6, 1.0], 
 			"translation": [0,0,0],
-			"scale": [1.05, 1.05, 1.05],
+			"scale": [1.5, 1.0, 1.5],
 			"isDynamic": false,
 			"isWall": true,
 			"mapInvert": true, 
+			"mapThickness": 0.0,
+			"mapResolution": [10,10,10]
+		},
+		{
+			"geometryFile": "../models/hot_cut_cross_plane.obj",
+			"color": [0.1, 0.4, 0.6, 1.0], 
+			"translation": [0,0,0],
+			"scale": [1.0, 1.0, 1.0],
+			"isDynamic": false,
+			"isWall": false,
+			"mapInvert": false, 
 			"mapThickness": 0.0,
 			"mapResolution": [10,10,10]
 		}
@@ -59,14 +70,8 @@
 	"FluidModels": [
 		{
 			"id" : "Fluid",
-			"particleFile": "../models/bunny-dense-jitter.bhclassic",
+			"particleFile": "../models/hot_cut_bunny_sampled.bhclassic",
 			"translation": [0,0.1,0]
-		},
-		{
-			"id" : "Fluid",
-			"particleFile": "../models/cut-plane.bhclassic",
-			"temperature": 50.0,
-			"velocity": [0,-5,0]
 		}
 	]
 
