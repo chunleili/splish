@@ -18,10 +18,10 @@
 		"exponent": 7,
 		"velocityUpdateMethod": 0,
 		"enableDivergenceSolver": true,
-		"particleAttributes": "temperature",
+		"particleAttributes": "",
 		"boundaryHandlingMethod": 0,
 		"enableZSort": false,
-		"stopAt": 5.0,
+		"stopAt": 20.0,
 		"enableMyPartioExport":true,
 		"enableObjectSplitting": true
 	},
