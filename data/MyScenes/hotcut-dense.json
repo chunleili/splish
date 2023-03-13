@@ -21,7 +21,7 @@
 		"particleAttributes": "",
 		"boundaryHandlingMethod": 0,
 		"enableZSort": false,
-		"stopAt": 20.0,
+		"stopAt": 15.0,
 		"enableMyPartioExport":true,
 		"enableObjectSplitting": true
 	},
@@ -45,7 +45,7 @@
 	],
 	"RigidBodies": [
 		{
-			"geometryFile": "../models/hot_cut_bcylinder.obj",
+			"geometryFile": "../models/hot_cut_bcylinder_dense.obj",
 			"color": [0.1, 0.4, 0.6, 1.0], 
 			"translation": [0,0,0],
 			"scale": [1.0, 1.0, 1.0],
@@ -56,7 +56,7 @@
 			"mapResolution": [10,10,10]
 		},
 		{
-			"geometryFile": "../models/hot_cut_cross_plane.obj",
+			"geometryFile": "../models/hot_cut_cross_plane_dense.obj",
 			"color": [0.1, 0.4, 0.6, 1.0], 
 			"translation": [0,0,0],
 			"scale": [1.0, 1.0, 1.0],
@@ -70,8 +70,8 @@
 	"FluidModels": [
 		{
 			"id" : "Fluid",
-			"particleFile": "../models/hot_cut_bunny_sampled.bhclassic",
-			"translation": [0,0.1,0]
+			"particleFile": "../models/hot_cut_bunny_sampled_dense.bhclassic",
+			"translation": [0,0,0]
 		}
 	]
 
