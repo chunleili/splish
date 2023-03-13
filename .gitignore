@@ -20,3 +20,11 @@ CMakeFiles
 .idea
 Version.h
 extern/PositionBasedDynamics/Utils/Version.h
+Tests/NonNewton/6NonNewtonsLineChart.png
+Tests/NonNewton/Bingham.csv
+Tests/NonNewton/Carreau.csv
+Tests/NonNewton/Casson.csv
+Tests/NonNewton/Cross.csv
+Tests/NonNewton/HerschelBulkley.csv
+Tests/NonNewton/Newtonian.csv
+Tests/NonNewton/PowerLaw.csv
