@@ -153,6 +153,15 @@ void Coagulation::initParameters()
     HOT_WATER_TEMP = createNumericParameter("hotWaterTemp", "hotWaterTemp", &m_hotWaterTemp);
 	setGroup(HOT_WATER_TEMP, "coagualtion");
 	setDescription(HOT_WATER_TEMP, "hot water temp");
+
+    IS_SHOWER_SCENE = createBoolParameter("isShowerScene", "isShowerScene", &m_isShowerScene);
+	setGroup(IS_SHOWER_SCENE, "coagualtion");
+
+    IS_ICE_CREAM_SCENE = createBoolParameter("isIceCreamScene", "isIceCreamScene", &m_isIceCreamScene);
+    setGroup(IS_ICE_CREAM_SCENE, "coagualtion");
+
+    IS_HOT_CUT_SCENE = createBoolParameter("isHotCutScene", "isHotCutScene", &m_isHotCutScene);
+    setGroup(IS_HOT_CUT_SCENE, "coagualtion");
 }
 
 void Coagulation::step()
@@ -233,45 +242,54 @@ void Coagulation::step()
             ccf_i = ccf_sum + ccf_old;
             model->setTemperature(i, ccf_i);
 
-            // 如果是热水（也就是被emitter发射的粒子），则直接设置温度为100
-            if(m_model->getParticleState(i) == ParticleState::AnimatedByEmitter)
+            if(m_isIceCreamScene || m_isHotCutScene)
             {
-                m_isHotwater[i] = 1;
-                model->setTemperature(i, m_hotWaterTemp);
-                m_viscosity[i] = 0.0;
-                model->setNonNewtonViscosity(i, 0.0);
-            }
-            if(m_isHotwater[i]==1)
-            {   
-                // std::cout<<i<<" is hot water"<<std::endl;
-                model->setTemperature(i, m_hotWaterTemp);
-                m_viscosity[i] = 0.0;
-                model->setNonNewtonViscosity(i, 0.0);
-            }
-            if(m_isHotwater[i]!=1)
-            {
-                // 增加直接控制粘度并传给Weiler
-                // m_viscosity[i] = m_viscosity0 * exp(-m_decay * ccf_i); //冰激凌融化用的模型
-
-                //热水用的模型 直接0或很大年度
-                if(model->getTemperature(i) > 1.0)
-                    m_viscosity[i] = 0.0;
-                else
-                    m_viscosity[i] = m_viscosity0;
+                m_viscosity[i] = m_viscosity0 * exp(-m_decay * ccf_i); //冰激凌融化用的模型
                 model->setNonNewtonViscosity(i, m_viscosity[i]);
             }
 
-            Vector3r &veli = m_model->getVelocity(i);
+            if(m_isShowerScene)
+            {
+                // 如果是热水（也就是被emitter发射的粒子），则直接设置温度为100
+                if(m_model->getParticleState(i) == ParticleState::AnimatedByEmitter)
+                {
+                    m_isHotwater[i] = 1;
+                    model->setTemperature(i, m_hotWaterTemp);
+                    m_viscosity[i] = 0.0;
+                    model->setNonNewtonViscosity(i, 0.0);
+                }
+                if(m_isHotwater[i]==1)
+                {   
+                    // std::cout<<i<<" is hot water"<<std::endl;
+                    model->setTemperature(i, m_hotWaterTemp);
+                    m_viscosity[i] = 0.0;
+                    model->setNonNewtonViscosity(i, 0.0);
+                }
+                if(m_isHotwater[i]!=1)
+                {
+                    // 增加直接控制粘度并传给Weiler
+                    // m_viscosity[i] = m_viscosity0 * exp(-m_decay * ccf_i); //冰激凌融化用的模型
+
+                    //热水用的模型 直接0或很大年度
+                    if(model->getTemperature(i) > 1.0)
+                        m_viscosity[i] = 0.0;
+                    else
+                        m_viscosity[i] = m_viscosity0;
+                    model->setNonNewtonViscosity(i, m_viscosity[i]);
+                }
+            }
+
+            Vector3r &vel_i = m_model->getVelocity(i);
             // 地板摩擦
-            // if(xi[1] < 0.05)
-            // {
-            //     veli[0] *= 0.01;
-            //     veli[2] *= 0.01;
-            // }
+            if(xi[1] < 0.01)
+            {
+                vel_i[0] *= 0.1;
+                vel_i[2] *= 0.1;
+            }
             
             //clamping
-            if(veli.norm()>4)
-                veli = veli.normalized()*4;
+            if(vel_i.norm()>4)
+                vel_i = vel_i.normalized()*4;
             
         }
     }

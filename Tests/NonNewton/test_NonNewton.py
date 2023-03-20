@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 class NonNewton():
-    def __init__(self, viscosity0=2000.0, viscosity_inf=1.0, consistency_index=0.5, power_index=0.667, muC=10.0, yieldStress=180.0, criticalStrainRate=0.5):
+    def __init__(self, viscosity0=1000.0, viscosity_inf=1.0, consistency_index=0.5, power_index=0.667, muC=10.0, yieldStress=180.0, criticalStrainRate=0.5):
         self.viscosity0 = viscosity0
         self.viscosity_inf = viscosity_inf
         self.consistency_index = consistency_index
@@ -42,7 +42,7 @@ class NonNewton():
             return tau0 / strainRateNorm + self.consistency_index * pow(strainRateNorm, self.power_index - 1)
 
 
-def test_NonNewton(model_name:str, viscosity0=2000.0, viscosity_inf=1.0, consistency_index=1000.0, power_index=0.667, muC=10.0, yieldStress=200.0, criticalStrainRate=20.0)->list:
+def test_NonNewton(model_name:str, viscosity0=1000.0, viscosity_inf=1.0, consistency_index=1000.0, power_index=0.667, muC=10.0, yieldStress=200.0, criticalStrainRate=20.0)->list:
     # TODO:更改参数！
 
     strainRateNorms = np.array([i*.1 for i in range(1,1000)])
@@ -85,144 +85,165 @@ def test_NonNewton(model_name:str, viscosity0=2000.0, viscosity_inf=1.0, consist
 
 
 def draw(x, y, color='r', label=''):
+    # import matplotlib
+    # font = {'family' : 'Arial',
+    #     'size'   : 20}
+
+    # matplotlib.rc('font', **font)
+    
+    # ax = plt.subplot(111)
+    # # 设置刻度字体大小
+    # plt.xticks(fontsize=20)
+    # plt.yticks(fontsize=20)
+    # # 设置坐标标签字体大小
+    # ax.set_xlabel(..., fontsize=20)
+    # ax.set_ylabel(..., fontsize=20)
+    # # 设置图例字体大小
+    # # ax.legend(..., fontsize=20)
+
+
+    import matplotlib.pyplot as plt
+
+    SMALL_SIZE = 16
+    MEDIUM_SIZE = 20
+    BIGGER_SIZE = 22
+
+    plt.rc('font', size=SMALL_SIZE)          # controls default text sizes
+    plt.rc('axes', titlesize=SMALL_SIZE)     # fontsize of the axes title
+    plt.rc('axes', labelsize=MEDIUM_SIZE)    # fontsize of the x and y labels
+    plt.rc('xtick', labelsize=BIGGER_SIZE)    # fontsize of the tick labels
+    plt.rc('ytick', labelsize=BIGGER_SIZE)    # fontsize of the tick labels
+    plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
+    plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
+
     plt.xlabel('shear rate(FNorm)')
     plt.ylabel('Viscosity')
-    handle = plt.plot(x, y, color, label=label)
+
+    handle = plt.plot(x, y, color, label=label,linewidth=2)
     return handle
 
-
+def run_and_draw(model_name, **kwargs):
+    [x,y] = test_NonNewton(model_name, **kwargs)
+    plt.figure()
+    [x,y] = test_NonNewton('Newtonian')
+    np.savetxt(this_path + '/Newtonian.csv', np.array([x,y]).transpose())
+    draw(x, y, 'y', label='Newtonian')
+    plt.show()
 
 if __name__ == "__main__":
 
+    import os
+    this_path = os.path.abspath(os.path.dirname(__file__))
+
+    
+    
+    #将文件保存至文件中并且画出图
+    # plt.savefig('figure.eps')
+
+
     # 测试所有模型
-    [x,y] = test_NonNewton('All')
     plt.figure()
-    draw(x, y[0], 'y', label='Newtonian')
-    draw(x, y[1], 'r', label='PowerLaw')
-    draw(x, y[2], 'g', label='Cross')
-    draw(x, y[3], 'b', label='Casson')
-    draw(x, y[4], 'k', label='Carreau')
-    draw(x, y[5], 'c', label='Bingham')
-    draw(x, y[6], 'm', label='Herschel-Bulkley')
-    plt.legend()
-    # plt.savefig('./pics/demo_All.jpg', dpi=300)
+
+    [x,y] = test_NonNewton('Newtonian')
+    np.savetxt(this_path + '/Newtonian.csv', np.array([x,y]).transpose())
+    draw(x, y, 'y', label='Newtonian')
+    [x,y] = test_NonNewton('PowerLaw', power_index=0.667, consistency_index = 500.0) 
+    np.savetxt(this_path + '/PowerLaw.csv', np.array([x,y]).transpose())
+    # draw(x, y, 'y', label='PowerLaw, power_index=0.667, consistency_index = 500.0')
+    draw(x, y, 'y', label='PowerLaw(shear-thinning)')
+    [x,y] = test_NonNewton('PowerLaw', power_index=1.1, consistency_index = 500.0)
+    np.savetxt(this_path + '/PowerLaw.csv', np.array([x,y]).transpose())
+    # draw(x, y, 'b', label='PowerLaw, power_index=1.1, consistency_index = 500.0')
+    draw(x, y, 'b', label='PowerLaw(shear-thickening)')
+    [x,y] = test_NonNewton('Cross', consistency_index = 1.0, power_index = 0.667)
+    np.savetxt(this_path + '/Cross.csv', np.array([x,y]).transpose())
+    # draw(x, y, 'c', label = 'Cross, consistency_index = 1.0, power_index = 0.667')
+    draw(x, y, 'c', label = 'Cross')
+    [x,y] = test_NonNewton('Casson', muC = 6.0, yieldStress = 90.0)
+    np.savetxt(this_path + '/Casson.csv', np.array([x,y]).transpose())
+    # draw(x, y, 'g', label = 'Casson, muC = 6.0, yieldStress = 90.0')
+    draw(x, y, 'g', label = 'Casson')
+    [x,y] = test_NonNewton('Carreau', consistency_index = 0.1, power_index = 0.9)
+    np.savetxt(this_path + '/Carreau.csv', np.array([x,y]).transpose())
+    draw(x, y, 'm', label = 'Carreau,')
+    [x,y] = test_NonNewton('Bingham', criticalStrainRate = 1.0)
+    np.savetxt(this_path + '/Bingham.csv', np.array([x,y]).transpose())
+    draw(x, y, 'r', label = 'Bingham')
+    [x,y] = test_NonNewton('HerschelBulkley', consistency_index = 60.0, power_index = 0.667, criticalStrainRate = 1.0)
+    np.savetxt(this_path + '/HerschelBulkley.csv', np.array([x,y]).transpose())
+    draw(x, y, 'k', label = 'HerschelBulkley')
+
+    # plt.title('All')
+    plt.legend(loc="upper right")
+    # plt.savefig(this_path +'/6NonNewtonsLineChart.png', dpi=300, bbox_inches='tight')
+
+
 
 
     # 测试单个模型
-    # 测试Newtonian模型
-    plt.figure()
-    [x,y] = test_NonNewton('Newtonian')
-    draw(x, y, 'y', label='Newtonian')
-    plt.legend()
-    # plt.savefig('./pics/demo_Newtonian.jpg', dpi=300)
+    test_single_model = False
+    if test_single_model:
+        # 测试Newtonian模型
+        plt.figure()
+        [x,y] = test_NonNewton('Newtonian')
+        draw(x, y, 'y', label='Newtonian')
+        plt.legend()
+        # plt.savefig('./pics/demo_Newtonian.jpg', dpi=300)
 
-    # 测试PowerLaw模型
-    plt.figure()
-    [x,y] = test_NonNewton('PowerLaw', power_index=0.667) #通过给定不同参数来测试
-    draw(x, y, 'r', label='power_index=0.667')
-    [x,y] = test_NonNewton('PowerLaw', power_index=0.68) 
-    draw(x, y, 'c', label='power_index=0.68')
-    [x,y] = test_NonNewton('PowerLaw', power_index=0.69) 
-    draw(x, y, 'm', label='power_index=0.69')
-    [x,y] = test_NonNewton('PowerLaw', power_index=0.7) 
-    draw(x, y, 'g', label='power_index=0.7')
-    [x,y] = test_NonNewton('PowerLaw', power_index=0.8) 
-    draw(x, y, 'k', label='power_index=0.8')
-    [x,y] = test_NonNewton('PowerLaw', power_index=1.1)
-    draw(x, y, 'b', label='power_index=1.1')
-    # TODO:测试更多参数！
-    [x,y] = test_NonNewton('PowerLaw', power_index=1.15)
-    draw(x, y, 'y', label='power_index=1.15')
-    [x,y] = test_NonNewton('PowerLaw', power_index=1.16)
-    draw(x, y, 'r', label='power_index=1.16')
-    plt.title('PowerLaw')
-    plt.legend()
-    # plt.savefig('./pics/demo_PowerLaw.jpg', dpi=300)
+        # 测试PowerLaw模型
+        plt.figure()
+        [x,y] = test_NonNewton('PowerLaw', power_index=0.667, consistency_index = 500.0) #通过给定不同参数来测试
+        draw(x, y, 'r', label='power_index=0.667, consistency_index = 500.0')
+        [x,y] = test_NonNewton('PowerLaw', power_index=1.1, consistency_index = 500.0)
+        draw(x, y, 'b', label='power_index=1.1, consistency_index = 500.0')
 
-    # 测试Cross模型
-    plt.figure()
-    [x,y] = test_NonNewton('Cross', consistency_index = 0.1, power_index = 0.7)
-    draw(x, y, 'k', label = 'consistency_index = 0.1, power_index = 0.667')
-    [x,y] = test_NonNewton('Cross', consistency_index = 0.5, power_index = 0.667)
-    draw(x, y, 'y', label = 'consistency_index = 0.5, power_index = 0.667')
-    [x,y] = test_NonNewton('Cross', consistency_index = 1.0, power_index = 0.68)
-    draw(x, y, 'b', label = 'consistency_index = 1.0, power_index = 0.667')
-    [x,y] = test_NonNewton('Cross', consistency_index = 5.0, power_index = 0.667)
-    draw(x, y, 'g', label = 'consistency_index = 5.0, power_index = 0.667')
-    [x,y] = test_NonNewton('Cross', consistency_index = 10.0, power_index = 0.667)
-    draw(x, y, 'm', label = 'consistency_index = 10.0, power_index = 0.667')
-    [x,y] = test_NonNewton('Cross', consistency_index = 100.0, power_index = 0.667)
-    draw(x, y, 'r', label = 'consistency_index = 100.0, power_index = 0.667')
-    [x,y] = test_NonNewton('Cross', consistency_index = 1000.0, power_index = 0.667)
-    draw(x, y, 'c', label = 'consistency_index = 1000.0, power_index = 0.667')
-    plt.title('Cross')
-    plt.legend()
-    # plt.savefig('./pics/demo_Cross.jpg', dpi = 300)
+        plt.title('PowerLaw')
+        plt.legend()
+        # plt.savefig('./pics/demo_PowerLaw.jpg', dpi=300)
 
-    # 测试Casson模型
-    plt.figure()
-    [x,y] = test_NonNewton('Casson', muC = 10.0, yieldStress = 200.0)
-    draw(x, y, 'r', label = 'muC = 10.0, yieldStress = 200.0')
-    [x,y] = test_NonNewton('Casson', muC = 8.0, yieldStress = 200.0)
-    draw(x, y, 'c', label = 'muC = 8.0, yieldStress = 200.0')
-    [x,y] = test_NonNewton('Casson', muC = 8.0, yieldStress = 190.0)
-    draw(x, y, 'k', label = 'muC = 8.0, yieldStress = 190.0')
-    [x,y] = test_NonNewton('Casson', muC = 8.0, yieldStress = 180.0)
-    draw(x, y, 'g', label = 'muC = 8.0, yieldStress = 180.0')
-    plt.title('Casson')
-    plt.legend()
-    # plt.savefig('./pics/demo_Casson.jpg', dpi = 300)
+        # 测试Cross模型
+        plt.figure()
+        [x,y] = test_NonNewton('Cross', consistency_index = 1.0, power_index = 0.667)
+        draw(x, y, 'm', label = 'consistency_index = 1.0, power_index = 0.667')
+        
+        plt.title('Cross')
+        plt.legend()
+        # plt.savefig('./pics/demo_Cross.jpg', dpi = 300)
 
-    #测试Carreau模型
-    plt.figure()
-    [x,y] = test_NonNewton('Carreau', consistency_index = 1000.0, power_index = 0.667)
-    draw(x, y, 'r', label = 'consistency_index = 1000.0, power_index = 0.667')
-    [x,y] = test_NonNewton('Carreau', consistency_index = 2000.0, power_index = 0.667)
-    draw(x, y, 'c', label = 'consistency_index = 2000.0, power_index = 0.667')
-    [x,y] = test_NonNewton('Carreau', consistency_index = 500.0, power_index = 0.667)
-    draw(x, y, 'k', label = 'consistency_index = 500.0, power_index = 0.667')
-    [x,y] = test_NonNewton('Carreau', consistency_index = 2000.0, power_index = 0.7)
-    draw(x, y, 'b', label = 'consistency_index = 2000.0, power_index = 0.7')
-    [x,y] = test_NonNewton('Carreau', consistency_index = 2000.0, power_index = 0.8)
-    draw(x, y, 'y', label = 'consistency_index = 2000.0, power_index = 0.8')
-    [x,y] = test_NonNewton('Carreau', consistency_index = 3000.0, power_index = 0.667)
-    draw(x, y, 'm', label = 'consistency_index = 3000.0, power_index = 0.667')
-    plt.title('Carreau')    
-    plt.legend()
-    # plt.savefig('./pics/demo_Carreau.jpg', dpi = 300)
+        # 测试Casson模型
+        plt.figure()
+        [x,y] = test_NonNewton('Casson', muC = 6.0, yieldStress = 90.0)
+        draw(x, y, 'g', label = 'muC = 6.0, yieldStress = 90.0')
 
-    #测试Bingham模型
-    plt.figure()
-    [x,y] = test_NonNewton('Bingham', criticalStrainRate = 20.0)
-    draw(x, y, 'r', label = 'criticalStrainRate = 20.0')
-    [x,y] = test_NonNewton('Bingham', criticalStrainRate = 10.0)
-    draw(x, y, 'c', label = 'criticalStrainRate = 10.0')
-    [x,y] = test_NonNewton('Bingham', criticalStrainRate = 5.0)
-    draw(x, y, 'b', label = 'criticalStrainRate = 5.0')
-    [x,y] = test_NonNewton('Bingham', criticalStrainRate = 30.0)
-    draw(x, y, 'g', label = 'criticalStrainRate = 30.0')
-    [x,y] = test_NonNewton('Bingham', criticalStrainRate = 1.0)
-    draw(x, y, 'y', label = 'criticalStrainRate = 1.0')
-    [x,y] = test_NonNewton('Bingham', criticalStrainRate = 0.5)
-    draw(x, y, 'k', label = 'criticalStrainRate = 0.5')
-    plt.title('Bingham')
-    plt.legend()
-    # plt.savefig('./pics/demo_Bingham.jpg', dpi = 300)
+        plt.title('Casson')
+        plt.legend()
+        # plt.savefig('./pics/demo_Casson.jpg', dpi = 300)
 
-    #测试HerschelBulkley模型
-    plt.figure()
-    [x,y] = test_NonNewton('HerschelBulkley', consistency_index = 1000.0, power_index = 0.667, criticalStrainRate = 20.0)
-    draw(x, y, 'r', label = 'consistency_index = 1000.0, power_index=0.667, criticalStrainRate = 20.0')
-    [x,y] = test_NonNewton('HerschelBulkley', consistency_index = 80.0, power_index = 0.667, criticalStrainRate = 20.0)
-    draw(x, y, 'c', label = 'consistency_index = 80.0, power_index=0.667, criticalStrainRate = 20.0')
-    [x,y] = test_NonNewton('HerschelBulkley', consistency_index = 100.0, power_index = 0.667, criticalStrainRate = 20.0)
-    draw(x, y, 'y', label = 'consistency_index = 100.0, power_index=0.667, criticalStrainRate = 20.0')
-    [x,y] = test_NonNewton('HerschelBulkley', consistency_index = 70.0, power_index = 0.667, criticalStrainRate = 1.0)
-    draw(x, y, 'm', label = 'consistency_index = 70.0, power_index=0.667, criticalStrainRate = 1.0')
-    [x,y] = test_NonNewton('HerschelBulkley', consistency_index = 60.0, power_index = 0.667, criticalStrainRate = 1.0)
-    draw(x, y, 'k', label = 'consistency_index = 60.0, power_index=0.667, criticalStrainRate = 1.0')
-    plt.title('HerschelBulkley')
-    plt.legend()
-    # plt.savefig('./pics/demo_HerschelBulkley.jpg', dpi = 300)
+        #测试Carreau模型
+        plt.figure()
+        [x,y] = test_NonNewton('Carreau', consistency_index = 0.1, power_index = 0.9)
+        draw(x, y, 'm', label = 'consistency_index = 0.1, power_index = 0.9')
+
+        plt.title('Carreau')    
+        plt.legend()
+        # plt.savefig('./pics/demo_Carreau.jpg', dpi = 300)
+
+        #测试Bingham模型
+        plt.figure()
+        [x,y] = test_NonNewton('Bingham', criticalStrainRate = 1.0)
+        draw(x, y, 'y', label = 'criticalStrainRate = 1.0')
+        
+        plt.title('Bingham')
+        plt.legend()
+        # plt.savefig('./pics/demo_Bingham.jpg', dpi = 300)
+
+        #测试HerschelBulkley模型
+        plt.figure()
+        [x,y] = test_NonNewton('HerschelBulkley', consistency_index = 60.0, power_index = 0.667, criticalStrainRate = 1.0)
+        draw(x, y, 'k', label = 'consistency_index = 60.0, power_index=0.667, criticalStrainRate = 1.0')
+        plt.title('HerschelBulkley')
+        plt.legend()
+        # plt.savefig('./pics/demo_HerschelBulkley.jpg', dpi = 300)
+
 
     plt.show()

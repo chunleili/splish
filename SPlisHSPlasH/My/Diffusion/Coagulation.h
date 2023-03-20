@@ -40,6 +40,9 @@ namespace SPH
 		std::vector<int> m_isHotwater; //1代表是热水，其他代表不是
 		// std::vector<std::vector<int>> m_neighbors;
 		Real m_hotWaterTemp = 0.0;
+		bool m_isIceCreamScene = true;
+		bool m_isShowerScene = false;
+		bool m_isHotCutScene = false;
 
 		virtual void deferredInit();
 
@@ -64,6 +67,9 @@ namespace SPH
 		inline static int DECAY = -1;
 		inline static int VISCOSITY0 = -1;
 		inline static int HOT_WATER_TEMP = -1;
+		inline static int IS_SHOWER_SCENE = -1;
+		inline static int IS_ICE_CREAM_SCENE = -1;
+		inline static int IS_HOT_CUT_SCENE = -1;
 
 		Coagulation();
 		Coagulation(FluidModel* model);
