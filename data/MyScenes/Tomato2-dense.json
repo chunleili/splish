@@ -33,6 +33,8 @@
 			"elasticityMethod": 4,
 			"youngsModulus": 1e7,
 			"poissonsRatio": 0.42, 
+			"elasticLimit": 0.05,
+			"plasticLimit": 1.0,
 			"alpha": 0.1
 		},
 		{
@@ -62,9 +64,7 @@
 		{
 			"id": "plastic",
 			"particleFile": "../models/tomato-dense2.bhclassic",
-			"translation": [-3,5,0],
-			"elasticLimit": 0.01,
-			"plasticLimit": 0.5
+			"translation": [-3,5,0]
 		},
 		{
 			"id": "elastic",
