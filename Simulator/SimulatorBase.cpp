@@ -189,6 +189,9 @@ void SimulatorBase::initParameters()
     setGroup(EXPORT_OBJECT_SPLITTING, "Export");
     setDescription(EXPORT_OBJECT_SPLITTING, "Enable/disable an export of the SPH particles with an indiviual file per object.");
     getParameter(EXPORT_OBJECT_SPLITTING)->setReadOnly(true);
+
+    USE_CARRIED_PARTIO_DATA = createBoolParameter("useCarriedPartioData", "Use carried partio data", &m_useCarriedPartioData);
+    setGroup(USE_CARRIED_PARTIO_DATA, "Export");
 }
 
 void SimulatorBase::run()

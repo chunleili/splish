@@ -37,7 +37,10 @@ void ParticleExporter_MyPartio::step(const unsigned int frame)
 		{
 			fileName = fileName + "_" + model->getId() + "_" + std::to_string(frame);
 			std::string exportFileName = FileSystem::normalizePath(m_exportPath + "/" + fileName);
-			writeParticlesPartio(exportFileName + ".bgeo.gz", model);
+			if (m_base->getValue<bool>(SimulatorBase::USE_CARRIED_PARTIO_DATA))
+				writeParticlesPartio_carried(exportFileName + ".bgeo.gz", model);
+			else
+				writeParticlesPartio(exportFileName + ".bgeo.gz", model);
 		}
 		else
 		{
@@ -46,7 +49,10 @@ void ParticleExporter_MyPartio::step(const unsigned int frame)
 			{
 				std::string fileName2 = fileName + "_" + model->getId() + "_" + std::to_string(j) + "_" + std::to_string(frame);
 				std::string exportFileName = FileSystem::normalizePath(m_exportPath + "/" + fileName2);
-				writeParticlesPartio(exportFileName + ".bgeo.gz", model, j);
+				if (m_base->getValue<bool>(SimulatorBase::USE_CARRIED_PARTIO_DATA))
+					writeParticlesPartio_carried(exportFileName + ".bgeo.gz", model, j);
+				else
+					writeParticlesPartio(exportFileName + ".bgeo.gz", model, j);
 			}
 		}
 	}
@@ -61,6 +67,41 @@ void ParticleExporter_MyPartio::setActive(const bool active)
 	ExporterBase::setActive(active);
 	if (m_active)
 		FileSystem::makeDirs(m_exportPath);
+}
+
+
+void ParticleExporter_MyPartio::writeParticlesPartio_carried(const std::string& fileName, FluidModel* model, const unsigned int objId)
+{	
+	auto* d = Partio::PartioSingleton::getCurrent();
+	m_particleData = d->getParticlesData();
+
+    Partio::ParticleAttribute posAttr;
+    m_particleData->attributeInfo("position", posAttr);
+
+	//根据计算结果（存储在model中），更新粒子位置
+	//其余的不需要更新了，想更新什么，就从model中取出来，然后更新到单例中
+	// BUG FIX: 由于partio中的粒子是从bhclassic读入的，数量是固定的。当model中额外注入了粒子的时候(比如fluid block或者emitter或其他来源)，就会导致partio中的粒子数量不够用，从而导致程序崩溃。
+	unsigned int numParInPartio = m_particleData->numParticles();
+
+    for (unsigned int i = 0; i < model->numActiveParticles(); i++)
+    {
+		int idx = i;
+
+		//当粒子都是partio读入的时候，不需要额外添加粒子
+		//当model中的粒子数量大于partio中的粒子数量时，需要额外添加粒子
+		if(i >= numParInPartio)
+		{
+			int idx2 = m_particleData->addParticle();
+		}
+
+        float* p = m_particleData->dataWrite<float>(posAttr, idx);
+
+		const Vector3r& x = model->getPosition(i);
+        p[0] = x[0];
+        p[1] = x[1];
+        p[2] = x[2];
+    }
+    Partio::write(fileName.c_str(), *m_particleData);
 }
 
 

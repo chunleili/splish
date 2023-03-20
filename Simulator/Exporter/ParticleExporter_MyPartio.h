@@ -12,13 +12,15 @@ namespace SPH
 	*/
 	class ParticleExporter_MyPartio : public ExporterBase
 	{
+	public:
+		Partio::ParticlesDataMutable* m_particleData;
 	protected: 
 		std::string m_exportPath;
 		std::string m_particleFile;
-		Partio::ParticlesDataMutable* m_particleData;
 		std::future<void> m_handle;
 
 		void writeParticlesPartio(const std::string& fileName, FluidModel* model, const unsigned int objId=0xffffffff);
+		void writeParticlesPartio_carried(const std::string& fileName, FluidModel* model, const unsigned int objId=0xffffffff);
 
 	public:
 		ParticleExporter_MyPartio(SimulatorBase *base);
