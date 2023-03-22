@@ -64,6 +64,8 @@ namespace SPH
 		inline static int VISCOSITY0 = -1;
 		inline static int VISCOSITY_INF = -1;
 		inline static int MU_C = -1;
+		inline static int YIELD_STRESS = -1;
+		inline static int CRITICAL_STRAIN_RATE = -1;
 
 		inline static int MAX_VISCOSITY = -1;
 		inline static int AVG_VISCOSITY = -1;

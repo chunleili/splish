@@ -33,7 +33,7 @@
 			"elasticityMethod": 4,
 			"youngsModulus": 1e7,
 			"poissonsRatio": 0.42, 
-			"elasticLimit": 0.05,
+			"elasticLimit": 0.1,
 			"plasticLimit": 1.0,
 			"alpha": 0.1
 		},

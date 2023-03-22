@@ -79,17 +79,22 @@ void NonNewton::initParameters()
 	VISCOSITY0 = createNumericParameter("viscosity0", "viscosity0", &m_viscosity0);
 	VISCOSITY_INF = createNumericParameter("viscosity_inf", "viscosity_inf", &m_viscosity_inf);
 	MU_C = createNumericParameter("muC", "muC", &m_muC);
+	CRITICAL_STRAIN_RATE = createNumericParameter("criticalStrainRate", "criticalStrainRate", &m_criticalStrainRate);
 
 	setGroup(POWER_INDEX, "Viscosity");
 	setGroup(CONSISTENCY_INDEX, "Viscosity");
 	setGroup(VISCOSITY0, "Viscosity");
 	setGroup(VISCOSITY_INF, "Viscosity");
 	setGroup(MU_C, "Viscosity");
+	setGroup(CRITICAL_STRAIN_RATE, "Viscosity");
 
 	setDescription(POWER_INDEX, "Power index for power law.");
 	setDescription(CONSISTENCY_INDEX, "Consistency index for power law.");
 	setDescription(VISCOSITY0, "Initial viscosity.");
 	setDescription(VISCOSITY_INF, "Infinite viscosity for the cross model.");
+	setDescription(MU_C, "Critical shear rate for the Casson model.");
+	setDescription(CRITICAL_STRAIN_RATE, "Critical strain rate for the Herschel-Bulkley model.");
+
 }
 
 
