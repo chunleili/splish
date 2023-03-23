@@ -110,43 +110,79 @@ void NonNewton::reset()
 	m_boundaryViscosity.resize(numParticles, 0.0);
 }
 
+// void NonNewton::calcStrainRate()
+// {
+// // shear strain rate calculation
+// 	Simulation *sim = Simulation::getCurrent();
+// 	const unsigned int fluidModelIndex = m_model->getPointSetIndex();
+
+// 	for (unsigned int i = 0; i < numParticles; ++i)
+// 	{
+// 		Vector6r strainRate;
+// 		const Vector3r &xi = m_model->getPosition(i);
+// 		const Vector3r &vi = m_model->getVelocity(i);
+// 		const Real density_i = m_model->getDensity(i);
+
+// 		for (unsigned int j = 0; j < sim->numberOfNeighbors(fluidModelIndex, fluidModelIndex, i); j++)
+// 		{
+// 			const unsigned int neighborIndex = sim->getNeighbor(fluidModelIndex, fluidModelIndex, i, j);
+// 			const Vector3r &xj = m_model->getPosition(neighborIndex);
+
+// 			const Vector3r &vj = m_model->getVelocity(neighborIndex);
+
+// 			const Vector3r gradW = sim->gradW(xi - xj);
+// 			const Vector3r vji = vj - vi;
+// 			const Real m = m_model->getMass(neighborIndex);
+// 			const Real m2 = m * static_cast<Real>(2.0);
+// 			strainRate[0] += m2 * vji[0] * gradW[0];
+// 			strainRate[1] += m2 * vji[1] * gradW[1];
+// 			strainRate[2] += m2 * vji[2] * gradW[2];
+// 			strainRate[3] += m * (vji[0] * gradW[1] + vji[1] * gradW[0]);
+// 			strainRate[4] += m * (vji[0] * gradW[2] + vji[2] * gradW[0]);
+// 			strainRate[5] += m * (vji[1] * gradW[2] + vji[2] * gradW[1]);
+// 		}
+// 		strainRate = (static_cast<Real>(0.5) / density_i) * strainRate;
+
+// 		m_strainRate[i] = strainRate;
+
+// 		m_strainRateNorm[i] = FNorm(m_strainRate[i]);
+// 		// end shear strain rate calculation
+// 	}
+// }
+
+
 void NonNewton::calcStrainRate()
 {
-// shear strain rate calculation
 	Simulation *sim = Simulation::getCurrent();
 	const unsigned int fluidModelIndex = m_model->getPointSetIndex();
 
 	for (unsigned int i = 0; i < numParticles; ++i)
 	{
-		Vector6r strainRate;
 		const Vector3r &xi = m_model->getPosition(i);
 		const Vector3r &vi = m_model->getVelocity(i);
 		const Real density_i = m_model->getDensity(i);
+
+		Matrix3r velGrad = Matrix3r::Zero();
+		Matrix3r strainRate = Matrix3r::Zero();
 
 		for (unsigned int j = 0; j < sim->numberOfNeighbors(fluidModelIndex, fluidModelIndex, i); j++)
 		{
 			const unsigned int neighborIndex = sim->getNeighbor(fluidModelIndex, fluidModelIndex, i, j);
 			const Vector3r &xj = m_model->getPosition(neighborIndex);
-
 			const Vector3r &vj = m_model->getVelocity(neighborIndex);
-
 			const Vector3r gradW = sim->gradW(xi - xj);
 			const Vector3r vji = vj - vi;
+
 			const Real m = m_model->getMass(neighborIndex);
-			const Real m2 = m * static_cast<Real>(2.0);
-			strainRate[0] += m2 * vji[0] * gradW[0];
-			strainRate[1] += m2 * vji[1] * gradW[1];
-			strainRate[2] += m2 * vji[2] * gradW[2];
-			strainRate[3] += m * (vji[0] * gradW[1] + vji[1] * gradW[0]);
-			strainRate[4] += m * (vji[0] * gradW[2] + vji[2] * gradW[0]);
-			strainRate[5] += m * (vji[1] * gradW[2] + vji[2] * gradW[1]);
+			velGrad = vji * gradW.transpose();
+			strainRate = velGrad + velGrad.transpose();
+			strainRate *= m;
 		}
 		strainRate = (static_cast<Real>(0.5) / density_i) * strainRate;
 
-		m_strainRate[i] = strainRate;
-
-		m_strainRateNorm[i] = FNorm(m_strainRate[i]);
-		// end shear strain rate calculation
+		Real norm = 0.0f;
+		norm = strainRate.norm();
+		m_strainRateNorm[i] = norm;
 	}
 }
 
