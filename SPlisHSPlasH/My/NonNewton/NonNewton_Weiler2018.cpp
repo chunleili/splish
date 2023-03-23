@@ -284,8 +284,8 @@ void NonNewton_Weiler2018::matrixVecProd(const Real* vec, Real *result, void *us
 	const Real h2 = h*h;
 	const Real dt = TimeManager::getCurrent()->getTimeStepSize();
 	const Real density0 = model->getDensity0();
-	Real mu = visco->m_viscosity * density0;
-	Real mub = visco->m_boundaryViscosity * density0;
+	// Real mu = visco->m_viscosity * density0;
+	// Real mub = visco->m_boundaryViscosity * density0;
 	const Real sphereVolume = static_cast<Real>(4.0 / 3.0 * M_PI) * h2*h;
 
 	Real d = 10.0;
@@ -298,8 +298,8 @@ void NonNewton_Weiler2018::matrixVecProd(const Real* vec, Real *result, void *us
 		for (int i = 0; i < (int)numParticles; i++)
 		{
 			// // MYADD:
-			// mu = visco->m_viscosity_nonNewton[i] * density0;
-			// mub = visco->m_boundaryViscosity_nonNewton[i] * density0;
+			float mu = visco->m_viscosity_nonNewton[i] * density0;
+			float mub = visco->m_boundaryViscosity_nonNewton[i] * density0;
 
 			const Vector3r &xi = model->getPosition(i);
 			Vector3r ai;
@@ -626,8 +626,8 @@ void NonNewton_Weiler2018::diagonalMatrixElement(const unsigned int i, Matrix3r 
 	const Real h = sim->getSupportRadius();
 	const Real h2 = h*h;
 	const Real dt = TimeManager::getCurrent()->getTimeStepSize();
-	Real mu = visco->m_viscosity * density0;
-	Real mub = visco->m_boundaryViscosity * density0;
+	// Real mu = visco->m_viscosity * density0;
+	// Real mub = visco->m_boundaryViscosity * density0;
 	const Real sphereVolume = static_cast<Real>(4.0 / 3.0 * M_PI) * h2*h;
 
 	const Real density_i = model->getDensity(i);
@@ -646,25 +646,28 @@ void NonNewton_Weiler2018::diagonalMatrixElement(const unsigned int i, Matrix3r 
 		const Real density_j = model->getDensity(neighborIndex);
 		const Vector3r gradW = sim->gradW(xi - xj);
 		const Vector3r xixj = xi - xj;
+		float mu = visco->m_viscosity_nonNewton[i] * density0;
 		result += d * mu * (model->getMass(neighborIndex) / density_j) / (xixj.squaredNorm() + 0.01*h2) * (gradW * xixj.transpose());
 	);
 
 	//////////////////////////////////////////////////////////////////////////
 	// Boundary
 	//////////////////////////////////////////////////////////////////////////
-	if (mub != 0.0)
+	// if (mub != 0.0)
 	{
 		if (sim->getBoundaryHandlingMethod() == BoundaryHandlingMethods::Akinci2012)
 		{
 			forall_boundary_neighbors(
 				const Vector3r xixj = xi - xj;
 				const Vector3r gradW = sim->gradW(xixj);
+				float mub = visco->m_boundaryViscosity_nonNewton[i] * density0;
 				result += d * mub * (density0 * bm_neighbor->getVolume(neighborIndex) / density_i) / (xixj.squaredNorm() + 0.01*h2) * (gradW * xixj.transpose());
 			);
 		}
 		else if (sim->getBoundaryHandlingMethod() == BoundaryHandlingMethods::Koschier2017)
 		{
 			forall_density_maps(
+				float mub = visco->m_boundaryViscosity_nonNewton[i] * density0;
 				const Vector3r xixj = xi - xj;
 				Vector3r normal = -xixj;
 				const Real nl = normal.norm();
@@ -706,6 +709,7 @@ void NonNewton_Weiler2018::diagonalMatrixElement(const unsigned int i, Matrix3r 
 		else if (sim->getBoundaryHandlingMethod() == BoundaryHandlingMethods::Bender2019)
 		{
 			forall_volume_maps(
+				float mub = visco->m_boundaryViscosity_nonNewton[i] * density0;
 				const Vector3r xixj = xi - xj;
 				Vector3r normal = -xixj;
 				const Real nl = normal.norm();
@@ -955,8 +959,8 @@ void NonNewton_Weiler2018::applyForces(const VectorXr &x)
     const Real h2 = h*h;
     const Real dt = TimeManager::getCurrent()->getTimeStepSize();
     const Real density0 = m_model->getDensity0();
-    Real mu = m_viscosity * density0;
-    Real mub = m_boundaryViscosity * density0;
+    // Real mu = m_viscosity * density0;
+    // Real mub = m_boundaryViscosity * density0;
     const Real sphereVolume = static_cast<Real>(4.0 / 3.0 * M_PI) * h2*h;
     Real d = 10.0;
     if (sim->is2DSimulation())
@@ -968,8 +972,8 @@ void NonNewton_Weiler2018::applyForces(const VectorXr &x)
         for (int i = 0; i < (int)numParticles; i++)
         {
 			// MYADD:
-			mu = m_viscosity_nonNewton[i] * density0;
-			mub = m_boundaryViscosity_nonNewton[i] * density0;
+			float mu = m_viscosity_nonNewton[i] * density0;
+			float mub = m_boundaryViscosity_nonNewton[i] * density0;
 
             // Compute the acceleration from the velocity change
             Vector3r &ai = m_model->getAcceleration(i);
@@ -1123,8 +1127,8 @@ void NonNewton_Weiler2018::computeRHS(VectorXr &b, VectorXr &g)
     const Real h2 = h*h;
     const Real dt = TimeManager::getCurrent()->getTimeStepSize();
     const Real density0 = m_model->getDensity0();
-    Real mu = m_viscosity * density0;
-    Real mub = m_boundaryViscosity * density0;
+    // Real mu = m_viscosity * density0;
+    // Real mub = m_boundaryViscosity * density0;
     const Real sphereVolume = static_cast<Real>(4.0 / 3.0 * M_PI) * h2*h;
     Real d = 10.0;
     if (sim->is2DSimulation())
@@ -1139,8 +1143,8 @@ void NonNewton_Weiler2018::computeRHS(VectorXr &b, VectorXr &g)
         for (int i = 0; i < (int)numParticles; i++)
         {
 			// MYADD:
-			mu = m_viscosity_nonNewton[i] * density0;
-			mub = m_boundaryViscosity_nonNewton[i] * density0;
+			float mu = m_viscosity_nonNewton[i] * density0;
+			float mub = m_boundaryViscosity_nonNewton[i] * density0;
 
             const Vector3r &vi = m_model->getVelocity(i);
             const Vector3r &xi = m_model->getPosition(i);

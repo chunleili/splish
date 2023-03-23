@@ -228,6 +228,7 @@ void NonNewton::computeNonNewtonViscosity()
 
 void NonNewton::computeViscosityNewtonian() 
 {
+	std::cout<<"computeViscosityNewtonian!\n";
 	for (unsigned int i = 0; i < numParticles; ++i)
 	{
 		m_nonNewtonViscosity[i] = m_viscosity0;
