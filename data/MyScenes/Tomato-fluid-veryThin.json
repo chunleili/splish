@@ -35,9 +35,14 @@
 			"nonNewtonMethod": 0,
 			"viscoMaxError": 0.001,
 			"viscoMaxIter": 1000,
-			"viscosityBoundary": 10,
-			"viscosity0": 10,
-			"viscosity": 10
+			"viscosity0": 0.01,
+			"viscosity": 0.01,
+			"viscosity_inf": 0.001,
+			"power_index":0.667,
+			"consistency_index":0.001,
+			"muC": 0.3,
+			"yieldStress": 0.1,
+			"criticalStrainRate": 1e-10
 		}
 	],
 	"RigidBodies": [
