@@ -21,7 +21,7 @@
 		"particleAttributes": "nonNewtonViscosity",
 		"cflMinTimeStepSize": 0.00001,
 		"pauseAt": 7.0,
-		"stopAt": 0.5,
+		"stopAt": 3,
 		"noGUI": true,
 		"enableMyPartioExport": true,
 		"enableRigidBodyOBJExport": true

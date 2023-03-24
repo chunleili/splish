@@ -76,6 +76,7 @@ PBDWrapper::~PBDWrapper()
 	PBD::SimulationModel::RigidBodyVector &rb = m_model.getRigidBodies();
 	PBD::TimeManager::getCurrent()->setTimeStepSize(SPH::TimeManager::getCurrent()->getTimeStepSize());
 	PBD::TimeManager::getCurrent()->setTime(SPH::TimeManager::getCurrent()->getTime());
+	Real time = SPH::TimeManager::getCurrent()->getTime();
 
 	m_timeStep->step(m_model);
 
@@ -91,6 +92,50 @@ PBDWrapper::~PBDWrapper()
 
 	//rb[0]是天空盒，所以rb[1]是第一个运动的刚体
 	Vector3r & rb_pos = rb[1]->getPosition();
+
+	// // For Comparison
+	// rb[0]->setPosition(Vector3r::Zero());
+	// rb[0]->setVelocity(Vector3r::Zero()); 
+	// if (time>3) {
+	// 	rb[0]->setAngularVelocity(Vector3r(0, 0, 0.5));
+	// }
+	// rb[0]->setAcceleration(Vector3r::Zero());
+
+	// rb[2]->setVelocity(Vector3r(2, 0, 0)); 
+	// rb[2]->setAngularVelocity(Vector3r::Zero());
+
+	// For meadow_new
+	// rb[1]->setVelocity(Vector3r(1.5, 0.8*cos(0.5*time), 0)); 
+	// rb[1]->setAngularVelocity(Vector3r::Zero());
+
+	// // For wave
+	// rb[1]->setVelocity(Vector3r(0.8, 0.4*cos(time-1), 0)); 
+	// rb[1]->setAngularVelocity(Vector3r::Zero());
+
+	// // For sun
+	// rb[1]->setVelocity(Vector3r(0, 0.05, -0.02));
+	// rb[1]->setAngularVelocity(Vector3r(0, 0, 0.4*cos(time*3.14/90))); 
+
+	// // For mountain
+	// if (time < 3) {
+	// 	rb[1]->setVelocity(Vector3r(0.5, 1, 0));
+	// 	rb[1]->setAngularVelocity(Vector3r::Zero());
+	// } else if (time < 6.0) {
+	// 	rb[1]->setVelocity(Vector3r(0.5, 0, 0));
+	// 	rb[1]->setAngularVelocity(Vector3r(0, sin(time*3.14/90), 0));
+	// } else {
+	// 	rb[1]->setVelocity(Vector3r(0.5, -1, 0));
+	// 	rb[1]->setAngularVelocity(Vector3r::Zero());
+	// }
+	// rb[1]->setAngularVelocity(Vector3r::Zero());
+
+	// // For flower
+	rb[1]->setVelocity(Vector3r(0, -0.3, 0.02));
+	rb[1]->setAngularVelocity(Vector3r::Zero());
+
+	// rb[1]->setVelocity(Vector3r::Zero());
+	// rb[1]->setPosition(Vector3r(time-4.5, 2*sin(time)+1, 1.4));
+	// rb[1]->setAcceleration(Vector3r(0, 0.5, 0));
 
 	Interactive::get_inter().set_rb_pos(rb_pos);
 	

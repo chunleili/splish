@@ -1,0 +1,76 @@
+{
+	"Configuration": 
+	{
+		"timeStepSize": 0.001,
+		"numberOfStepsPerRenderUpdate": 2,
+		"particleRadius": 0.025,
+		"density0": 1000, 
+		"simulationMethod": 4,		
+		"gravitation": [0, 0, -1], 
+		"cflMethod": 1, 
+		"cflFactor": 1,
+		"cflMaxTimeStepSize": 0.005,
+		"maxIterations": 100,
+		"maxError": 0.1,
+		"maxIterationsV": 100,
+		"maxErrorV": 0.1,		
+		"stiffness": 50000,
+		"exponent": 7,
+		"velocityUpdateMethod": 0,
+		"enableDivergenceSolver": true,
+		"boundaryHandlingMethod": 2,
+		"stopAt":8
+	},
+	"Materials": [
+		{
+			"id": "Fluid",
+			"surfaceTension": 2,
+			"surfaceTensionMethod": 0,
+			"viscosity": 2,
+			"viscosityBoundary": 1,
+			"viscosityMethod": 7,
+			"viscoMaxIter": 200, 
+			"viscoMaxError": 0.05
+		}
+	],
+	"RigidBodies": [
+		{
+			"id": 1,
+			"geometryFile": "../models/drawboard.obj",
+			"translation": [0, 0, 0],
+			"rotationAxis": [1, 0, 0],
+			"rotationAngle": 0,
+			"scale": [2, 2, 2],
+			"color": [1, 1, 1, 1.0], 
+			"isDynamic": false,
+			"isWall": false,
+			"invertSDF": true,
+			"mapInvert": false, 
+			"mapThickness": 0.0,
+			"mapResolution": [30,20,30]
+		},
+		{
+			"id": 2,
+			"geometryFile": "../models/sphere.obj",
+			"translation": [-2, -1, 1],
+			"rotationAxis": [1, 0, 0],
+			"rotationAngle": 0,
+			"scale": [0.5, 0.5, 0.5],
+			"color": [1, 0, 1, 1.0], 
+			"isDynamic": true,
+			"isWall": false,
+			"mapInvert": false, 
+			"mapThickness": 0.0,
+			"mapResolution": [30,20,30]
+		}
+	],
+	"FluidModels": [
+		{
+			"particleFile": "../models/flower.bhclassic",
+			"rotationAxis": [1, 0, 0],
+			"rotationAngle": -0.13,
+			"translation": [-2, -2, 1],
+			"scale":[1, 1, 1]
+		}
+	]
+}
