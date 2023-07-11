@@ -18,10 +18,10 @@
 		"velocityUpdateMethod": 0,
 		"enableDivergenceSolver": true,
 		"boundaryHandlingMethod": 2,
-		"particleAttributes": "nonNewtonViscosity",
+		"particleAttributes": "nonNewtonViscosity;strainRateNorm",
 		"cflMinTimeStepSize": 0.00001,
-		"pauseAt": 7.0,
-		"stopAt": 0.5,
+		"pauseAt": 10.0,
+		"stopAt": 10.0,
 		"noGUI": true,
 		"enableMyPartioExport": true,
 		"enableRigidBodyOBJExport": true
