@@ -20,8 +20,8 @@
 		"boundaryHandlingMethod": 2,
 		"particleAttributes": "nonNewtonViscosity;strainRateNorm",
 		"cflMinTimeStepSize": 0.00001,
-		"pauseAt": 10.0,
-		"stopAt": 10.0,
+		"pauseAt": 5.0,
+		"stopAt": 5.0,
 		"noGUI": true,
 		"enableMyPartioExport": true,
 		"enableRigidBodyOBJExport": true
