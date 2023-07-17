@@ -84,22 +84,22 @@
 			"id": "Newtonain",
 			"particleFile": "../models/armadillo.bhclassic",
 			"rotationAxis": [1, 0, 0],
-			"rotationAngle": 90,
-			"translation": [0, 6.3, -4]
+			"rotationAngle": 0,
+			"translation": [0, 0, 0]
 		},
 		{
 			"id": "PowerLaw1",
 			"particleFile": "../models/armadillo.bhclassic",
 			"rotationAxis": [1, 0, 0],
-			"rotationAngle": 90,
-			"translation": [-3, 6.3, -4]
+			"rotationAngle": 0,
+			"translation": [-5, 0, 0]
 		},
 		{
 			"id": "PowerLaw2",
 			"particleFile": "../models/armadillo.bhclassic",
 			"rotationAxis": [1, 0, 0],
-			"rotationAngle": 90,
-			"translation": [-6, 6.3, -4]
+			"rotationAngle": 0,
+			"translation": [-10, 0, 0]
 		}
 	]
 }
