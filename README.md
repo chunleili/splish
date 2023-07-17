@@ -25,3 +25,15 @@ This is a forked repo from https://github.com/InteractiveComputerGraphics/SPlisH
 
 ## 非牛顿
 非牛顿目前实现方式是通过NonNewton类，根据不同的子模型计算出粘度，然后将粘度付给不同的粘性子模型。这就需要对原有的粘性子模型进行非常轻微但侵入式的改动。基本上是将原本的粘度（一个标量）改为向量，让每个粒子的粘度都不相同。
+
+
+## 其他
+
+**导出自定义属性的方式**
+
+在json中particleAttributes中给出自定义场的名称。该名称应该和构造函数中的model->addField的名称一致。
+
+勾选Houdini Exporter(MyPartio)或在json中给定enableMyPartioExport为true。
+
+**模拟大规模场景的经验**
+在大规模场景中如果使用GUI会大量增加显存需求，可能导致程序崩溃。因此推荐先在小规模场景上试验，然后将几何尺寸等比例放大（保留粒子半径等模拟参数不变）。然后在命令行中使用"./bin/SPHSimulator.exe –-no-gui"选项运行程序，同时要在json中指定stopAt。
