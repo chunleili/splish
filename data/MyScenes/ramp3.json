@@ -78,15 +78,15 @@
 			"id": "Bingham",
 			"particleFile": "../models/armadillo.bhclassic",
 			"rotationAxis": [1, 0, 0],
-			"rotationAngle": 90,
-			"translation": [0, 6.3, -4]
+			"rotationAngle": 0,
+			"translation": [0, 0, 0]
 		},
 		{
 			"id": "HerschelBulkley",
 			"particleFile": "../models/armadillo.bhclassic",
 			"rotationAxis": [1, 0, 0],
-			"rotationAngle": 90,
-			"translation": [-3, 6.3, -4]
+			"rotationAngle": 0,
+			"translation": [-5, 0, 0]
 		}
 	]
 }
