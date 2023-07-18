@@ -341,3 +341,11 @@ void NonNewton::computeViscosityHerschelBulkley()
 		}
 	}
 }
+
+
+void NonNewton::performNeighborhoodSearchSort()
+{
+	Simulation *sim = Simulation::getCurrent();
+	auto const& d = sim->getNeighborhoodSearch()->point_set(m_model->getPointSetIndex());
+	d.sort_field(&m_nonNewtonViscosity[0]);
+} 
