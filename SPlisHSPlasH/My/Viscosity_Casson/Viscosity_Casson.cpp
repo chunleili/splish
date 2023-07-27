@@ -25,7 +25,7 @@ Viscosity_Casson::Viscosity_Casson(FluidModel *model) :
 	m_maxIter = 100;
 	m_maxError = static_cast<Real>(0.01);
 	m_iterations = 0;
-	m_boundaryViscosity = 0.0;
+	m_boundaryViscosity = 0.1;
 	m_tangentialDistanceFactor = static_cast<Real>(0.5);
 
 	m_vDiff.resize(model->numParticles(), Vector3r::Zero());
@@ -146,6 +146,124 @@ void Viscosity_Casson::matrixVecProd(const Real* vec, Real *result, void *userDa
 			};
 			
 			// MYADD: 删掉boundary部分
+			//////////////////////////////////////////////////////////////////////////
+			// Boundary
+			//////////////////////////////////////////////////////////////////////////
+			if (mub != 0.0)
+			{
+				if (sim->getBoundaryHandlingMethod() == BoundaryHandlingMethods::Akinci2012)
+				{
+					forall_boundary_neighbors(
+						const Vector3r &vj = bm_neighbor->getVelocity(neighborIndex);
+						const Vector3r xixj = xi - xj;
+						const Vector3r gradW = sim->gradW(xixj);
+						const Vector3r a = d * mub * (density0 * bm_neighbor->getVolume(neighborIndex) / density_i) * (vi).dot(xixj) / (xixj.squaredNorm() + 0.01*h2) * gradW;
+						ai += a;
+					);
+				}
+				else if (sim->getBoundaryHandlingMethod() == BoundaryHandlingMethods::Koschier2017)
+				{
+					forall_density_maps(
+						const Vector3r xixj = xi - xj;
+						Vector3r normal = -xixj;
+						const Real nl = normal.norm();
+						if (nl > static_cast<Real>(0.0001))
+						{
+							normal /= nl;
+
+							Vector3r t1;
+							Vector3r t2;
+							MathFunctions::getOrthogonalVectors(normal, t1, t2);
+
+							const Real dist = visco->m_tangentialDistanceFactor * h;
+							const Vector3r x1 = xj - t1 * dist;
+							const Vector3r x2 = xj + t1 * dist;
+							const Vector3r x3 = xj - t2 * dist;
+							const Vector3r x4 = xj + t2 * dist;
+
+							const Vector3r xix1 = xi - x1;
+							const Vector3r xix2 = xi - x2;
+							const Vector3r xix3 = xi - x3;
+							const Vector3r xix4 = xi - x4;
+
+							const Vector3r gradW1 = sim->gradW(xix1);
+							const Vector3r gradW2 = sim->gradW(xix2);
+							const Vector3r gradW3 = sim->gradW(xix3);
+							const Vector3r gradW4 = sim->gradW(xix4);
+
+							// each sample point represents the quarter of the volume inside of the boundary
+							const Real vol = static_cast<Real>(0.25) * rho * sphereVolume;
+
+ 							Vector3r v1;
+ 							Vector3r v2;
+							Vector3r v3;
+							Vector3r v4;
+ 							bm_neighbor->getPointVelocity(x1, v1);
+ 							bm_neighbor->getPointVelocity(x2, v2);
+							bm_neighbor->getPointVelocity(x3, v3);
+							bm_neighbor->getPointVelocity(x4, v4);
+
+ 							// compute forces for both sample point
+ 							const Vector3r a1 = d * mub * vol * (vi).dot(xix1) / (xix1.squaredNorm() + 0.01*h2) * gradW1;
+ 							const Vector3r a2 = d * mub * vol * (vi).dot(xix2) / (xix2.squaredNorm() + 0.01*h2) * gradW2;
+							const Vector3r a3 = d * mub * vol * (vi).dot(xix3) / (xix3.squaredNorm() + 0.01*h2) * gradW3;
+							const Vector3r a4 = d * mub * vol * (vi).dot(xix4) / (xix4.squaredNorm() + 0.01*h2) * gradW4;
+ 							ai += a1 + a2 + a3 + a4;
+ 						}
+					);
+				}
+				else if (sim->getBoundaryHandlingMethod() == BoundaryHandlingMethods::Bender2019)
+				{
+					forall_volume_maps(
+						const Vector3r xixj = xi - xj;
+						Vector3r normal = -xixj;
+						const Real nl = normal.norm();
+						if (nl > static_cast<Real>(0.0001))
+						{
+							normal /= nl;
+
+							Vector3r t1;
+							Vector3r t2;
+							MathFunctions::getOrthogonalVectors(normal, t1, t2);
+
+							const Real dist = visco->m_tangentialDistanceFactor * h;
+							const Vector3r x1 = xj - t1*dist;
+							const Vector3r x2 = xj + t1*dist;
+							const Vector3r x3 = xj - t2*dist;
+							const Vector3r x4 = xj + t2*dist;
+
+							const Vector3r xix1 = xi - x1;
+							const Vector3r xix2 = xi - x2;
+							const Vector3r xix3 = xi - x3;
+							const Vector3r xix4 = xi - x4;
+
+							const Vector3r gradW1 = sim->gradW(xix1);
+							const Vector3r gradW2 = sim->gradW(xix2);
+							const Vector3r gradW3 = sim->gradW(xix3);
+							const Vector3r gradW4 = sim->gradW(xix4);
+
+							// each sample point represents the quarter of the volume inside of the boundary
+							const Real vol = static_cast<Real>(0.25) * Vj;
+
+ 							Vector3r v1;
+ 							Vector3r v2;
+							Vector3r v3;
+							Vector3r v4;
+ 							bm_neighbor->getPointVelocity(x1, v1);
+ 							bm_neighbor->getPointVelocity(x2, v2);
+							bm_neighbor->getPointVelocity(x3, v3);
+							bm_neighbor->getPointVelocity(x4, v4);
+
+ 							// compute forces for both sample point
+ 							const Vector3r a1 = d * mub * vol * (vi).dot(xix1) / (xix1.squaredNorm() + 0.01*h2) * gradW1;
+ 							const Vector3r a2 = d * mub * vol * (vi).dot(xix2) / (xix2.squaredNorm() + 0.01*h2) * gradW2;
+							const Vector3r a3 = d * mub * vol * (vi).dot(xix3) / (xix3.squaredNorm() + 0.01*h2) * gradW3;
+							const Vector3r a4 = d * mub * vol * (vi).dot(xix4) / (xix4.squaredNorm() + 0.01*h2) * gradW4;
+ 							ai += a1 + a2 + a3 + a4;
+						}
+					);
+				}
+			}
 
 			result[3 * i] = vec[3 * i] - dt / density_i*ai[0];
 			result[3 * i + 1] = vec[3 * i + 1] - dt / density_i*ai[1];
@@ -197,15 +315,108 @@ void Viscosity_Casson::diagonalMatrixElement(const unsigned int i, Matrix3r &res
 	);
 
 	// MYADD: 删掉boundary部分
-	
-	result = Matrix3r::Identity() - (dt / density_i) * result;
-}
+	//////////////////////////////////////////////////////////////////////////
+	// Boundary
+	//////////////////////////////////////////////////////////////////////////
+	if (mub != 0.0)
+	{
+		if (sim->getBoundaryHandlingMethod() == BoundaryHandlingMethods::Akinci2012)
+		{
+			forall_boundary_neighbors(
+				const Vector3r xixj = xi - xj;
+				const Vector3r gradW = sim->gradW(xixj);
+				result += d * mub * (density0 * bm_neighbor->getVolume(neighborIndex) / density_i) / (xixj.squaredNorm() + 0.01*h2) * (gradW * xixj.transpose());
+			);
+		}
+		else if (sim->getBoundaryHandlingMethod() == BoundaryHandlingMethods::Koschier2017)
+		{
+			forall_density_maps(
+				const Vector3r xixj = xi - xj;
+				Vector3r normal = -xixj;
+				const Real nl = normal.norm();
+				if (nl > static_cast<Real>(0.0001))
+				{
+					normal /= nl;
+
+					Vector3r t1;
+					Vector3r t2;
+					MathFunctions::getOrthogonalVectors(normal, t1, t2);
+
+					const Real dist = visco->m_tangentialDistanceFactor * h;
+					const Vector3r x1 = xj - t1*dist;
+					const Vector3r x2 = xj + t1*dist;
+					const Vector3r x3 = xj - t2*dist;
+					const Vector3r x4 = xj + t2*dist;
+
+					const Vector3r xix1 = xi - x1;
+					const Vector3r xix2 = xi - x2;
+					const Vector3r xix3 = xi - x3;
+					const Vector3r xix4 = xi - x4;
+
+					const Vector3r gradW1 = sim->gradW(xix1);
+					const Vector3r gradW2 = sim->gradW(xix2);
+					const Vector3r gradW3 = sim->gradW(xix3);
+					const Vector3r gradW4 = sim->gradW(xix4);
+
+					// each sample point represents the quarter of the volume inside of the boundary
+					const Real vol = static_cast<Real>(0.25) * rho * sphereVolume;
+
+					// compute forces for both sample point
+					result += d * mub * vol / (xix1.squaredNorm() + 0.01*h2) * (gradW1 * xix1.transpose());
+					result += d * mub * vol / (xix2.squaredNorm() + 0.01*h2) * (gradW2 * xix2.transpose());
+					result += d * mub * vol / (xix3.squaredNorm() + 0.01*h2) * (gradW3 * xix3.transpose());
+					result += d * mub * vol / (xix4.squaredNorm() + 0.01*h2) * (gradW4 * xix4.transpose());
+				}
+			);
+		}
+		else if (sim->getBoundaryHandlingMethod() == BoundaryHandlingMethods::Bender2019)
+		{
+			forall_volume_maps(
+				const Vector3r xixj = xi - xj;
+				Vector3r normal = -xixj;
+				const Real nl = normal.norm();
+				if (nl > static_cast<Real>(0.0001))
+				{
+					normal /= nl;
+
+					Vector3r t1;
+					Vector3r t2;
+					MathFunctions::getOrthogonalVectors(normal, t1, t2);
+
+					const Real dist = visco->m_tangentialDistanceFactor * h;
+					const Vector3r x1 = xj - t1*dist;
+					const Vector3r x2 = xj + t1*dist;
+					const Vector3r x3 = xj - t2*dist;
+					const Vector3r x4 = xj + t2*dist;
+
+					const Vector3r xix1 = xi - x1;
+					const Vector3r xix2 = xi - x2;
+					const Vector3r xix3 = xi - x3;
+					const Vector3r xix4 = xi - x4;
+
+					const Vector3r gradW1 = sim->gradW(xix1);
+					const Vector3r gradW2 = sim->gradW(xix2);
+					const Vector3r gradW3 = sim->gradW(xix3);
+					const Vector3r gradW4 = sim->gradW(xix4);
+
+					// each sample point represents the quarter of the volume inside of the boundary
+					const Real vol = static_cast<Real>(0.25) * Vj;
+
+					// compute forces for both sample point
+					result += d * mub * vol / (xix1.squaredNorm() + 0.01*h2) * (gradW1 * xix1.transpose());
+					result += d * mub * vol / (xix2.squaredNorm() + 0.01*h2) * (gradW2 * xix2.transpose());
+					result += d * mub * vol / (xix3.squaredNorm() + 0.01*h2) * (gradW3 * xix3.transpose());
+					result += d * mub * vol / (xix4.squaredNorm() + 0.01*h2) * (gradW4 * xix4.transpose());
+				}
+			);
+		}
+	}
 
 
 #else
 // MYADD: 删掉非blockdiagonal部分
 #endif
-
+}
 
 
 void Viscosity_Casson::step()
