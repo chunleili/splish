@@ -24,6 +24,7 @@
 		"noGUI": true,
 		"enableMyPartioExport": true,
 		"enableObjectSplitting": false,
+		"particleAttributes": "viscosityAccelerationNorm;velocity",
 		"dataExportFPS ":10
 	},
 	"Materials": [
