@@ -63,7 +63,7 @@
 	"FluidModels": [
 		{
 			"id": "fluid",
-			"particleFile": "../models/xp_0.bhclassic"
+			"particleFile": "../models/raindrop.ply"
 
 		}
 	]

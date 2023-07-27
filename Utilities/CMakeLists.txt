@@ -28,6 +28,8 @@ add_library(Utilities
 
 	MyPartioReader/MyPartioReader.cpp
 	MyPartioReader/MyPartioReader.h
+
+	PlyReader.cpp
 )
 
 add_dependencies(Utilities mypartio  zlib)
