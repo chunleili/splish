@@ -41,6 +41,7 @@ namespace SPH
 	public:
 		std::vector<Real> m_viscosity_nonNewton;
 		std::vector<Real> m_boundaryViscosity_nonNewton;
+		std::vector<Real> m_viscosityAccelerationNorm;
 
 		static int ITERATIONS;
 		static int MAX_ITERATIONS;

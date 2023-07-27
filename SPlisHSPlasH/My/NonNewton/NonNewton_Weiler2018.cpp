@@ -32,15 +32,20 @@ NonNewton_Weiler2018::NonNewton_Weiler2018(FluidModel *model) :
 	// MYADD:
 	m_viscosity_nonNewton.resize(model->numParticles(), 0.0);
 	m_boundaryViscosity_nonNewton.resize(model->numParticles(), 0.0);
+	m_viscosityAccelerationNorm.resize(model->numParticles(), 0.0);
 
 	model->addField({ "velocity difference", FieldType::Vector3, [&](const unsigned int i) -> Real* { return &m_vDiff[i][0]; }, true });
+	model->addField({ "viscosityAccelerationNorm", FieldType::Scalar, [&](const unsigned int i) -> Real* { return &m_viscosityAccelerationNorm[i]; }, true });
+
 }
 
 NonNewton_Weiler2018::~NonNewton_Weiler2018(void)
 {
 	m_model->removeFieldByName("velocity difference");
+	m_model->removeFieldByName("viscosityAccelerationNorm");
 
 	m_vDiff.clear();
+	m_viscosityAccelerationNorm.clear();
 }
 
 void NonNewton_Weiler2018::initParameters()
@@ -319,6 +324,8 @@ void NonNewton_Weiler2018::matrixVecProd(const Real* vec, Real *result, void *us
 
 				ai += d * mu * (model->getMass(neighborIndex) / density_j) * (vi - vj).dot(xixj) / (xixj.squaredNorm() + 0.01*h2) * gradW;
 			);
+
+			visco->m_viscosityAccelerationNorm[i] = ai.norm();
 
 			//////////////////////////////////////////////////////////////////////////
 			// Boundary

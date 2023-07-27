@@ -24,8 +24,7 @@
 		"noGUI": true,
 		"enableMyPartioExport": true,
 		"enableObjectSplitting": false,
-		"dataExportFPS ":10,
-		"useCarriedPartioData": true
+		"dataExportFPS ":10
 	},
 	"Materials": [
 		{
