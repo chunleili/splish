@@ -24,25 +24,26 @@
 		"noGUI": true,
 		"enableMyPartioExport": true,
 		"enableObjectSplitting": false,
-		"particleAttributes": "viscosityAccelerationNorm;velocity",
+		"particleAttributes": "viscosityAccelerationNorm;",
 		"dataExportFPS ":10
 	},
 	"Materials": [
 		{
 			"id": "fluid",
+			"colorField": "velocity",
 			"surfaceTensionMethod": 7,
 			"viscosityMethod": 13,
-			"nonNewtonMethod": 1,
-			"viscoMaxError": 0.001,
+			"nonNewtonMethod": 6,
+			"viscoMaxError": 0.01,
 			"viscoMaxIter": 1000,
-			"viscosity0": 0.01,
-			"viscosity": 0.1,
-			"viscosity_inf": 0.001,
-			"power_index":1.05,
-			"consistency_index":0.5,
+			"viscosityBoundary": 0.1,
+			"viscosity0": 0.5,
+			"viscosity_inf": 0.01,
+			"power_index":1.1,
+			"consistency_index":1.0,
 			"muC": 0.3,
-			"yieldStress": 0.1,
-			"criticalStrainRate": 1e-5
+			"yieldStress": 2,
+			"criticalStrainRate": 5e-4
 		}
 	],
 	"RigidBodies": [
@@ -51,7 +52,7 @@
 			"translation": [0,0,0],
 			"rotationAxis": [1, 0, 0],
 			"rotationAngle": 0,
-			"scale": [15,0.5,15],
+			"scale": [5,0.6,5],
 			"color": [0.1, 0.4, 0.6, 1.0], 
 			"isDynamic": false,
 			"isWall": true,
@@ -64,7 +65,6 @@
 		{
 			"id": "fluid",
 			"particleFile": "../models/raindrop.ply"
-
 		}
 	]
 }
