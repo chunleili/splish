@@ -14,7 +14,7 @@ This is a forked repo from https://github.com/InteractiveComputerGraphics/SPlisH
 2. Viscosity_Casson: 请看 Viscosity/Viscosity_Casson。根据Casson公式计算黏度，并且根据温度动态调整黏度。
 3. Plasticity: 弹塑性，请看塑性冲击的例子plastic_strike.json。请看 My/Plasticity。
 4. (有BUG)ShapeMatching: 刚体。请看RigidBody_Bunny.json的例子。
-5. (未完成)NonNewton: 请看 NonNewton。非牛顿剪切变稀和剪切变稠。
+5. NonNewton: 请看 NonNewton。非牛顿剪切变稀和剪切变稠等。根据7种非牛顿模型设置粘度。同时还可以根据时间增加粘度（给定三次多项式）。还可以根据周围粒子速度smooth速度。根据上一步damp速度。
 6. MyPartioReader：(目前位于Utilities文件夹)粒子的导入器，可以直接导入Houdini的 .bhclassic 文件(.bhclassic是Houdini旧版（12以前）的bgeo文件）。 可以读入uv
 7. 用户交互：现在可以用鼠标右键旋转视角，鼠标滚轮缩放视角，鼠标中键平移视角。更加符合人类直觉。
 8. Interactive: 交互类。可以获取点击的鼠标世界位置（打印到屏幕上）。还可以控制刚体（通过control+WASDF控制第0号刚体）。
