@@ -34,6 +34,7 @@ namespace SPH
 		void computeViscosityHerschelBulkley();
 		void calcStrainRate();
 		void smoothVelocity();
+		void dampVelocity();
 		Real FNorm(const Vector6r& vec) const;
 	public:
 	    enum NonNewtonMethod { ENUM_NEWTONIAN=0, ENUM_POWER_LAW, ENUM_CROSS_MODEL, ENUM_CASSON_MODEL, ENUM_CARREAU, ENUM_BINGHAM, ENUM_HERSCHEL_BULKLEY};
@@ -58,6 +59,8 @@ namespace SPH
 		float m_minViscosity = 0.0f;
 		bool m_smoothVelocityFlag = false;
 		float m_smoothVelocityFactor = 0.0f;
+		bool m_dampVelocityFlag = false;
+		float m_dampVelocityFactor=0.0f;
 
 		inline static int VISCOSITY_COEFFICIENT;
 		inline static int VISCOSITY_COEFFICIENT_BOUNDARY;
@@ -85,6 +88,8 @@ namespace SPH
 
 		inline static int SMOOTH_VELOCITY_FLAG = -1;
 		inline static int SMOOTH_VELOCITY_FACTOR = -1;
+		inline static int DAMP_VELOCITY_FLAG = -1;
+		inline static int DAMP_VELOCITY_FACTOR = -1;
 
 		NonNewton(FluidModel *model);
         virtual void init() override;

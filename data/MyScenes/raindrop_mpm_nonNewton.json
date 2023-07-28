@@ -45,7 +45,9 @@
 			"yieldStress": 2,
 			"criticalStrainRate": 5e-4,
 			"smoothVelocityFactor": 0.01,
-			"smoothVelocityFlag": true
+			"smoothVelocityFlag": false,
+			"dampVelocityFlag": true,
+			"dampVelocityFactor": 0.01
 		}
 	],
 	"RigidBodies": [

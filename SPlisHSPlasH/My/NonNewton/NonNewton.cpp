@@ -105,6 +105,16 @@ void NonNewton::initParameters()
 	setDescription(SMOOTH_VELOCITY_FACTOR, "smoothVelocityFactor(0 to 1). 0 means no smoothing, 1 means use complete average vel, i.e, sum(mj*(vj)/rhoj*Wij).");
 	static_cast<RealParameter*>(getParameter(SMOOTH_VELOCITY_FACTOR))->setMinValue(0.0);
 	static_cast<RealParameter*>(getParameter(SMOOTH_VELOCITY_FACTOR))->setMaxValue(1.0);
+
+    DAMP_VELOCITY_FLAG = createBoolParameter("dampVelocityFlag", "dampVelocityFlag", &m_dampVelocityFlag);
+    setGroup(DAMP_VELOCITY_FLAG, "Viscosity");
+    setDescription(DAMP_VELOCITY_FLAG, "turn on dampVelocity.");
+
+	DAMP_VELOCITY_FACTOR = createNumericParameter("dampVelocityFactor", "dampVelocityFactor", &m_dampVelocityFactor);
+	setGroup(DAMP_VELOCITY_FACTOR, "Viscosity");
+	setDescription(DAMP_VELOCITY_FACTOR, "dampVelocityFactor(0 to 1). 0 means no damping, 1 means use complete last step vel.");
+	static_cast<RealParameter*>(getParameter(DAMP_VELOCITY_FACTOR))->setMinValue(0.0);
+	static_cast<RealParameter*>(getParameter(DAMP_VELOCITY_FACTOR))->setMaxValue(1.0);
 }
 
 
@@ -120,19 +130,19 @@ void NonNewton::reset()
 	m_boundaryViscosity.resize(numParticles, 0.0);
 }
 
-// void NonNewton::dampVelocity()
-// {
-// 	Simulation *sim = Simulation::getCurrent();
-// 	const unsigned int fluidModelIndex = m_model->getPointSetIndex();
+void NonNewton::dampVelocity()
+{
+	Simulation *sim = Simulation::getCurrent();
+	const unsigned int fluidModelIndex = m_model->getPointSetIndex();
 
-// 	for (unsigned int i = 0; i < numParticles; ++i)
-// 	{
-// 		const Vector3r &xi = m_model->getPosition(i);
-// 		const Vector3r &vi = m_model->getVelocity(i);
-// 		const vnew = vi * 
-// 		m_model->setVelocity(i, sumVji);
-// 	}
-// }
+	for (unsigned int i = 0; i < numParticles; ++i)
+	{
+		const Vector3r v_last = m_model->getLastVelocity(i);
+		const Vector3r &vi = m_model->getVelocity(i);
+		const Vector3r vnew = vi - m_dampVelocityFactor * (vi - v_last);
+		m_model->setVelocity(i, vnew);
+	}
+}
 
 
 void NonNewton::smoothVelocity()
@@ -237,6 +247,9 @@ void NonNewton::step()
 
 	if (m_smoothVelocityFlag)
 		smoothVelocity();
+
+	if (m_dampVelocityFlag)
+		dampVelocity();
 }
 
 void NonNewton::computeNonNewtonViscosity()
