@@ -96,6 +96,22 @@ void MyTimeStep::step()
 	precomputeValues();
 #endif
 
+	// set last step velocity
+	for (unsigned int m = 0; m < nModels; m++)
+	{
+		FluidModel *fm = sim->getFluidModel(m);
+		const unsigned int numParticles = fm->numActiveParticles();
+		#pragma omp parallel default(shared)
+		{
+			#pragma omp for schedule(static)  
+			for (int i = 0; i < (int)numParticles; i++)
+			{
+				const Vector3r vel = fm->getVelocity(i);
+				fm->setLastVelocity(i, vel);
+			}
+		}
+	}
+
 	if (sim->getBoundaryHandlingMethod() == BoundaryHandlingMethods::Bender2019)
 		computeVolumeAndBoundaryX();
 	else if (sim->getBoundaryHandlingMethod() == BoundaryHandlingMethods::Koschier2017)
@@ -174,6 +190,24 @@ void MyTimeStep::step()
 
 	// Compute new time	
 	tm->setTime (tm->getTime () + h);
+
+
+	// // compute velocityDiff
+	// for (unsigned int m = 0; m < nModels; m++)
+	// {
+	// 	FluidModel *fm = sim->getFluidModel(m);
+	// 	const unsigned int numParticles = fm->numActiveParticles();
+	// 	#pragma omp parallel default(shared)
+	// 	{
+	// 		#pragma omp for schedule(static)  
+	// 		for (int i = 0; i < (int)numParticles; i++)
+	// 		{
+	// 			const Vector3r vel0 = fm->getVelocity0(i);
+	// 			const Vector3r vel = fm->getVelocity(i);
+	// 			m_simulationData.setVelocityDiff(m, i, vel - vel0);
+	// 		}
+	// 	}
+	// }
 
 	static int step = 0;
 	printf("\n------\nMyTimeStep\tstep = %d\n", step++);

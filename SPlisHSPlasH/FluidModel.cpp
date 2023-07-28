@@ -41,7 +41,8 @@ FluidModel::FluidModel() :
     m_particleState(),
     m_myParticleState(),
     m_temperature(),
-    m_nonNewtonViscosity()
+    m_nonNewtonViscosity(),
+    m_lastVelocity()
 {		
     m_density0 = 1000.0;
     m_pointSetIndex = 0;
@@ -73,6 +74,8 @@ FluidModel::FluidModel() :
     addField({ "density", FieldType::Scalar, [&](const unsigned int i) -> Real* { return &getDensity(i); }, false });
     addField({ "temperature", FieldType::Scalar, [&](const unsigned int i) -> Real* { return &getTemperature(i); }, false });
     addField({ "nonNewtonViscosity", FieldType::Scalar, [&](const unsigned int i) -> Real* { return &getNonNewtonViscosity(i); }, false });
+    addField({ "lastVelocity", FieldType::Vector3, [&](const unsigned int i) -> Real* { return &getLastVelocity(i)[0]; } });
+    addField({ "velocity0", FieldType::Vector3, [&](const unsigned int i) -> Real* { return &getVelocity0(i)[0]; } });
 }
 
 FluidModel::~FluidModel(void)
@@ -87,6 +90,8 @@ FluidModel::~FluidModel(void)
     removeFieldByName("density");
     removeFieldByName("temperature");
     removeFieldByName("nonNewtonViscosity");
+    removeFieldByName("lastVelocity");
+    removeFieldByName("velocity0");
 
     delete m_emitterSystem;
     delete m_surfaceTension;
@@ -284,6 +289,7 @@ void FluidModel::resizeFluidParticles(const unsigned int newSize)
     m_objectId0.resize(newSize);
     m_particleState.resize(newSize, ParticleState::Active);
     m_myParticleState.resize(newSize);
+    m_lastVelocity.resize(newSize);
 }
 
 void FluidModel::releaseFluidParticles()
@@ -302,6 +308,7 @@ void FluidModel::releaseFluidParticles()
     m_objectId0.clear();
     m_particleState.clear();
     m_myParticleState.clear();
+    m_lastVelocity.clear();
 }
 
 void FluidModel::initModel(const std::string &id, const unsigned int nFluidParticles, Vector3r* fluidParticles, Vector3r* fluidVelocities, unsigned int* fluidObjectIds, const unsigned int nMaxEmitterParticles)
@@ -321,6 +328,7 @@ void FluidModel::initModel(const std::string &id, const unsigned int nFluidParti
             getPosition(i) = fluidParticles[i];
             getVelocity0(i) = fluidVelocities[i];
             getVelocity(i) = fluidVelocities[i];
+            getLastVelocity(i) = fluidVelocities[i];
             getAcceleration(i).setZero();
             m_density[i] = 0.0;
             m_temperature[i] = 0.0;
@@ -373,6 +381,8 @@ void FluidModel::performNeighborhoodSearchSort()
     d.sort_field(&m_objectId[0]);
     d.sort_field(&m_particleState[0]);
     d.sort_field(&m_myParticleState[0]);
+    d.sort_field(&m_lastVelocity[0]);
+
 
     if (m_viscosity)
         m_viscosity->performNeighborhoodSearchSort();

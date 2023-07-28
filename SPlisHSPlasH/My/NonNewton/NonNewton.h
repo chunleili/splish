@@ -33,6 +33,7 @@ namespace SPH
 		void computeViscosityBingham();
 		void computeViscosityHerschelBulkley();
 		void calcStrainRate();
+		void smoothVelocity();
 		Real FNorm(const Vector6r& vec) const;
 	public:
 	    enum NonNewtonMethod { ENUM_NEWTONIAN=0, ENUM_POWER_LAW, ENUM_CROSS_MODEL, ENUM_CASSON_MODEL, ENUM_CARREAU, ENUM_BINGHAM, ENUM_HERSCHEL_BULKLEY};
@@ -44,9 +45,9 @@ namespace SPH
 		std::vector<float> m_nonNewtonViscosity;
 
 		float power_index = 0.667f;
-		float consistency_index = 100.0f;
-		float m_viscosity0 = 2000.0f; //initial viscosity
-		float m_viscosity_inf = 1.0f; //infinite viscosity(must lower than initial viscosity)
+		float consistency_index = 1.0f;
+		float m_viscosity0 = 1.0f; //initial viscosity
+		float m_viscosity_inf = 0.001f; //infinite viscosity(must lower than initial viscosity)
 		float m_criticalStrainRate = 20.0f;
 		float m_muC = 10.0f;
 		// float m_yieldStress = (m_viscosity0 - m_viscosity_inf) * m_criticalStrainRate;

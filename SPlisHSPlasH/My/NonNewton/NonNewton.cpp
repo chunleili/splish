@@ -110,46 +110,46 @@ void NonNewton::reset()
 	m_boundaryViscosity.resize(numParticles, 0.0);
 }
 
-// void NonNewton::calcStrainRate()
+// void NonNewton::dampVelocity()
 // {
-// // shear strain rate calculation
 // 	Simulation *sim = Simulation::getCurrent();
 // 	const unsigned int fluidModelIndex = m_model->getPointSetIndex();
 
 // 	for (unsigned int i = 0; i < numParticles; ++i)
 // 	{
-// 		Vector6r strainRate;
 // 		const Vector3r &xi = m_model->getPosition(i);
 // 		const Vector3r &vi = m_model->getVelocity(i);
-// 		const Real density_i = m_model->getDensity(i);
-
-// 		for (unsigned int j = 0; j < sim->numberOfNeighbors(fluidModelIndex, fluidModelIndex, i); j++)
-// 		{
-// 			const unsigned int neighborIndex = sim->getNeighbor(fluidModelIndex, fluidModelIndex, i, j);
-// 			const Vector3r &xj = m_model->getPosition(neighborIndex);
-
-// 			const Vector3r &vj = m_model->getVelocity(neighborIndex);
-
-// 			const Vector3r gradW = sim->gradW(xi - xj);
-// 			const Vector3r vji = vj - vi;
-// 			const Real m = m_model->getMass(neighborIndex);
-// 			const Real m2 = m * static_cast<Real>(2.0);
-// 			strainRate[0] += m2 * vji[0] * gradW[0];
-// 			strainRate[1] += m2 * vji[1] * gradW[1];
-// 			strainRate[2] += m2 * vji[2] * gradW[2];
-// 			strainRate[3] += m * (vji[0] * gradW[1] + vji[1] * gradW[0]);
-// 			strainRate[4] += m * (vji[0] * gradW[2] + vji[2] * gradW[0]);
-// 			strainRate[5] += m * (vji[1] * gradW[2] + vji[2] * gradW[1]);
-// 		}
-// 		strainRate = (static_cast<Real>(0.5) / density_i) * strainRate;
-
-// 		m_strainRate[i] = strainRate;
-
-// 		m_strainRateNorm[i] = FNorm(m_strainRate[i]);
-// 		// end shear strain rate calculation
+// 		const vnew = vi * 
+// 		m_model->setVelocity(i, sumVji);
 // 	}
 // }
 
+
+void NonNewton::smoothVelocity()
+{
+	Simulation *sim = Simulation::getCurrent();
+	const unsigned int fluidModelIndex = m_model->getPointSetIndex();
+
+	for (unsigned int i = 0; i < numParticles; ++i)
+	{
+		const Vector3r &xi = m_model->getPosition(i);
+		const Vector3r &vi = m_model->getVelocity(i);
+		const Real density_i = m_model->getDensity(i);
+		Vector3r sumVji = Vector3r::Zero(); 
+		for (unsigned int j = 0; j < sim->numberOfNeighbors(fluidModelIndex, fluidModelIndex, i); j++)
+		{
+			const unsigned int neighborIndex = sim->getNeighbor(fluidModelIndex, fluidModelIndex, i, j);
+			const Vector3r &xj = m_model->getPosition(neighborIndex);
+			const Vector3r &vj = m_model->getVelocity(neighborIndex);
+			const Real W = sim->W(xi - xj);
+			const Vector3r vji = vj - vi;
+			const Real m = m_model->getMass(neighborIndex);
+			const Real density_j = m_model->getDensity(neighborIndex);
+			sumVji += vji * m/density_j * W;
+		}
+		m_model->setVelocity(i, sumVji);
+	}
+}
 
 void NonNewton::calcStrainRate()
 {

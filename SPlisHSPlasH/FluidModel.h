@@ -124,6 +124,7 @@ namespace SPH
 			std::vector<unsigned int> m_objectId;
 			std::vector<unsigned int> m_objectId0;
 			std::vector<ParticleState> m_particleState;
+			std::vector<Vector3r> m_lastVelocity;
 			Real m_V;
 
 #ifdef USE_PERFORMANCE_OPTIMIZATION
@@ -367,6 +368,15 @@ namespace SPH
 			FORCE_INLINE void setNonNewtonViscosity(const unsigned int i, const Real &val)
 			{
 				m_nonNewtonViscosity[i] = val;
+			}
+			FORCE_INLINE Vector3r& getLastVelocity(const unsigned int i)
+			{
+				return m_lastVelocity[i];
+			}
+
+			FORCE_INLINE void setLastVelocity(const unsigned int i, const Vector3r &val)
+			{
+				m_lastVelocity[i] = val;
 			}
 
 			FORCE_INLINE unsigned int& getParticleId(const unsigned int i)
