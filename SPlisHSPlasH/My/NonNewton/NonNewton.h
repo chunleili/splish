@@ -56,6 +56,8 @@ namespace SPH
 		float m_maxViscosity = 0.0f;
 		float m_avgViscosity = 0.0f;
 		float m_minViscosity = 0.0f;
+		bool m_smoothVelocityFlag = false;
+		float m_smoothVelocityFactor = 0.0f;
 
 		inline static int VISCOSITY_COEFFICIENT;
 		inline static int VISCOSITY_COEFFICIENT_BOUNDARY;
@@ -81,6 +83,8 @@ namespace SPH
 		inline static int BINGHAM_ = -1;
 		inline static int HERSCHEL_BULKLEY_ = -1;
 
+		inline static int SMOOTH_VELOCITY_FLAG = -1;
+		inline static int SMOOTH_VELOCITY_FACTOR = -1;
 
 		NonNewton(FluidModel *model);
         virtual void init() override;
