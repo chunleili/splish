@@ -44,10 +44,13 @@
 			"muC": 0.3,
 			"yieldStress": 2,
 			"criticalStrainRate": 5e-4,
-			"smoothVelocityFactor": 0.01,
 			"smoothVelocityFlag": false,
-			"dampVelocityFlag": true,
-			"dampVelocityFactor": 0.01
+			"smoothVelocityFactor": 0.01,
+			"dampVelocityFlag": false,
+			"dampVelocityFactor": 0.01,
+			"changeWithTimeFlag": true,
+			"coeffC": 1.0
+
 		}
 	],
 	"RigidBodies": [

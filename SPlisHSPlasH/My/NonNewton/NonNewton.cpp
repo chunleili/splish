@@ -115,6 +115,25 @@ void NonNewton::initParameters()
 	setDescription(DAMP_VELOCITY_FACTOR, "dampVelocityFactor(0 to 1). 0 means no damping, 1 means use complete last step vel.");
 	static_cast<RealParameter*>(getParameter(DAMP_VELOCITY_FACTOR))->setMinValue(0.0);
 	static_cast<RealParameter*>(getParameter(DAMP_VELOCITY_FACTOR))->setMaxValue(1.0);
+
+	CHANGE_WITH_TIME_FLAG = createBoolParameter("changeWithTimeFlag", "changeWithTimeFlag", &m_changeWithTimeFlag);
+	VISCOSITY_WITH_TIME_PART = createNumericParameter("viscosityWithTimePart", "viscosityWithTimePart", &m_viscosityWithTimePart);
+	COEFF_A = createNumericParameter("coeffA", "coeffA", &m_coeffA);
+	COEFF_B = createNumericParameter("coeffB", "coeffB", &m_coeffB);
+	COEFF_C = createNumericParameter("coeffC", "coeffC", &m_coeffC);
+	COEFF_D = createNumericParameter("coeffD", "coeffD", &m_coeffD);
+	setGroup(CHANGE_WITH_TIME_FLAG, "Viscosity");
+	setGroup(VISCOSITY_WITH_TIME_PART, "Viscosity");
+	setGroup(COEFF_A, "Viscosity");
+	setGroup(COEFF_B, "Viscosity");
+	setGroup(COEFF_C, "Viscosity");
+	setGroup(COEFF_D, "Viscosity");
+	setDescription(CHANGE_WITH_TIME_FLAG, "turn on changeWithTime.");
+	setDescription(VISCOSITY_WITH_TIME_PART, "viscosityWithTimePart: viscosity = viscosityOriginal + viscosityWithTimePart.");
+	setDescription(COEFF_A, "coeffA for viscosity change with time: viscosityWithTimePart = a * t^3 + b * t^2 + c * t + d");
+	setDescription(COEFF_B, "coeffB for viscosity change with time: viscosityWithTimePart = a * t^3 + b * t^2 + c * t + d");
+	setDescription(COEFF_C, "coeffC for viscosity change with time: viscosityWithTimePart = a * t^3 + b * t^2 + c * t + d");
+	setDescription(COEFF_D, "coeffD for viscosity change with time: viscosityWithTimePart = a * t^3 + b * t^2 + c * t + d");
 }
 
 
@@ -172,6 +191,16 @@ void NonNewton::smoothVelocity()
 		m_model->setVelocity(i, newV);
 	}
 }
+
+// mu *= a * t^3 + b * t^2 + c * t + d
+void NonNewton::viscosityChangeWithTime()
+{
+	const unsigned int fluidModelIndex = m_model->getPointSetIndex();
+
+	Real t = TimeManager::getCurrent()->getTime();
+	m_viscosityWithTimePart = m_coeffA * pow(t, 3) + m_coeffB * pow(t, 2) + m_coeffC * t + m_coeffD;
+}
+
 
 void NonNewton::calcStrainRate()
 {
@@ -233,16 +262,27 @@ void NonNewton::step()
 
 	computeNonNewtonViscosity();
 
+	if (m_smoothVelocityFlag)
+		smoothVelocity();
+
+	if (m_dampVelocityFlag)
+		dampVelocity();
+	
+	if (m_changeWithTimeFlag)
+		viscosityChangeWithTime();
+	
+	std::cout<<"m_viscosityWithTimePart: "<<m_viscosityWithTimePart<<"\n";
 	//通过set函数将计算得到的粘度传递给fluidmodel
 	for (unsigned int i = 0; i < numParticles; ++i)
 	{
+		m_nonNewtonViscosity[i] +=  m_viscosityWithTimePart;
 		m_model->setNonNewtonViscosity(i,m_nonNewtonViscosity[i]);
 	}
 
-	// [m_minViscosity, m_maxViscosity] = minMaxField(m_nonNewtonViscosity, numParticles);
 	m_maxViscosity = maxField(m_nonNewtonViscosity, numParticles);
 	m_minViscosity = minField(m_nonNewtonViscosity, numParticles);
 	m_avgViscosity = avgField(m_nonNewtonViscosity, numParticles);
+	// [m_minViscosity, m_maxViscosity] = minMaxField(m_nonNewtonViscosity, numParticles);
 	// [m_minViscosity, m_maxViscosity, m_avgViscosity] = minMaxAvgField(m_boundaryViscosity, numParticles);
 
 	if (m_smoothVelocityFlag)
