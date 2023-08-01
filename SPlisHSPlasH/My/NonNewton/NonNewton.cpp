@@ -97,24 +97,24 @@ void NonNewton::initParameters()
 
 
     SMOOTH_VELOCITY_FLAG = createBoolParameter("smoothVelocityFlag", "smoothVelocityFlag", &m_smoothVelocityFlag);
-    setGroup(SMOOTH_VELOCITY_FLAG, "Viscosity");
+    setGroup(SMOOTH_VELOCITY_FLAG, "Damping");
     setDescription(SMOOTH_VELOCITY_FLAG, "turn on smoothVelocity.");
 
 	SMOOTH_VELOCITY_FACTOR = createNumericParameter("smoothVelocityFactor", "smoothVelocityFactor", &m_smoothVelocityFactor);
-	setGroup(SMOOTH_VELOCITY_FACTOR, "Viscosity");
+	setGroup(SMOOTH_VELOCITY_FACTOR, "Damping");
 	setDescription(SMOOTH_VELOCITY_FACTOR, "smoothVelocityFactor(0 to 1). 0 means no smoothing, 1 means use complete average vel, i.e, sum(mj*(vj)/rhoj*Wij).");
 	static_cast<RealParameter*>(getParameter(SMOOTH_VELOCITY_FACTOR))->setMinValue(0.0);
 	static_cast<RealParameter*>(getParameter(SMOOTH_VELOCITY_FACTOR))->setMaxValue(1.0);
 
-    DAMP_VELOCITY_FLAG = createBoolParameter("dampVelocityFlag", "dampVelocityFlag", &m_dampVelocityFlag);
-    setGroup(DAMP_VELOCITY_FLAG, "Viscosity");
-    setDescription(DAMP_VELOCITY_FLAG, "turn on dampVelocity.");
+    // DAMP_VELOCITY_FLAG = createBoolParameter("dampVelocityFlag", "dampVelocityFlag", &m_dampVelocityFlag);
+    // setGroup(DAMP_VELOCITY_FLAG, "Viscosity");
+    // setDescription(DAMP_VELOCITY_FLAG, "turn on dampVelocity.");
 
-	DAMP_VELOCITY_FACTOR = createNumericParameter("dampVelocityFactor", "dampVelocityFactor", &m_dampVelocityFactor);
-	setGroup(DAMP_VELOCITY_FACTOR, "Viscosity");
-	setDescription(DAMP_VELOCITY_FACTOR, "dampVelocityFactor(0 to 1). 0 means no damping, 1 means use complete last step vel.");
-	static_cast<RealParameter*>(getParameter(DAMP_VELOCITY_FACTOR))->setMinValue(0.0);
-	static_cast<RealParameter*>(getParameter(DAMP_VELOCITY_FACTOR))->setMaxValue(1.0);
+	// DAMP_VELOCITY_FACTOR = createNumericParameter("dampVelocityFactor", "dampVelocityFactor", &m_dampVelocityFactor);
+	// setGroup(DAMP_VELOCITY_FACTOR, "Viscosity");
+	// setDescription(DAMP_VELOCITY_FACTOR, "dampVelocityFactor(0 to 1). 0 means no damping, 1 means use complete last step vel.");
+	// static_cast<RealParameter*>(getParameter(DAMP_VELOCITY_FACTOR))->setMinValue(0.0);
+	// static_cast<RealParameter*>(getParameter(DAMP_VELOCITY_FACTOR))->setMaxValue(1.0);
 
 	CHANGE_WITH_TIME_FLAG = createBoolParameter("changeWithTimeFlag", "changeWithTimeFlag", &m_changeWithTimeFlag);
 	VISCOSITY_WITH_TIME_PART = createNumericParameter("viscosityWithTimePart", "viscosityWithTimePart", &m_viscosityWithTimePart);
@@ -151,16 +151,22 @@ void NonNewton::reset()
 
 void NonNewton::dampVelocity()
 {
-	Simulation *sim = Simulation::getCurrent();
-	const unsigned int fluidModelIndex = m_model->getPointSetIndex();
+	// moved to MyTimeStep.cpp
 
-	for (unsigned int i = 0; i < numParticles; ++i)
-	{
-		const Vector3r v_last = m_model->getLastVelocity(i);
-		const Vector3r &vi = m_model->getVelocity(i);
-		const Vector3r vnew = vi - m_dampVelocityFactor * (vi - v_last);
-		m_model->setVelocity(i, vnew);
-	}
+	// Simulation *sim = Simulation::getCurrent();
+	// const unsigned int fluidModelIndex = m_model->getPointSetIndex();
+
+	// for (unsigned int i = 0; i < numParticles; ++i)
+	// {
+	// 	const Vector3r v_last = m_model->getLastVelocity(i);
+	// 	const Vector3r &vi = m_model->getVelocity(i);
+	// 	const Vector3r vnew = vi - m_dampVelocityFactor * (vi - v_last);
+	// 	if (i==0)
+	// 	{
+	// 		std::cout<<"vdiff"<<vi - v_last<<std::endl;
+	// 	}
+	// 	m_model->setVelocity(i, vnew);
+	// }
 }
 
 
@@ -271,7 +277,7 @@ void NonNewton::step()
 	if (m_changeWithTimeFlag)
 		viscosityChangeWithTime();
 	
-	std::cout<<"m_viscosityWithTimePart: "<<m_viscosityWithTimePart<<"\n";
+	// std::cout<<"m_viscosityWithTimePart: "<<m_viscosityWithTimePart<<"\n";
 	//通过set函数将计算得到的粘度传递给fluidmodel
 	for (unsigned int i = 0; i < numParticles; ++i)
 	{

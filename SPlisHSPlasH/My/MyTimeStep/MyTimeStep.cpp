@@ -81,6 +81,18 @@ void MyTimeStep::initParameters()
 	USE_DIVERGENCE_SOLVER = createBoolParameter("enableDivergenceSolver", "Enable divergence solver", &m_enableDivergenceSolver);
 	setGroup(USE_DIVERGENCE_SOLVER, "DFSPH");
 	setDescription(USE_DIVERGENCE_SOLVER, "Turn divergence solver on/off.");
+
+
+	// Damp velocity
+	DAMP_VELOCITY_FLAG = createBoolParameter("dampVelocityFlag", "dampVelocityFlag", &m_dampVelocityFlag);
+    setGroup(DAMP_VELOCITY_FLAG, "Damping");
+    setDescription(DAMP_VELOCITY_FLAG, "turn on dampVelocity.");
+
+	DAMP_VELOCITY_FACTOR = createNumericParameter("dampVelocityFactor", "dampVelocityFactor", &m_dampVelocityFactor);
+	setGroup(DAMP_VELOCITY_FACTOR, "Damping");
+	setDescription(DAMP_VELOCITY_FACTOR, "dampVelocityFactor(0 to 1). 0 means no damping, 1 means use complete last step vel.");
+	static_cast<RealParameter*>(getParameter(DAMP_VELOCITY_FACTOR))->setMinValue(0.0);
+	static_cast<RealParameter*>(getParameter(DAMP_VELOCITY_FACTOR))->setMaxValue(1.0);
 }
 
 void MyTimeStep::step()
@@ -185,6 +197,10 @@ void MyTimeStep::step()
 		}
 	}
 
+	// damp velocity
+	if (m_dampVelocityFlag)
+		dampVelocity();
+
 	sim->emitParticles();
 	sim->animateParticles();
 
@@ -192,27 +208,31 @@ void MyTimeStep::step()
 	tm->setTime (tm->getTime () + h);
 
 
-	// // compute velocityDiff
-	// for (unsigned int m = 0; m < nModels; m++)
-	// {
-	// 	FluidModel *fm = sim->getFluidModel(m);
-	// 	const unsigned int numParticles = fm->numActiveParticles();
-	// 	#pragma omp parallel default(shared)
-	// 	{
-	// 		#pragma omp for schedule(static)  
-	// 		for (int i = 0; i < (int)numParticles; i++)
-	// 		{
-	// 			const Vector3r vel0 = fm->getVelocity0(i);
-	// 			const Vector3r vel = fm->getVelocity(i);
-	// 			m_simulationData.setVelocityDiff(m, i, vel - vel0);
-	// 		}
-	// 	}
-	// }
-
 	static int step = 0;
 	printf("\n------\nMyTimeStep\tstep = %d\n", step++);
 	printf("t=%f, dt=%f, iterationsV=%u\n\n", tm->getTime(), h, m_iterationsV);
 }
+
+void MyTimeStep::dampVelocity()
+{
+	Simulation *sim = Simulation::getCurrent();
+	const unsigned int nModels = sim->numberOfFluidModels();
+
+	for (unsigned int m = 0; m < nModels; m++)
+	{
+		FluidModel *fm = sim->getFluidModel(m);
+		const unsigned int numParticles = fm->numActiveParticles();
+		for (unsigned int i = 0; i < numParticles; ++i)
+		{
+			const Vector3r v_last = fm->getLastVelocity(i);
+			const Vector3r &vi = fm->getVelocity(i);
+			const Vector3r vnew = vi - m_dampVelocityFactor * (vi - v_last);
+
+			fm->setVelocity(i, vnew);
+		}
+	}
+}
+
 
 
 void MyTimeStep::pressureSolve()
