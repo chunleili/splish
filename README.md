@@ -14,7 +14,7 @@ This is a forked repo from https://github.com/InteractiveComputerGraphics/SPlisH
 2. Viscosity_Casson: 请看 Viscosity/Viscosity_Casson。根据Casson公式计算黏度，并且根据温度动态调整黏度。
 3. Plasticity: 弹塑性，请看塑性冲击的例子plastic_strike.json。请看 My/Plasticity。
 4. (有BUG)ShapeMatching: 刚体。请看RigidBody_Bunny.json的例子。
-5. NonNewton: 请看 NonNewton。非牛顿剪切变稀和剪切变稠等。根据7种非牛顿模型设置粘度。同时还可以根据时间增加粘度（给定三次多项式）。还可以根据周围粒子速度smooth速度。根据上一步damp速度。
+5. NonNewton: 请看 NonNewton。非牛顿剪切变稀和剪切变稠等。根据7种非牛顿模型设置粘度。同时还可以根据时间增加粘度（给定三次多项式）。
 6. MyPartioReader：(目前位于Utilities文件夹)粒子的导入器，可以直接导入Houdini的 .bhclassic 文件(.bhclassic是Houdini旧版（12以前）的bgeo文件）。 可以读入uv
 7. 用户交互：现在可以用鼠标右键旋转视角，鼠标滚轮缩放视角，鼠标中键平移视角。更加符合人类直觉。
 8. Interactive: 交互类。可以获取点击的鼠标世界位置（打印到屏幕上）。还可以控制刚体（通过control+WASDF控制第0号刚体）。
@@ -23,6 +23,7 @@ This is a forked repo from https://github.com/InteractiveComputerGraphics/SPlisH
 11.  Exporter_MyPartio: 导出的bgeo格式可以直接被Houdini读取。修复了原有partio导出器的BUG。目前位于Simulator/exporter中。
 12. (未完成)MyTimeStep: 留空，以后将DFSPH搬到这里修改。
 13. PlyReader: 读取ply文件(粒子)。目前位于Utilities文件夹。借助happly库。
+14. DampVelocity和SmoothVelocity。damping是让速度趋于上一时刻速度，dampingFactor为0-1，1时完全与上一时刻速度相同。smooth是让速度趋于周围粒子速度的平均值，smoothFactor为0-1，1时完全与周围粒子速度相同。目前damping放在MyTimeStep，smooth放在NonNewton中。
 
 ## 非牛顿
 非牛顿目前实现方式是通过NonNewton类，根据不同的子模型计算出粘度，然后将粘度付给不同的粘性子模型。这就需要对原有的粘性子模型进行非常轻微但侵入式的改动。基本上是将原本的粘度（一个标量）改为向量，让每个粒子的粘度都不相同。
