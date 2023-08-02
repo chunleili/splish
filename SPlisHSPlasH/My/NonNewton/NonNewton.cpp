@@ -198,7 +198,7 @@ void NonNewton::smoothVelocity()
 	}
 }
 
-// mu *= a * t^3 + b * t^2 + c * t + d
+//  a * t^3 + b * t^2 + c * t + d
 void NonNewton::viscosityChangeWithTime()
 {
 	const unsigned int fluidModelIndex = m_model->getPointSetIndex();

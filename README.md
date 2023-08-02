@@ -23,7 +23,7 @@ This is a forked repo from https://github.com/InteractiveComputerGraphics/SPlisH
 11.  Exporter_MyPartio: 导出的bgeo格式可以直接被Houdini读取。修复了原有partio导出器的BUG。目前位于Simulator/exporter中。
 12. (未完成)MyTimeStep: 留空，以后将DFSPH搬到这里修改。
 13. PlyReader: 读取ply文件(粒子)。目前位于Utilities文件夹。借助happly库。
-14. DampVelocity和SmoothVelocity。damping是让速度趋于上一时刻速度，dampingFactor为0-1，1时完全与上一时刻速度相同。smooth是让速度趋于周围粒子速度的平均值，smoothFactor为0-1，1时完全与周围粒子速度相同。目前damping放在MyTimeStep，smooth放在NonNewton中。
+14. DampVelocity和SmoothVelocity。damping是让速度趋于上一时刻速度，dampingFactor为0-1，1时完全与上一时刻速度相同。smooth是让速度趋于周围粒子速度的平均值，smoothFactor为0-1，1时完全与周围粒子速度相同。目前damping放在MyTimeStep，smooth放在NonNewton中。(特别注意，damp的json参数指定在Configuration下面，而非与smooth一样在Materials下面。因为damp是在MyTimeStep中实现的。同时注意不使用MyTimeStep的话无法看到damp这个选项！)
 
 ## 非牛顿
 非牛顿目前实现方式是通过NonNewton类，根据不同的子模型计算出粘度，然后将粘度付给不同的粘性子模型。这就需要对原有的粘性子模型进行非常轻微但侵入式的改动。基本上是将原本的粘度（一个标量）改为向量，让每个粒子的粘度都不相同。
