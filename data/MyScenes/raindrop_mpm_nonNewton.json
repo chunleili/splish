@@ -24,7 +24,7 @@
 		"noGUI": true,
 		"enableMyPartioExport": true,
 		"enableObjectSplitting": false,
-		"particleAttributes": "velocity;",
+		"particleAttributes": "viscous_stress;",
 		"dataExportFPS ":10,
 		"dampVelocityFlag": true,
 		"dampVelocityFactor": 0.01
@@ -34,7 +34,7 @@
 			"id": "fluid",
 			"colorField": "velocity",
 			"surfaceTensionMethod": 7,
-			"viscosityMethod": 13,
+			"viscosityMethod": 14,
 			"nonNewtonMethod": 6,
 			"viscoMaxError": 0.01,
 			"viscoMaxIter": 1000,

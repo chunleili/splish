@@ -157,10 +157,15 @@ void ParticleExporter_MyPartio::writeParticlesPartio(const std::string& fileName
 					attrMap[i] = j;
 					partioAttrMap[i] = particleData.addAttribute(attributes[i].c_str(), Partio::VECTOR, 3);
 				}
+				else if (field.type == Matrix3)
+				{
+					attrMap[i] = j;
+					partioAttrMap[i] = particleData.addAttribute(attributes[i].c_str(), Partio::FLOAT, 9);
+				}
 				else
 				{
 					attrMap[i] = -1;
-					LOG_WARN << "Only scalar and vector fields are currently supported by the partio exporter.";
+					LOG_WARN << "Only scalar and vector and matrix3 fields are currently supported by the partio exporter.";
 				}
 				break;
 			}

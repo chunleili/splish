@@ -27,7 +27,7 @@ NonNewton_Takahashi2015::NonNewton_Takahashi2015(FluidModel *model) :
 	m_maxError = 0.01;
 	m_iterations = 0;
 
-	model->addField({ "viscous stress", FieldType::Matrix3, [&](const unsigned int i) -> Real* { return &m_viscousStress[i](0,0); } });
+	model->addField({ "viscous_stress", FieldType::Matrix3, [&](const unsigned int i) -> Real* { return &m_viscousStress[i](0,0); } });
 	model->addField({ "accel (visco)", FieldType::Vector3, [&](const unsigned int i) -> Real* { return &m_accel[i][0]; } });
 }
 
