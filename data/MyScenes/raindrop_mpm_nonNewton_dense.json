@@ -25,9 +25,9 @@
 		"enableMyPartioExport": true,
 		"enableObjectSplitting": false,
 		"particleAttributes": "viscous_stress;",
-		"dataExportFPS ":10,
+		"dataExportFPS ":1,
 		"dampVelocityFlag": true,
-		"dampVelocityFactor": 0.01
+		"dampVelocityFactor": 0.5
 	},
 	"Materials": [
 		{
@@ -35,7 +35,7 @@
 			"colorField": "velocity",
 			"surfaceTensionMethod": 7,
 			"viscosityMethod": 14,
-			"nonNewtonMethod": 6,
+			"nonNewtonMethod": 2,
 			"viscoMaxError": 0.01,
 			"viscoMaxIter": 1000,
 			"viscosityBoundary": 0.1,
@@ -47,7 +47,7 @@
 			"yieldStress": 2,
 			"criticalStrainRate": 5e-4,
 			"smoothVelocityFlag": true,
-			"smoothVelocityFactor": 0.01,
+			"smoothVelocityFactor": 0.05,
 			"changeWithTimeFlag": true,
 			"coeffC": 1.0
 		}
@@ -55,10 +55,10 @@
 	"RigidBodies": [
 		{
 			"geometryFile": "../models/UnitBox.obj",
-			"translation": [0,0,0],
+			"translation": [0,-0.16,0],
 			"rotationAxis": [1, 0, 0],
 			"rotationAngle": 0,
-			"scale": [5,0.6,5],
+			"scale": [15,0.6,15],
 			"color": [0.1, 0.4, 0.6, 1.0], 
 			"isDynamic": false,
 			"isWall": true,
@@ -70,7 +70,7 @@
 	"FluidModels": [
 		{
 			"id": "fluid",
-			"particleFile": "../models/raindrop.ply"
+			"particleFile": "../models/spot_dense_scale.ply"
 		}
 	]
 }

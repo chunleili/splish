@@ -1,17 +1,18 @@
 {
 	"Configuration": 
 	{
-		"timeStepSize": 0.001,
-		"particleRadius": 0.006,
-		"numberOfStepsPerRenderUpdate": 2,
+		"cameraPosition": [0,2,5],
+		"cameraLookat": [0,0,0],
+		"particleRadius": 0.005,
+		"numberOfStepsPerRenderUpdate": 4,
 		"density0": 1000, 
-		"simulationMethod": 7,
+		"simulationMethod": 4,
 		"gravitation": [0,-9.81,0], 
-		"cflMethod": 0, 
+		"cflMethod": 1, 
 		"cflFactor": 1,
 		"cflMaxTimeStepSize": 0.005,
 		"maxIterations": 100,
-		"maxError": 0.01,
+		"maxError": 0.05,
 		"maxIterationsV": 100,
 		"maxErrorV": 0.1,		
 		"stiffness": 50000,
@@ -20,57 +21,57 @@
 		"enableDivergenceSolver": true,
 		"boundaryHandlingMethod": 2,
 		"enableZSort": false,
-		"stopAt": 10.0,
-		"noGUI": true,
-		"enableMyPartioExport": true,
-		"enableObjectSplitting": false,
-		"particleAttributes": "viscous_stress;",
-		"dataExportFPS ":10,
-		"dampVelocityFlag": true,
-		"dampVelocityFactor": 0.01
+		"enableMyPartioExport": true
 	},
 	"Materials": [
 		{
 			"id": "fluid",
-			"colorField": "velocity",
 			"surfaceTensionMethod": 7,
-			"viscosityMethod": 14,
-			"nonNewtonMethod": 6,
-			"viscoMaxError": 0.01,
+			"viscosityMethod": 13,
+			"nonNewtonMethod": 0,
+			"viscoMaxError": 0.001,
 			"viscoMaxIter": 1000,
-			"viscosityBoundary": 0.1,
+			"viscosityBoundary": 10,
 			"viscosity0": 0.5,
 			"viscosity_inf": 0.01,
 			"power_index":1.1,
-			"consistency_index":1.0,
+			"consistency_index":20,
 			"muC": 0.3,
-			"yieldStress": 2,
-			"criticalStrainRate": 5e-4,
-			"smoothVelocityFlag": true,
-			"smoothVelocityFactor": 0.01,
-			"changeWithTimeFlag": true,
-			"coeffC": 1.0
+			"yieldStress": 0.1,
+			"criticalStrainRate": 1e-3
 		}
 	],
 	"RigidBodies": [
 		{
 			"geometryFile": "../models/UnitBox.obj",
-			"translation": [0,0,0],
+			"translation": [0,1.5,0],
 			"rotationAxis": [1, 0, 0],
 			"rotationAngle": 0,
-			"scale": [5,0.6,5],
+			"scale": [3.1, 3.1, 3.1],
 			"color": [0.1, 0.4, 0.6, 1.0], 
 			"isDynamic": false,
 			"isWall": true,
+			"mapInvert": true, 
+			"mapThickness": 0.0,
+			"mapResolution": [25,25,25]
+		},
+		{
+			"id": "cake",
+			"geometryFile": "../models/cakeslice_sim.obj",
+			"isDynamic": false, 
+			"color": [0.3, 0.5, 0.8, 1.0], 
 			"mapInvert": false, 
 			"mapThickness": 0.0,
-			"mapResolution": [20,30,20]
+			"mapResolution": [20,20,20]
 		}
 	],
 	"FluidModels": [
 		{
 			"id": "fluid",
-			"particleFile": "../models/raindrop.ply"
+			"particleFile": "../models/cream_sim.ply"
 		}
 	]
 }
+
+
+
