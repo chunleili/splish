@@ -6,6 +6,8 @@
 #include "NonNewton.h"
 #include "Utils/myPrint.h"
 #include "Utils/mathUtils.h"
+#include "extern/my_partio/Partio.h"
+#include "extern/my_partio/PartioSingleton.h"
 
 using namespace SPH;
 using namespace GenParam;
@@ -134,6 +136,12 @@ void NonNewton::initParameters()
 	setDescription(COEFF_B, "coeffB for viscosity change with time: viscosityWithTimePart = a * t^3 + b * t^2 + c * t + d");
 	setDescription(COEFF_C, "coeffC for viscosity change with time: viscosityWithTimePart = a * t^3 + b * t^2 + c * t + d");
 	setDescription(COEFF_D, "coeffD for viscosity change with time: viscosityWithTimePart = a * t^3 + b * t^2 + c * t + d");
+
+
+
+	CONTROLLED_BY_TEMPERATURE_FLAG = createBoolParameter("controlledByTemperature", "controlledByTemperature", &m_controlledByTemperatureFlag);
+	setGroup(CONTROLLED_BY_TEMPERATURE_FLAG, "Viscosity");
+
 }
 
 
@@ -266,7 +274,8 @@ void NonNewton::step()
 	// std::cout<<"\nstep: "<<steps<<"\n";
 	numParticles = m_model->numActiveParticles();
 
-	computeNonNewtonViscosity();
+	if(!m_controlledByTemperatureFlag)
+		computeNonNewtonViscosity();
 
 	if (m_smoothVelocityFlag)
 		smoothVelocity();
@@ -276,6 +285,9 @@ void NonNewton::step()
 	
 	if (m_changeWithTimeFlag)
 		viscosityChangeWithTime();
+
+	if (m_controlledByTemperatureFlag)
+		controlledByTemperature();
 	
 	// std::cout<<"m_viscosityWithTimePart: "<<m_viscosityWithTimePart<<"\n";
 	//通过set函数将计算得到的粘度传递给fluidmodel
@@ -422,3 +434,28 @@ void NonNewton::computeViscosityHerschelBulkley()
 // 	auto const& d = sim->getNeighborhoodSearch()->point_set(m_model->getPointSetIndex());
 // 	d.sort_field(&m_nonNewtonViscosity[0]);
 // } 
+
+
+void NonNewton::controlledByTemperature()
+{
+	//读取温度
+	auto* d = Partio::PartioSingleton::getCurrent();
+	auto m_particleData = d->getParticlesData();
+
+	Partio::ParticleAttribute tempAttr;
+	m_particleData->attributeInfo("temperature", tempAttr);
+
+	for (unsigned int i = 0; i < numParticles; ++i)
+	{
+		auto tempRef = m_particleData->data<float>(tempAttr, i);
+		auto temp = *tempRef;
+		if(temp < m_temperature_threshold)
+		{
+			m_nonNewtonViscosity[i] = m_viscosity0;
+		}
+		else
+		{
+			m_nonNewtonViscosity[i] = m_viscosity_inf;
+		}
+	}
+} 

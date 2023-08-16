@@ -37,5 +37,32 @@ This is a forked repo from https://github.com/InteractiveComputerGraphics/SPlisH
 
 勾选Houdini Exporter(MyPartio)或在json中给定enableMyPartioExport为true。
 
+**读入自定义属性的方式**
+
+勾选useCarriedPartioData
+
+参考Simulator\Exporter\ParticleExporter_MyPartio.cpp中的代码
+
+在想访问partio数据的任意位置：
+```cpp
+#include "extern/my_partio/Partio.h"
+#include "extern/my_partio/PartioSingleton.h"
+
+
+
+auto* d = Partio::PartioSingleton::getCurrent();
+m_particleData = d->getParticlesData();
+
+Partio::ParticleAttribute posAttr;
+m_particleData->attributeInfo("position", posAttr);
+
+...
+
+// 在loop内
+auto p = m_particleData->data<float>(posAttr, idx);
+// 访问p[0], p[1], p[2]即可
+// 注意即使是scalar 也要用p[0]访问,
+```
+
 **模拟大规模场景的经验**
 在大规模场景中如果使用GUI会大量增加显存需求，可能导致程序崩溃。因此推荐先在小规模场景上试验，然后将几何尺寸等比例放大（保留粒子半径等模拟参数不变）。然后在命令行中使用"./bin/SPHSimulator.exe –-no-gui"选项运行程序，同时要在json中指定stopAt。
