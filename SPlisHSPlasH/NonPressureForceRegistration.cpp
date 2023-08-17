@@ -29,6 +29,7 @@
 #include "My/Viscosity_Casson/Viscosity_Casson.h"
 #include "My/Diffusion/Coagulation.h"
 #include "My/Diffusion/TemperatureDiffusion.h"
+#include "My/Diffusion/Melting.h"
 #include "My/ShapeMatching/ShapeMatching.h"
 #include "My/Plastic/Plastic.h"
 
@@ -80,6 +81,7 @@ void Simulation::registerNonpressureForces()
 	addViscosityMethod("Viscosity_Casson", Viscosity_Casson::creator);
 	addSurfaceTensionMethod("Coagulation method", Coagulation::creator);
 	addSurfaceTensionMethod("TemperatureDiffusion", TemperatureDiffusion::creator);
+	addSurfaceTensionMethod("Melting", Melting::creator);
 	addVorticityMethod("ShapeMatching", ShapeMatching::creator);
 	addElasticityMethod("Plastic", Plastic::creator);
 

@@ -9,6 +9,8 @@ PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/Diffusion/Coagulation.cpp
 	${CMAKE_CURRENT_LIST_DIR}/Diffusion/TemperatureDiffusion.h
     ${CMAKE_CURRENT_LIST_DIR}/Diffusion/TemperatureDiffusion.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/Diffusion/Melting.h	
+    ${CMAKE_CURRENT_LIST_DIR}/Diffusion/Melting.cpp
 
     # ${CMAKE_CURRENT_LIST_DIR}/MyPartioReader/MyPartioReader.cpp 
 	# ${CMAKE_CURRENT_LIST_DIR}/MyPartioReader/MyPartioReader.h

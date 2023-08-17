@@ -1,7 +1,7 @@
 {
 	"Configuration": 
 	{
-		"particleRadius": 0.025,
+		"particleRadius": 0.013,
 		"numberOfStepsPerRenderUpdate": 4,
 		"density0": 1000, 
 		"simulationMethod": 4,
@@ -21,29 +21,32 @@
 		"boundaryHandlingMethod": 0,
 		"enableZSort": false,
 		"pauseAt": 5.0,
-		"useCarriedPartioData": true
+		"useCarriedPartioData": true,
+		"enableMyPartioExport": true
 	},
 	"Materials": [
 		{
-			"id": "Fluid",
+			"id": "ices",
 			"surfaceTensionMethod": 7,
 			"viscosityMethod": 13,
-			"nonNewtonMethod": 0,
-			"viscoMaxError": 0.001,
-			"viscoMaxIter": 1000,
-			"viscosityBoundary": 0.1,
-			"viscosity0": 50.0,
-			"viscosity_inf": 0.001
+			"colorField": "temperature",
+			"colorMapType": 1,
+			"renderMaxValue": 1.0,
+			"viscosity0": 1000,
+			"diffusivity": 30.0,
+			"surfaceSource0": 1.0,
+			"isIceCreamScene": true,
+			"rSource": 0.253,
+			"decay": 10.0,
+			"thresLow": 0.3
 		}
 	],
 	"RigidBodies": [
 		{
 			"id": "glass",
-			"geometryFile": "../models/glass.obj",
-			"translation": [0,-1.5,0],
+			"geometryFile": "../largeModels/glass_new.obj",
 			"rotationAxis": [1, 0, 0],
 			"rotationAngle": 0,
-			"scale": [0.3, 0.3, 0.3],
 			"color": [0.145, 0.588, 0.745, 1.0], 
 			"isDynamic": false,
 			"isWall": false,
@@ -57,7 +60,8 @@
 	],
 	"FluidModels": [
 		{
-			"particleFile": "../models/ice-cream.bhclassic"
+			"id": "ices",
+			"particleFile": "../largeModels/ice_initial.bhclassic"
 		}
 	]
 
