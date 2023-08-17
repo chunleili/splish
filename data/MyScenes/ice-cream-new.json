@@ -23,7 +23,9 @@
 		"pauseAt": 5.0,
 		"useCarriedPartioData": true,
 		"enableMyPartioExport": true,
-		"dataExportFPS ":100
+		"dataExportFPS ":100,
+		"smoothVelocityFlag": true,
+		"smoothVelocityFactor": 0.01
 	},
 	"Materials": [
 		{

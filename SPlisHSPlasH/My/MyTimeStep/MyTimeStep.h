@@ -65,6 +65,7 @@ namespace SPH
 		void dampVelocity();
 		void smoothVelocity();
 
+		inline static int m_timeStepNum = 0;
 		bool m_dampVelocityFlag = false;
 		float m_dampVelocityFactor = 0.0;
 		bool m_smoothVelocityFlag = false;

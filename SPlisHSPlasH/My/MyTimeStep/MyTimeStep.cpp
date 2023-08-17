@@ -110,6 +110,9 @@ void MyTimeStep::initParameters()
 
 void MyTimeStep::step()
 {
+	static int m_timeStepNum = 0;
+
+	printf("\n------\nMyTimeStep\tstep = %d\n", m_timeStepNum++);
 	auto stepStartTime = std::chrono::high_resolution_clock::now();
 
 	Simulation *sim = Simulation::getCurrent();
@@ -165,7 +168,11 @@ void MyTimeStep::step()
 	for (unsigned int fluidModelIndex = 0; fluidModelIndex < nModels; fluidModelIndex++)
 		clearAccelerations(fluidModelIndex);
 
+	auto timeNonPStart = std::chrono::high_resolution_clock::now();
 	sim->computeNonPressureForces();
+	auto timeNonPEnd = std::chrono::high_resolution_clock::now();
+	auto timeNonPDuration = std::chrono::duration_cast<std::chrono::duration<double>>(timeNonPEnd - timeNonPStart).count();
+	printf("NonP time cost: %g\n", timeNonPDuration);
 
 	sim->updateTimeStepSize();
 
@@ -225,14 +232,12 @@ void MyTimeStep::step()
 	// Compute new time	
 	tm->setTime (tm->getTime () + h);
 
-	static int step = 0;
 
 	auto stepEndTime = std::chrono::high_resolution_clock::now();
-	auto clockTimeCost = std::chrono::duration_cast<std::chrono::duration<double>>(stepEndTime - stepStartTime).count();
-
-	printf("\n------\nMyTimeStep\tstep = %d\n", step++);
-	printf("clock time cost: %f\n", clockTimeCost);
-	printf("sim t=%f, dt=%f, iterationsV=%u\n\n", tm->getTime(), h, m_iterationsV);
+	auto stepTimeCost = std::chrono::duration_cast<std::chrono::duration<double>>(stepEndTime - stepStartTime).count();
+	printf("Step time cost: %f\n", stepTimeCost);
+	printf("t=%f, dt=%f, iterationsV=%u\n", tm->getTime(), h, m_iterationsV);
+	printf("---End of step---\n\n");
 }
 
 void MyTimeStep::dampVelocity()

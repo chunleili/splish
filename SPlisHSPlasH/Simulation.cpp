@@ -496,11 +496,37 @@ void Simulation::computeNonPressureForces()
     for (unsigned int i = 0; i < numberOfFluidModels(); i++)
     {
         FluidModel *fm = getFluidModel(i);
+
+        auto t = std::chrono::high_resolution_clock::now();
         fm->computeSurfaceTension();
+        auto tEnd = std::chrono::high_resolution_clock::now();
+        auto dur = std::chrono::duration_cast<std::chrono::duration<double>>(tEnd - t).count();
+        printf("surfTen time: %g\n", dur);
+
+        t = std::chrono::high_resolution_clock::now();
         fm->computeViscosity();
+        tEnd = std::chrono::high_resolution_clock::now();
+        dur = std::chrono::duration_cast<std::chrono::duration<double>>(tEnd - t).count();
+        printf("visc time: %g\n", dur);
+
+        t = std::chrono::high_resolution_clock::now();
         fm->computeVorticity();
+        tEnd = std::chrono::high_resolution_clock::now();
+        dur = std::chrono::duration_cast<std::chrono::duration<double>>(tEnd - t).count();
+        printf("vort time: %g\n", dur);
+
+        t = std::chrono::high_resolution_clock::now();
         fm->computeDragForce();
+        tEnd = std::chrono::high_resolution_clock::now();
+        dur = std::chrono::duration_cast<std::chrono::duration<double>>(tEnd - t).count();
+        printf("drag time: %g\n", dur);
+
+        t = std::chrono::high_resolution_clock::now();
         fm->computeElasticity();
+        tEnd = std::chrono::high_resolution_clock::now();
+        dur = std::chrono::duration_cast<std::chrono::duration<double>>(tEnd - t).count();
+        printf("elastic time: %g\n", dur);
+
     }
     STOP_TIMING_AVG
 }
