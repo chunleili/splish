@@ -98,15 +98,15 @@ void NonNewton::initParameters()
 	setDescription(CRITICAL_STRAIN_RATE, "Critical strain rate for the Herschel-Bulkley model.");
 
 
-    SMOOTH_VELOCITY_FLAG = createBoolParameter("smoothVelocityFlag", "smoothVelocityFlag", &m_smoothVelocityFlag);
-    setGroup(SMOOTH_VELOCITY_FLAG, "Damping");
-    setDescription(SMOOTH_VELOCITY_FLAG, "turn on smoothVelocity.");
+    // SMOOTH_VELOCITY_FLAG = createBoolParameter("smoothVelocityFlag", "smoothVelocityFlag", &m_smoothVelocityFlag);
+    // setGroup(SMOOTH_VELOCITY_FLAG, "Damping");
+    // setDescription(SMOOTH_VELOCITY_FLAG, "turn on smoothVelocity.");
 
-	SMOOTH_VELOCITY_FACTOR = createNumericParameter("smoothVelocityFactor", "smoothVelocityFactor", &m_smoothVelocityFactor);
-	setGroup(SMOOTH_VELOCITY_FACTOR, "Damping");
-	setDescription(SMOOTH_VELOCITY_FACTOR, "smoothVelocityFactor(0 to 1). 0 means no smoothing, 1 means use complete average vel, i.e, sum(mj*(vj)/rhoj*Wij).");
-	static_cast<RealParameter*>(getParameter(SMOOTH_VELOCITY_FACTOR))->setMinValue(0.0);
-	static_cast<RealParameter*>(getParameter(SMOOTH_VELOCITY_FACTOR))->setMaxValue(1.0);
+	// SMOOTH_VELOCITY_FACTOR = createNumericParameter("smoothVelocityFactor", "smoothVelocityFactor", &m_smoothVelocityFactor);
+	// setGroup(SMOOTH_VELOCITY_FACTOR, "Damping");
+	// setDescription(SMOOTH_VELOCITY_FACTOR, "smoothVelocityFactor(0 to 1). 0 means no smoothing, 1 means use complete average vel, i.e, sum(mj*(vj)/rhoj*Wij).");
+	// static_cast<RealParameter*>(getParameter(SMOOTH_VELOCITY_FACTOR))->setMinValue(0.0);
+	// static_cast<RealParameter*>(getParameter(SMOOTH_VELOCITY_FACTOR))->setMaxValue(1.0);
 
     // DAMP_VELOCITY_FLAG = createBoolParameter("dampVelocityFlag", "dampVelocityFlag", &m_dampVelocityFlag);
     // setGroup(DAMP_VELOCITY_FLAG, "Viscosity");
@@ -157,54 +157,55 @@ void NonNewton::reset()
 	m_boundaryViscosity.resize(numParticles, 0.0);
 }
 
-void NonNewton::dampVelocity()
-{
-	// moved to MyTimeStep.cpp
+// NOTE: SmoothVelocity and DampVelocity are moved to MyTimeStep.cpp
+// void NonNewton::dampVelocity()
+// {
+// 	// moved to MyTimeStep.cpp
 
-	// Simulation *sim = Simulation::getCurrent();
-	// const unsigned int fluidModelIndex = m_model->getPointSetIndex();
+// 	// Simulation *sim = Simulation::getCurrent();
+// 	// const unsigned int fluidModelIndex = m_model->getPointSetIndex();
 
-	// for (unsigned int i = 0; i < numParticles; ++i)
-	// {
-	// 	const Vector3r v_last = m_model->getLastVelocity(i);
-	// 	const Vector3r &vi = m_model->getVelocity(i);
-	// 	const Vector3r vnew = vi - m_dampVelocityFactor * (vi - v_last);
-	// 	if (i==0)
-	// 	{
-	// 		std::cout<<"vdiff"<<vi - v_last<<std::endl;
-	// 	}
-	// 	m_model->setVelocity(i, vnew);
-	// }
-}
+// 	// for (unsigned int i = 0; i < numParticles; ++i)
+// 	// {
+// 	// 	const Vector3r v_last = m_model->getLastVelocity(i);
+// 	// 	const Vector3r &vi = m_model->getVelocity(i);
+// 	// 	const Vector3r vnew = vi - m_dampVelocityFactor * (vi - v_last);
+// 	// 	if (i==0)
+// 	// 	{
+// 	// 		std::cout<<"vdiff"<<vi - v_last<<std::endl;
+// 	// 	}
+// 	// 	m_model->setVelocity(i, vnew);
+// 	// }
+// }
 
 
-void NonNewton::smoothVelocity()
-{
-	Simulation *sim = Simulation::getCurrent();
-	const unsigned int fluidModelIndex = m_model->getPointSetIndex();
+// void NonNewton::smoothVelocity()
+// {
+// 	Simulation *sim = Simulation::getCurrent();
+// 	const unsigned int fluidModelIndex = m_model->getPointSetIndex();
 
-	for (unsigned int i = 0; i < numParticles; ++i)
-	{
-		const Vector3r &xi = m_model->getPosition(i);
-		const Vector3r &vi = m_model->getVelocity(i);
-		const Real density_i = m_model->getDensity(i);
-		Vector3r avgVel = Vector3r::Zero(); 
-		for (unsigned int j = 0; j < sim->numberOfNeighbors(fluidModelIndex, fluidModelIndex, i); j++)
-		{
-			const unsigned int neighborIndex = sim->getNeighbor(fluidModelIndex, fluidModelIndex, i, j);
-			const Vector3r &xj = m_model->getPosition(neighborIndex);
-			const Vector3r &vj = m_model->getVelocity(neighborIndex);
-			const Real W = sim->W(xi - xj);
-			// const Vector3r vji = vj - vi;
-			const Real mj = m_model->getMass(neighborIndex);
-			const Real rhoj = m_model->getDensity(neighborIndex);
-			avgVel += vj * mj/rhoj * W;
-		}
-		const Vector3r diff = vi - avgVel;
-		const Vector3r newV = vi - diff * m_smoothVelocityFactor;
-		m_model->setVelocity(i, newV);
-	}
-}
+// 	for (unsigned int i = 0; i < numParticles; ++i)
+// 	{
+// 		const Vector3r &xi = m_model->getPosition(i);
+// 		const Vector3r &vi = m_model->getVelocity(i);
+// 		const Real density_i = m_model->getDensity(i);
+// 		Vector3r avgVel = Vector3r::Zero(); 
+// 		for (unsigned int j = 0; j < sim->numberOfNeighbors(fluidModelIndex, fluidModelIndex, i); j++)
+// 		{
+// 			const unsigned int neighborIndex = sim->getNeighbor(fluidModelIndex, fluidModelIndex, i, j);
+// 			const Vector3r &xj = m_model->getPosition(neighborIndex);
+// 			const Vector3r &vj = m_model->getVelocity(neighborIndex);
+// 			const Real W = sim->W(xi - xj);
+// 			// const Vector3r vji = vj - vi;
+// 			const Real mj = m_model->getMass(neighborIndex);
+// 			const Real rhoj = m_model->getDensity(neighborIndex);
+// 			avgVel += vj * mj/rhoj * W;
+// 		}
+// 		const Vector3r diff = vi - avgVel;
+// 		const Vector3r newV = vi - diff * m_smoothVelocityFactor;
+// 		m_model->setVelocity(i, newV);
+// 	}
+// }
 
 //  a * t^3 + b * t^2 + c * t + d
 void NonNewton::viscosityChangeWithTime()
@@ -277,11 +278,12 @@ void NonNewton::step()
 	if(!m_controlledByTemperatureFlag)
 		computeNonNewtonViscosity();
 
-	if (m_smoothVelocityFlag)
-		smoothVelocity();
+	// smoothVelocity和dampVelocity都已经搬到MyTimeStep中
+	// if (m_smoothVelocityFlag)
+	// 	smoothVelocity();
 
-	if (m_dampVelocityFlag)
-		dampVelocity();
+	// if (m_dampVelocityFlag)
+	// 	dampVelocity();
 	
 	if (m_changeWithTimeFlag)
 		viscosityChangeWithTime();
@@ -303,11 +305,11 @@ void NonNewton::step()
 	// [m_minViscosity, m_maxViscosity] = minMaxField(m_nonNewtonViscosity, numParticles);
 	// [m_minViscosity, m_maxViscosity, m_avgViscosity] = minMaxAvgField(m_boundaryViscosity, numParticles);
 
-	if (m_smoothVelocityFlag)
-		smoothVelocity();
+	// if (m_smoothVelocityFlag)
+	// 	smoothVelocity();
 
-	if (m_dampVelocityFlag)
-		dampVelocity();
+	// if (m_dampVelocityFlag)
+	// 	dampVelocity();
 }
 
 void NonNewton::computeNonNewtonViscosity()

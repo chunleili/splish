@@ -1,3 +1,5 @@
+#include <chrono>
+
 #include "MyTimeStep.h"
 #include "SPlisHSPlasH/TimeManager.h"
 #include "SPlisHSPlasH/SPHKernels.h"
@@ -85,18 +87,31 @@ void MyTimeStep::initParameters()
 
 	// Damp velocity
 	DAMP_VELOCITY_FLAG = createBoolParameter("dampVelocityFlag", "dampVelocityFlag", &m_dampVelocityFlag);
-    setGroup(DAMP_VELOCITY_FLAG, "Damping");
+    setGroup(DAMP_VELOCITY_FLAG, "Simulation");
     setDescription(DAMP_VELOCITY_FLAG, "turn on dampVelocity.");
 
 	DAMP_VELOCITY_FACTOR = createNumericParameter("dampVelocityFactor", "dampVelocityFactor", &m_dampVelocityFactor);
-	setGroup(DAMP_VELOCITY_FACTOR, "Damping");
+	setGroup(DAMP_VELOCITY_FACTOR, "Simulation");
 	setDescription(DAMP_VELOCITY_FACTOR, "dampVelocityFactor(0 to 1). 0 means no damping, 1 means use complete last step vel.");
 	static_cast<RealParameter*>(getParameter(DAMP_VELOCITY_FACTOR))->setMinValue(0.0);
 	static_cast<RealParameter*>(getParameter(DAMP_VELOCITY_FACTOR))->setMaxValue(1.0);
+
+
+    SMOOTH_VELOCITY_FLAG = createBoolParameter("smoothVelocityFlag", "smoothVelocityFlag", &m_smoothVelocityFlag);
+    setGroup(SMOOTH_VELOCITY_FLAG, "Simulation");
+    setDescription(SMOOTH_VELOCITY_FLAG, "turn on smoothVelocity.");
+
+	SMOOTH_VELOCITY_FACTOR = createNumericParameter("smoothVelocityFactor", "smoothVelocityFactor", &m_smoothVelocityFactor);
+	setGroup(SMOOTH_VELOCITY_FACTOR, "Simulation");
+	setDescription(SMOOTH_VELOCITY_FACTOR, "smoothVelocityFactor(0 to 1). 0 means no smoothing, 1 means use complete average vel, i.e, sum(mj*(vj)/rhoj*Wij).");
+	static_cast<RealParameter*>(getParameter(SMOOTH_VELOCITY_FACTOR))->setMinValue(0.0);
+	static_cast<RealParameter*>(getParameter(SMOOTH_VELOCITY_FACTOR))->setMaxValue(1.0);
 }
 
 void MyTimeStep::step()
 {
+	auto stepStartTime = std::chrono::high_resolution_clock::now();
+
 	Simulation *sim = Simulation::getCurrent();
 	TimeManager *tm = TimeManager::getCurrent ();
 	const Real h = tm->getTimeStepSize();
@@ -201,16 +216,23 @@ void MyTimeStep::step()
 	if (m_dampVelocityFlag)
 		dampVelocity();
 
+	// if(m_smoothVelocityFlag)
+	// 	smoothVelocity();
+
 	sim->emitParticles();
 	sim->animateParticles();
 
 	// Compute new time	
 	tm->setTime (tm->getTime () + h);
 
-
 	static int step = 0;
+
+	auto stepEndTime = std::chrono::high_resolution_clock::now();
+	auto clockTimeCost = std::chrono::duration_cast<std::chrono::duration<double>>(stepEndTime - stepStartTime).count();
+
 	printf("\n------\nMyTimeStep\tstep = %d\n", step++);
-	printf("t=%f, dt=%f, iterationsV=%u\n\n", tm->getTime(), h, m_iterationsV);
+	printf("clock time cost: %f\n", clockTimeCost);
+	printf("sim t=%f, dt=%f, iterationsV=%u\n\n", tm->getTime(), h, m_iterationsV);
 }
 
 void MyTimeStep::dampVelocity()
@@ -1780,4 +1802,44 @@ void MyTimeStep::emittedParticles(FluidModel *model, const unsigned int startInd
 void MyTimeStep::resize()
 {
 	m_simulationData.init();
+}
+
+void MyTimeStep::smoothVelocity()
+{
+
+	Simulation *sim = Simulation::getCurrent();
+	const unsigned int nModels = sim->numberOfFluidModels();
+
+	for (unsigned int m = 0; m < nModels; m++)
+	{
+		FluidModel *fm = sim->getFluidModel(m);
+		const unsigned int numParticles = fm->numActiveParticles();
+
+		#pragma omp parallel default(shared)
+		{
+			#pragma omp for schedule(static)
+			for (int i = 0; i < numParticles; ++i)
+			{
+
+				const Vector3r &xi = fm->getPosition(i);
+				const Vector3r &vi = fm->getVelocity(i);
+				const Real density_i = fm->getDensity(i);
+				Vector3r avgVel = Vector3r::Zero();
+				for (unsigned int j = 0; j < sim->numberOfNeighbors(m, m, i); j++)
+				{
+					const unsigned int neighborIndex = sim->getNeighbor(m, m, i, j);
+					const Vector3r &xj = fm->getPosition(neighborIndex);
+					const Vector3r &vj = fm->getVelocity(neighborIndex);
+					const Real W = sim->W(xi - xj);
+					// const Vector3r vji = vj - vi;
+					const Real mj = fm->getMass(neighborIndex);
+					const Real rhoj = fm->getDensity(neighborIndex);
+					avgVel += vj * mj / rhoj * W;
+				}
+				const Vector3r diff = vi - avgVel;
+				const Vector3r newV = vi - diff * m_smoothVelocityFactor;
+				fm->setVelocity(i, newV);
+			}
+		}
+	}
 }

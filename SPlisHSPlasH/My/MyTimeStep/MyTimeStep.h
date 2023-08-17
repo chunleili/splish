@@ -54,6 +54,8 @@ namespace SPH
 		static int USE_DIVERGENCE_SOLVER;
 		inline static int DAMP_VELOCITY_FLAG = -1;
 		inline static int DAMP_VELOCITY_FACTOR = -1;
+		inline static int SMOOTH_VELOCITY_FLAG = -1;
+		inline static int SMOOTH_VELOCITY_FACTOR = -1;
 
 		MyTimeStep();
 		virtual ~MyTimeStep(void);
@@ -61,8 +63,11 @@ namespace SPH
 		virtual void reset();
 		virtual void resize();
 		void dampVelocity();
+		void smoothVelocity();
 
 		bool m_dampVelocityFlag = false;
 		float m_dampVelocityFactor = 0.0;
+		bool m_smoothVelocityFlag = false;
+		float m_smoothVelocityFactor = 0.0f;
 	};
 }

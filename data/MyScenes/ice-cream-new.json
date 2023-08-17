@@ -2,13 +2,13 @@
 	"Configuration": 
 	{
 		"particleRadius": 0.013,
-		"numberOfStepsPerRenderUpdate": 4,
+		"numberOfStepsPerRenderUpdate": 1,
 		"density0": 1000, 
-		"simulationMethod": 4,
+		"simulationMethod": 7,
 		"gravitation": [0,-9.81,0], 
-		"timeStepSize": 0.005,
+		"timeStepSize": 1e-4,
 		"cflMethod": 1, 
-		"cflFactor": 1,
+		"cflFactor": 0.4,
 		"cflMaxTimeStepSize": 0.005,
 		"maxIterations": 100,
 		"maxError": 0.05,
@@ -22,7 +22,8 @@
 		"enableZSort": false,
 		"pauseAt": 5.0,
 		"useCarriedPartioData": true,
-		"enableMyPartioExport": true
+		"enableMyPartioExport": true,
+		"dataExportFPS ":100
 	},
 	"Materials": [
 		{
@@ -32,13 +33,13 @@
 			"colorField": "temperature",
 			"colorMapType": 1,
 			"renderMaxValue": 1.0,
-			"viscosity0": 1000,
+			"viscosity0": 20,
 			"diffusivity": 30.0,
-			"surfaceSource0": 1.0,
-			"isIceCreamScene": true,
-			"rSource": 0.253,
-			"decay": 10.0,
-			"thresLow": 0.3
+			"rSource": 0.0,
+			"decay": 5.0,
+			"thresLow": 0.3,
+			"viscoMaxIter":1000,
+			"viscoMaxError": 0.001
 		}
 	],
 	"RigidBodies": [
@@ -51,7 +52,7 @@
 			"isDynamic": false,
 			"isWall": false,
 			"mapInvert": false, 
-			"mapThickness":  0.0 ,
+			"mapThickness":  1.0 ,
 			"mapResolution": [30,30,30],
 			"friction" : 0.1,
 			"restitution" : 0.1,

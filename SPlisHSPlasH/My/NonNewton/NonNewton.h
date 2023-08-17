@@ -33,8 +33,8 @@ namespace SPH
 		void computeViscosityBingham();
 		void computeViscosityHerschelBulkley();
 		void calcStrainRate();
-		void smoothVelocity();
-		void dampVelocity();
+		// void smoothVelocity();
+		// void dampVelocity();
 		void viscosityChangeWithTime();
 		void controlledByTemperature();
 		Real FNorm(const Vector6r& vec) const;
@@ -59,10 +59,10 @@ namespace SPH
 		float m_maxViscosity = 0.0f;
 		float m_avgViscosity = 0.0f;
 		float m_minViscosity = 0.0f;
-		bool m_smoothVelocityFlag = false;
-		float m_smoothVelocityFactor = 0.0f;
-		bool m_dampVelocityFlag = false;
-		float m_dampVelocityFactor=0.0f;
+		// bool m_smoothVelocityFlag = false;
+		// float m_smoothVelocityFactor = 0.0f;
+		// bool m_dampVelocityFlag = false;
+		// float m_dampVelocityFactor=0.0f;
 		bool m_changeWithTimeFlag = false;
 		float m_coeffA = 0.0f;
 		float m_coeffB = 0.0f;
@@ -96,10 +96,10 @@ namespace SPH
 		inline static int BINGHAM_ = -1;
 		inline static int HERSCHEL_BULKLEY_ = -1;
 
-		inline static int SMOOTH_VELOCITY_FLAG = -1;
-		inline static int SMOOTH_VELOCITY_FACTOR = -1;
-		inline static int DAMP_VELOCITY_FLAG = -1;
-		inline static int DAMP_VELOCITY_FACTOR = -1;
+		// inline static int SMOOTH_VELOCITY_FLAG = -1;
+		// inline static int SMOOTH_VELOCITY_FACTOR = -1;
+		// inline static int DAMP_VELOCITY_FLAG = -1;
+		// inline static int DAMP_VELOCITY_FACTOR = -1;
 		inline static int CHANGE_WITH_TIME_FLAG = -1;
 		inline static int VISCOSITY_WITH_TIME_PART = -1;
 		inline static int COEFF_A = -1;
