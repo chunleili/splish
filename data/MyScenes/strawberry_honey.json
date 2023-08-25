@@ -18,18 +18,22 @@
 		"exponent": 7,
 		"velocityUpdateMethod": 0,
 		"enableDivergenceSolver": true,
-		"boundaryHandlingMethod": 2
+		"boundaryHandlingMethod": 2,
+		"stopAt":10.0,
+		"enableMyPartioExport": true
 	},
 	"Materials": [
 		{
 			"id": "Fluid",
 			"surfaceTension": 0.2,
 			"surfaceTensionMethod": 0,
-			"viscosity": 1,
-			"viscosityBoundary": 1,
+			"viscosity": 5,
+			"viscosityBoundary": 5,
 			"viscosityMethod": 7,
 			"viscoMaxIter": 200, 
-			"viscoMaxError": 0.05
+			"viscoMaxError": 0.05,
+			"maxEmitterParticles": 1000000,
+			"emitterReuseParticles": false
 		}
 	],
 	"RigidBodies": [
@@ -38,7 +42,7 @@
 			"translation": [0,-0.25,0],
 			"rotationAxis": [1, 0, 0],
 			"rotationAngle": 0,
-			"scale": [5, 0.5, 5],
+			"scale": [15, 0.5, 15],
 			"color": [0.1, 0.4, 0.6, 1.0], 
 			"isDynamic": false,
 			"isWall": false,
@@ -47,11 +51,10 @@
 			"mapResolution": [30,20,30]
 		},
 		{
-			"geometryFile": "../models/Dragon_50k.obj",
-			"translation": [0,0.05,0],
+			"geometryFile": "../largeModels/strawberry_for_sim.obj",
+			"scale":[1,1,1],
 			"rotationAxis": [0, 1, 0],
 			"rotationAngle": 0,
-			"scale": [2, 2, 2], 
 			"color": [0.1, 0.4, 0.6, 1.0], 
 			"isDynamic": false,
 			"isWall": false,
@@ -60,12 +63,16 @@
 			"mapResolution": [20,20,20]
 		}
 	],
-	"FluidModels": [
+	"Emitters": [
 		{
-			"particleFile": "../models/bunny.bgeo",
-			"translation": [0.0, 1.8, -0.2],
-			"rotationAxis": [0, 1, 0],
-			"rotationAngle": 1.57
+			"id":"Fluid",
+			"width": 8, 
+			"translation": [1.0,5,0.2],
+			"rotationAxis": [0, 0, 1],
+			"rotationAngle": -1.57,
+			"velocity": 1,
+			"type": 1,
+			"emitEndTime": 10
 		}
 	]
 }
