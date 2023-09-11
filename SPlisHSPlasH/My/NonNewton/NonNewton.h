@@ -71,6 +71,7 @@ namespace SPH
 		Real m_viscosityWithTimePart = 0.0f;//those should be added to viscosity
 		bool m_controlledByTemperatureFlag = false;
 		float m_temperature_threshold = 0.3f;
+		float m_smoothStrainRateFactor = 0.0f;
 
 		inline static int VISCOSITY_COEFFICIENT;
 		inline static int VISCOSITY_COEFFICIENT_BOUNDARY;
@@ -108,6 +109,8 @@ namespace SPH
 		inline static int COEFF_D = -1;
 
 		inline static int CONTROLLED_BY_TEMPERATURE_FLAG = -1;
+		inline static int SMOOTH_STRAIN_RATE_FACTOR = -1;
+
 
 		NonNewton(FluidModel *model);
         virtual void init() override;
@@ -117,6 +120,7 @@ namespace SPH
         static NonPressureForceBase* creator(FluidModel* model) {return new NonNewton(model);}
 
 		std::vector<float>& getViscosity() { return m_nonNewtonViscosity; }
+		void NonNewton::smoothStrainRate();
 
 		unsigned int numParticles;
 	};

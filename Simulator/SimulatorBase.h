@@ -50,6 +50,7 @@ namespace SPH
 		bool m_doPause;
 		Real m_pauseAt;
 		Real m_stopAt;
+		int m_maxFrame;
 		bool m_cmdLineStopAt;
 		bool m_cmdLineNoInitialPause;
 		bool m_enableRigidBodyVTKExport;
@@ -122,6 +123,8 @@ namespace SPH
 		static int RENDER_WALLS;
 		static int EXPORT_OBJECT_SPLITTING;
 		inline static int USE_CARRIED_PARTIO_DATA = -1;
+		inline static int MAX_FRAME = -1;
+		inline static int FRAME_COUNTER = -1;
 		
 		static int ENUM_WALLS_NONE;
 		static int ENUM_WALLS_PARTICLES_ALL;
@@ -226,6 +229,9 @@ namespace SPH
 		void activateExporter(const std::string& exporterName, const bool active);
 
 		void updateGUI() { m_updateGUI = true; }
+
+
+		unsigned int getFrameCounter() const { return m_frameCounter; }
 
 #ifdef USE_EMBEDDED_PYTHON
 		ScriptObject* getScriptObject() { return m_scriptObject; }

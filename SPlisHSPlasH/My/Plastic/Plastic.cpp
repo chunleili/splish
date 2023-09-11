@@ -328,6 +328,11 @@ void Plastic::computePlasticStrain(int i, Vector6r &strain)
 	Real ratio = (plasticLimit / plasticNorm);
 	Real min = 1.0 < ratio ? 1.0 : ratio;
 	m_plasticStrain[i] = newPlastic * min;
+
+	if (plasticNorm > plasticLimit)
+		m_isFracture[i] = 1;
+	else
+		m_isFracture[i] = 0;
 }
 
 
@@ -342,6 +347,9 @@ void Plastic::computeForces()
 		#pragma omp for schedule(static)  
 		for (int i = 0; i < (int)numParticles; i++)
 		{
+			if (m_isFracture[i] == 1)
+				continue; //jump over the fractured particles
+
 			if (m_model->getParticleState(i) == ParticleState::Active)
 			{
 				const unsigned int i0 = m_current_to_initial_index[i];

@@ -142,6 +142,9 @@ void NonNewton::initParameters()
 	CONTROLLED_BY_TEMPERATURE_FLAG = createBoolParameter("controlledByTemperature", "controlledByTemperature", &m_controlledByTemperatureFlag);
 	setGroup(CONTROLLED_BY_TEMPERATURE_FLAG, "Viscosity");
 
+	SMOOTH_STRAIN_RATE_FACTOR = createNumericParameter("smoothStrainRateFactor", "smoothStrainRateFactor", &m_smoothStrainRateFactor);
+	setGroup(SMOOTH_STRAIN_RATE_FACTOR, "Viscosity");
+
 }
 
 
@@ -461,3 +464,43 @@ void NonNewton::controlledByTemperature()
 		}
 	}
 } 
+
+
+
+void NonNewton::smoothStrainRate()
+{
+	if (m_smoothStrainRateFactor == 0.0f)
+		return;
+
+	Simulation *sim = Simulation::getCurrent();
+	const unsigned int nModels = sim->numberOfFluidModels();
+
+	for (unsigned int m = 0; m < nModels; m++)
+	{
+		FluidModel *fm = sim->getFluidModel(m);
+		const unsigned int numParticles = fm->numActiveParticles();
+
+		#pragma omp parallel default(shared)
+		{
+			#pragma omp for schedule(static)
+			for (int i = 0; i < numParticles; ++i)
+			{
+				const Vector3r &xi = fm->getPosition(i);
+				// const Vector3r &vi = fm->getVelocity(i);
+				const Real density_i = fm->getDensity(i);
+				Vector6r avg = Vector6r::Zero();
+				for (unsigned int j = 0; j < sim->numberOfNeighbors(m, m, i); j++)
+				{
+					const unsigned int neighborIndex = sim->getNeighbor(m, m, i, j);
+					const Vector3r &xj = fm->getPosition(neighborIndex);
+					const Real W = sim->W(xi - xj);
+					const Real mj = fm->getMass(neighborIndex);
+					const Real rhoj = fm->getDensity(neighborIndex);
+					avg += m_strainRate[j] * mj / rhoj * W;
+				}
+				const Vector6r diff = m_strainRate[i] - avg;
+				m_strainRate[i] = m_strainRate[i] - diff * m_smoothStrainRateFactor;
+			}
+		}
+	}
+}

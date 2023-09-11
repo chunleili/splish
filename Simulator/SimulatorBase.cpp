@@ -71,6 +71,7 @@ SimulatorBase::SimulatorBase()
     m_doPause = true;
     m_pauseAt = -1.0;
     m_stopAt = -1.0;
+    m_maxFrame = INT32_MAX;
     m_useParticleCaching = true;
     m_useGUI = true;
     m_enableRigidBodyVTKExport = false;
@@ -119,6 +120,11 @@ void SimulatorBase::initParameters()
 {
     ParameterObject::initParameters();
 
+    FRAME_COUNTER = createNumericParameter("frame", "current frame", &m_frameCounter);
+    setGroup(FRAME_COUNTER, "General");
+    getParameter(FRAME_COUNTER)->setReadOnly(true);
+
+
     PAUSE = createBoolParameter("pause", "Pause", &m_doPause);
     setGroup(PAUSE, "General");
     setDescription(PAUSE, "Pause simulation.");
@@ -131,6 +137,9 @@ void SimulatorBase::initParameters()
     STOP_AT = createNumericParameter("stopAt", "Stop simulation at", &m_stopAt);
     setGroup(STOP_AT, "General");
     setDescription(STOP_AT, "Stop simulation at the given time. When the value is negative, the simulation is not stopped.");
+
+    MAX_FRAME = createNumericParameter("maxFrame", "Stop simulation at frame", &m_maxFrame);
+    setGroup(MAX_FRAME, "General");
 
     NUM_STEPS_PER_RENDER = createNumericParameter("numberOfStepsPerRenderUpdate", "# time steps / update", &m_numberOfStepsPerRenderUpdate);
     setGroup(NUM_STEPS_PER_RENDER, "Visualization");
@@ -853,7 +862,7 @@ void SimulatorBase::timeStep()
     }
 
     const Real stopAt = getValue<Real>(SimulatorBase::STOP_AT);
-    if (m_gui && (stopAt > 0.0) && (stopAt < TimeManager::getCurrent()->getTime()))
+    if (m_gui && (stopAt > 0.0) && (stopAt < TimeManager::getCurrent()->getTime()) || m_frameCounter > m_maxFrame)
         m_gui->stop();
 
     const Real pauseAt = getValue<Real>(SimulatorBase::PAUSE_AT);
@@ -912,7 +921,7 @@ void SimulatorBase::timeStep()
 bool SimulatorBase::timeStepNoGUI()
 {
     const Real stopAt = getValue<Real>(SimulatorBase::STOP_AT);
-    if ((stopAt > 0.0) && (stopAt < TimeManager::getCurrent()->getTime()))
+    if ((stopAt > 0.0) && (stopAt < TimeManager::getCurrent()->getTime()) || m_frameCounter > m_maxFrame)
         return false;
 
     // Simulation code
@@ -1565,6 +1574,7 @@ void SimulatorBase::step()
             m_rbExporters[i].m_exporter->step(m_frameCounter);
 
         m_frameCounter++;
+        printf("Frame: %d\n", m_frameCounter);
     }
     if (TimeManager::getCurrent()->getTime() >= m_nextFrameTimeState)
     {

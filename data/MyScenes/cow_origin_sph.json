@@ -2,8 +2,8 @@
 	"Configuration": 
 	{
 		"timeStepSize": 1e-4,
-		"particleRadius": 0.002,
-		"simulationMethod": 7,
+		"particleRadius": 0.004,
+		"simulationMethod": 4,
 		"numberOfStepsPerRenderUpdate": 2,
 		"gravitation": [0,-9.81,0],
 		"cflMethod": 1, 
@@ -17,34 +17,21 @@
 		"enableDivergenceSolver": true,
 		"boundaryHandlingMethod": 2,
 		"dataExportFPS": 24,
-		"stopAt": 12.5,
+		"stopAt": 3.0,
 		"particleAttributes": "velocity;",
 		"dampVelocityFlag": false,
 		"dampVelocityFactor": 0.01,
-		"smoothVelocityFlag": true,
-		"smoothVelocityFactor": 0.8,
 		"enableMyPartioExport": true
 	},
 	"Materials": [
 		{
 			"id": "fluid",
-			"colorField": "strainRateNorm",
-			"surfaceTensionMethod": 7,
-			"viscosityMethod": 13,
-			"nonNewtonMethod": 0,
+			"colorField": "velocity",
+			"viscosity": 1000,
+			"viscosityMethod": 7,	
 			"viscoMaxError": 0.01,
 			"viscoMaxIter": 1000,
-			"viscosityBoundary": 10,
-			"viscosity0": 80,
-			"viscosity_inf": 5,
-			"power_index":0.95,
-			"consistency_index":1.0,
-			"muC": 0.3,
-			"yieldStress": 2,
-			"criticalStrainRate": 1e-1,
-			"changeWithTimeFlag": false,
-			"coeffC": 0.0,
-			"elasticityMethod": 0
+			"viscosityBoundary": 1000
 		}
 	],
 	"RigidBodies": [

@@ -19,8 +19,9 @@
 		"velocityUpdateMethod": 0,
 		"enableDivergenceSolver": true,
 		"boundaryHandlingMethod": 2,
-		"stopAt":10.0,
-		"enableMyPartioExport": true
+		"stopAt":8.0,
+		"enableMyPartioExport": false,
+		"dataExportFPS": 25
 	},
 	"Materials": [
 		{
