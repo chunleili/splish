@@ -58,7 +58,7 @@ namespace SPH
 		bool m_enableStateExport;
 		bool m_enableAsyncExport;
 		bool m_enableObjectSplitting;
-		bool m_useCarriedPartioData;
+		bool m_useCarriedPartioData=false;
 		Real m_framesPerSecond;
 		Real m_framesPerSecondState;
 		std::string m_particleAttributes;

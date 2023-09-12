@@ -18,12 +18,13 @@
 		"velocityUpdateMethod": 0,
 		"enableDivergenceSolver": true,
 		"boundaryHandlingMethod": 2,
-		"particleAttributes": "velocity;nonNewtonViscosity;",
+		"particleAttributes": "velocity;nonNewtonViscosity;strainRateNorm",
 		"cflMinTimeStepSize": 0.00001,
 		"stopAt": 10.0,
 		"noGUI": true,
 		"enableMyPartioExport": true,
-		"enableRigidBodyOBJExport":true
+		"enableRigidBodyOBJExport":true,
+		"useCarriedPartioData": false
 	},
 	"Simulation": 
 	{
