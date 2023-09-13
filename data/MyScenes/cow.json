@@ -21,9 +21,9 @@
 		"particleAttributes": "velocity;",
 		"dampVelocityFlag": false,
 		"dampVelocityFactor": 0.01,
-		"smoothVelocityFlag": true,
-		"smoothVelocityFactor": 0.8,
-		"enableMyPartioExport": true
+		"smoothVelocityFlag": false,
+		"smoothVelocityFactor": 0.1,
+		"enableMyPartioExport": false
 	},
 	"Materials": [
 		{
@@ -31,20 +31,21 @@
 			"colorField": "strainRateNorm",
 			"surfaceTensionMethod": 7,
 			"viscosityMethod": 13,
-			"nonNewtonMethod": 0,
+			"nonNewtonMethod": 6,
 			"viscoMaxError": 0.01,
 			"viscoMaxIter": 1000,
 			"viscosityBoundary": 10,
-			"viscosity0": 80,
-			"viscosity_inf": 5,
-			"power_index":0.95,
+			"viscosity0": 60,
+			"viscosity_inf": 10,
+			"power_index":0.9,
 			"consistency_index":1.0,
 			"muC": 0.3,
 			"yieldStress": 2,
-			"criticalStrainRate": 1e-1,
+			"criticalStrainRate": 1e-3,
 			"changeWithTimeFlag": false,
-			"coeffC": 0.0,
-			"elasticityMethod": 0
+			"coeffC": 5.0,
+			"elasticityMethod": 0,
+			"smoothStrainRateFactor": 0.999
 		}
 	],
 	"RigidBodies": [

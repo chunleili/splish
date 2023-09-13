@@ -28,6 +28,16 @@ This is a forked repo from https://github.com/InteractiveComputerGraphics/SPlisH
 ## 非牛顿
 非牛顿目前实现方式是通过NonNewton类，根据不同的子模型计算出粘度，然后将粘度付给不同的粘性子模型。这就需要对原有的粘性子模型进行非常轻微但侵入式的改动。基本上是将原本的粘度（一个标量）改为向量，让每个粒子的粘度都不相同。
 
+非牛顿模型编号如下：
+0. Newtonian
+1. PowerLaw
+2. Cross
+3. Casson
+4. Carreau
+5. Bingham
+6. HerschelBulkley
+
+2,3,4可以归结为一类，即剪切变稀型趋于mu0和mu_inf。5,6可以归为一类，即宾汉流体型，当剪切率小于阈值的时候，粘度很大(为mu0)。
 
 ## 其他
 
