@@ -2,7 +2,7 @@
 	"Configuration": 
 	{
 		"timeStepSize": 1e-4,
-		"particleRadius": 0.004,
+		"particleRadius": 0.0019,
 		"simulationMethod": 4,
 		"numberOfStepsPerRenderUpdate": 2,
 		"gravitation": [0,-9.81,0],
@@ -16,8 +16,8 @@
 		"velocityUpdateMethod": 0,
 		"enableDivergenceSolver": true,
 		"boundaryHandlingMethod": 2,
-		"dataExportFPS": 24,
-		"stopAt": 3.0,
+		"dataExportFPS": 100,
+		"stopAt": 1.0,
 		"particleAttributes": "velocity;",
 		"dampVelocityFlag": false,
 		"dampVelocityFactor": 0.01,
@@ -27,11 +27,11 @@
 		{
 			"id": "fluid",
 			"colorField": "velocity",
-			"viscosity": 1000,
+			"viscosity": 40,
 			"viscosityMethod": 7,	
-			"viscoMaxError": 0.01,
+			"viscoMaxError": 0.1,
 			"viscoMaxIter": 1000,
-			"viscosityBoundary": 1000
+			"viscosityBoundary": 0.0
 		}
 	],
 	"RigidBodies": [
