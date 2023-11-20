@@ -20,7 +20,7 @@
 		"enableDivergenceSolver": true,
 		"boundaryHandlingMethod": 2,
 		"stopAt":8.0,
-		"enableMyPartioExport": false,
+		"enableMyPartioExport": true,
 		"dataExportFPS": 25
 	},
 	"Materials": [
@@ -28,8 +28,8 @@
 			"id": "Fluid",
 			"surfaceTension": 0.2,
 			"surfaceTensionMethod": 0,
-			"viscosity": 5,
-			"viscosityBoundary": 5,
+			"viscosity": 15,
+			"viscosityBoundary": 15,
 			"viscosityMethod": 7,
 			"viscoMaxIter": 200, 
 			"viscoMaxError": 0.05,
@@ -71,7 +71,7 @@
 			"translation": [1.0,5,0.2],
 			"rotationAxis": [0, 0, 1],
 			"rotationAngle": -1.57,
-			"velocity": 1,
+			"velocity": 1.66,
 			"type": 1,
 			"emitEndTime": 10
 		}

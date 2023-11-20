@@ -84,25 +84,21 @@ def test_NonNewton(model_name:str, viscosity0=1000.0, viscosity_inf=1.0, consist
 
 
 
-def draw(x, y, color='r', label=''):
-    # import matplotlib
-    # font = {'family' : 'Arial',
-    #     'size'   : 20}
+def draw(x, y, color='r', label='', linestye='solid'):
+    font = {'family' : 'Arial',
+        'size'   : 20}
 
     # matplotlib.rc('font', **font)
     
     # ax = plt.subplot(111)
-    # # 设置刻度字体大小
+    # 设置刻度字体大小
     # plt.xticks(fontsize=20)
     # plt.yticks(fontsize=20)
-    # # 设置坐标标签字体大小
+    # 设置坐标标签字体大小
     # ax.set_xlabel(..., fontsize=20)
     # ax.set_ylabel(..., fontsize=20)
-    # # 设置图例字体大小
-    # # ax.legend(..., fontsize=20)
-
-
-    import matplotlib.pyplot as plt
+    # 设置图例字体大小
+    # ax.legend(..., fontsize=20)
 
     SMALL_SIZE = 16
     MEDIUM_SIZE = 20
@@ -113,13 +109,13 @@ def draw(x, y, color='r', label=''):
     plt.rc('axes', labelsize=MEDIUM_SIZE)    # fontsize of the x and y labels
     plt.rc('xtick', labelsize=BIGGER_SIZE)    # fontsize of the tick labels
     plt.rc('ytick', labelsize=BIGGER_SIZE)    # fontsize of the tick labels
-    plt.rc('legend', fontsize=SMALL_SIZE)    # legend fontsize
+    plt.rc('legend', fontsize=BIGGER_SIZE)    # legend fontsize
     plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 
-    plt.xlabel('shear rate(FNorm)')
-    plt.ylabel('Viscosity')
+    plt.xlabel('Shear rate(1/s)')
+    plt.ylabel('Viscosity(Pa.s)')
 
-    handle = plt.plot(x, y, color, label=label,linewidth=2)
+    handle = plt.plot(x, y, color, label=label,linewidth=2, linestyle=linestye)
     return handle
 
 def run_and_draw(model_name, **kwargs):
@@ -146,7 +142,7 @@ if __name__ == "__main__":
 
     [x,y] = test_NonNewton('Newtonian')
     # np.savetxt(this_path + '/Newtonian.csv', np.array([x,y]).transpose())
-    draw(x, y, 'y', label='Newtonian')
+    draw(x, y, 'y', label='Newtonian', linestye='dashed')
     [x,y] = test_NonNewton('PowerLaw', power_index=0.667, consistency_index = 500.0) 
     # np.savetxt(this_path + '/PowerLaw.csv', np.array([x,y]).transpose())
     # draw(x, y, 'y', label='PowerLaw, power_index=0.667, consistency_index = 500.0')
@@ -165,7 +161,7 @@ if __name__ == "__main__":
     draw(x, y, 'g', label = 'Casson')
     [x,y] = test_NonNewton('Carreau', consistency_index = 0.1, power_index = 0.9)
     # np.savetxt(this_path + '/Carreau.csv', np.array([x,y]).transpose())
-    draw(x, y, 'm', label = 'Carreau,')
+    draw(x, y, 'm', label = 'Carreau')
     [x,y] = test_NonNewton('Bingham', criticalStrainRate = 1.0)
     # np.savetxt(this_path + '/Bingham.csv', np.array([x,y]).transpose())
     draw(x, y, 'r', label = 'Bingham')
