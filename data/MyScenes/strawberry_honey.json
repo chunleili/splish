@@ -19,7 +19,7 @@
 		"velocityUpdateMethod": 0,
 		"enableDivergenceSolver": true,
 		"boundaryHandlingMethod": 2,
-		"stopAt":8.0,
+		"stopAt":16.0,
 		"enableMyPartioExport": true,
 		"dataExportFPS": 25
 	},
@@ -73,7 +73,7 @@
 			"rotationAngle": -1.57,
 			"velocity": 1.66,
 			"type": 1,
-			"emitEndTime": 10
+			"emitEndTime": 16
 		}
 	]
 }

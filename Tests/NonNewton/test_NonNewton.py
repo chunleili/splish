@@ -104,6 +104,8 @@ def draw(x, y, color='r', label='', linestye='solid'):
     MEDIUM_SIZE = 20
     BIGGER_SIZE = 22
 
+    plt.rcParams['font.weight'] = 'bold'
+    
     plt.rc('font', size=SMALL_SIZE)          # controls default text sizes
     plt.rc('axes', titlesize=SMALL_SIZE)     # fontsize of the axes title
     plt.rc('axes', labelsize=MEDIUM_SIZE)    # fontsize of the x and y labels
